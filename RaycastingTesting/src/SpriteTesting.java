@@ -1,11 +1,11 @@
 import java.util.*;
 
-public class Sprite {
+public class SpriteTesting {
     public double x;
     public double y;
     public int texture;
 
-    public Sprite(double x, double y, int texture){
+    public SpriteTesting(double x, double y, int texture){
         this.x = x;
         this.y = y;
         this.texture = texture;

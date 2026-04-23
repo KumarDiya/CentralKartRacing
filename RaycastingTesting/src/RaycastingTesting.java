@@ -21,7 +21,7 @@ public class RaycastingTesting{
     public static final int TextureWidth = 64;
     public static final int TextureHeight = 64;
     public static final int MapTextureWidth = 48;
-    public static final int MapTextureHeight = 48;
+    public static final int MapTextureHeight = 56;
     public static final int SkyTextureWidth = 1000; //Theoretical Optimal is 3447 px wide lol
     public static final int SkyTextureHeight = 480;
     public static final int NumTextures = 11;
@@ -41,40 +41,40 @@ public class RaycastingTesting{
     BufferedImage screen = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
     int[] screenArr = ((DataBufferInt) screen.getRaster().getDataBuffer()).getData();
 
-    //Sprite Variables
+    //SpriteTesting Variables
     double[] zBuffer = new double[ResolutionWidth];
     public static final int NumSprites = 20;
     int[] spriteOrder = new int[NumSprites];
     double[] spriteDistance = new double[NumSprites];
 
-    Sprite[] sprite = {
-        new Sprite(20.5, 11.5, 10), //green light in front of playerstart
+    SpriteTesting[] sprite = {
+        new SpriteTesting(20.5, 11.5, 10), //green light in front of playerstart
         //green lights in every room
-        new Sprite(18.5,4.5, 10),
-        new Sprite(10.0,4.5, 10),
-        new Sprite(10.0,12.5,10),
-        new Sprite(3.5, 6.5, 10),
-        new Sprite(3.5, 20.5,10),
-        new Sprite(3.5, 14.5,10),
-        new Sprite(14.5,20.5,10),
+        new SpriteTesting(18.5,4.5, 10),
+        new SpriteTesting(10.0,4.5, 10),
+        new SpriteTesting(10.0,12.5,10),
+        new SpriteTesting(3.5, 6.5, 10),
+        new SpriteTesting(3.5, 20.5,10),
+        new SpriteTesting(3.5, 14.5,10),
+        new SpriteTesting(14.5,20.5,10),
 
         //row of pillars in front of wall: fisheye test
-        new Sprite(18.5, 10.5, 9),
-        new Sprite(18.5, 11.5, 9),
-        new Sprite(18.5, 12.5, 9),
+        new SpriteTesting(18.5, 10.5, 9),
+        new SpriteTesting(18.5, 11.5, 9),
+        new SpriteTesting(18.5, 12.5, 9),
 
         //some barrels around the map
-        new Sprite(21.5, 1.5, 8),
-        new Sprite(15.5, 1.5, 8),
-        new Sprite(16.0, 1.8, 8),
-        new Sprite(16.2, 1.2, 8),
-        new Sprite(3.5,  2.5, 8),
-        new Sprite(9.5, 15.5, 8),
-        new Sprite(10.0, 15.1,8),
-        new Sprite(10.5, 15.8,8),
+        new SpriteTesting(21.5, 1.5, 8),
+        new SpriteTesting(15.5, 1.5, 8),
+        new SpriteTesting(16.0, 1.8, 8),
+        new SpriteTesting(16.2, 1.2, 8),
+        new SpriteTesting(3.5,  2.5, 8),
+        new SpriteTesting(9.5, 15.5, 8),
+        new SpriteTesting(10.0, 15.1,8),
+        new SpriteTesting(10.5, 15.8,8),
 
         //Player Barrel
-        new Sprite(0, 0, 8)
+        new SpriteTesting(0, 0, 8)
     };
 
     RaycastingTesting () {
@@ -311,7 +311,7 @@ public class RaycastingTesting{
                 spriteDistance[i] = ((cameraPos.x - sprite[i].x)*(cameraPos.x - sprite[i].x) + (cameraPos.y - sprite[i].y)*(cameraPos.y - sprite[i].y));
             }
 
-            Sprite.sortSprites(spriteOrder, spriteDistance, NumSprites);
+            SpriteTesting.sortSprites(spriteOrder, spriteDistance, NumSprites);
 
             for (int i = 0; i < NumSprites; i++){
                 Vector spriteCamPos = new Vector(sprite[spriteOrder[i]].x - cameraPos.x, sprite[spriteOrder[i]].y - cameraPos.y);
