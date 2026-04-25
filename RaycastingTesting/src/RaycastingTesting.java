@@ -339,8 +339,7 @@ public class RaycastingTesting{
                 if(drawEndX >= ResolutionWidth) drawEndX = ResolutionWidth - 1;
 
                 //loop through every vertical stripe of the sprite on screen
-                for(int stripe = drawStartX; stripe < drawEndX; stripe++)
-                {
+                for(int stripe = drawStartX; stripe < drawEndX; stripe++) {
                     int texX = (int)(256 * (long)(stripe - (-spriteWidth / 2 + spriteScreenX)) * TextureWidth / spriteWidth) / 256;
                     //the conditions in the if are:
                     //1) it's in front of camera plane so you don't see things behind you
@@ -352,7 +351,6 @@ public class RaycastingTesting{
                             int d = (y) * 256 - ResolutionHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
                             int texY = (int)((((long) d * TextureHeight) / spriteHeight) / 256);
                             int color;
-                            //try {
                             color = texture[sprite[spriteOrder[i]].texture][texX][texY]; //get current color from the texture
                             if((color & 0x00FFFFFF) != 0) screenArr[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
                             

@@ -24,16 +24,17 @@ public class Texture {
     }
 
     private void loadTexture(String imageFilePath, int width, int height) {
-        String filePath = "CentralKartRacing\\src\\" + imageFilePath + ".java";
         try {
-            textureImage = ImageIO.read(new File(filePath));
+            texture = new int[TextureWidth][TextureHeight];
+            textureImage = ImageIO.read(new File(imageFilePath));
+            for (int i = 0; i < TextureWidth; i++) {
+                for (int j = 0; j < TextureHeight; j++) {
+                    texture[i][j] = textureImage.getRGB(i, j);
+                }
+            }
         } catch (IOException e) {
             System.out.println("A texture failed to load.");
         }
-        for (int i = 0; i < TextureWidth; i++) {
-            for (int j = 0; j < TextureHeight; j++) {
-                texture[i][j] = textureImage.getRGB(i, j);
-            }
-        }
+        
     }
 }
