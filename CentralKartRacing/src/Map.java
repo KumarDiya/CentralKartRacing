@@ -12,17 +12,16 @@ public class Map {
 
     public int[][] wallMap; //The map determining the location of walls.
     public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
-    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.
+    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.\
+
+    private int numSprites; //The number of sprites.
+    public Sprite[] sprites; //The sprites used in the level.
 
     public Texture groundTexture; //The texture used for the ground.
     public Texture skyTexture; //The texture used for the skybox.
 
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
-
-    private int numSprites; //The number of sprites.
-
-    public Sprite[] sprites; //The sprites used in the level.
 
     //Constants used for file access. 
     final String wallMapFile = "wallMap.txt";
@@ -46,6 +45,26 @@ public class Map {
         loadGroundMap();
         loadSpriteMap();
         loadWallTextures();
+    }
+
+    /**
+     * Gets the width of the map.
+     * @return  The width of the map.
+     */
+    public int getWidth() {
+        return mapWidth;
+    }
+
+    /**
+     * Gets the height of the map.
+     * @return  The height of the map.
+     */
+    public int getHeight() {
+        return mapHeight;
+    }
+
+    public int getNumSprites() {
+        return numSprites;
     }
 
     /**

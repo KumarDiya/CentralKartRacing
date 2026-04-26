@@ -11,16 +11,26 @@ public class Texture {
     public BufferedImage textureImage;
     public int[][] texture;
 
+    public static final int DefaultSize = 64; 
+
     public Texture (String imageFilePath) {
-        TextureWidth = 64;
-        TextureHeight = 64;
-        loadTexture(imageFilePath, 64, 64);
+        TextureWidth = DefaultSize;
+        TextureHeight = DefaultSize;
+        loadTexture(imageFilePath, DefaultSize, DefaultSize);
     }
 
     public Texture (String imageFilePath, int width, int height) {
         TextureWidth = width;
         TextureHeight = height;
         loadTexture(imageFilePath, width, height);
+    }
+
+    public int getWidth() {
+        return TextureWidth;
+    }
+
+    public int getHeight() {
+        return TextureHeight;
     }
 
     private void loadTexture(String imageFilePath, int width, int height) {

@@ -19,6 +19,7 @@ public class Player {
 	//Rotational movment vars
 	Vector direction; //The direction the player is facing.
 	final double MAX_ROTATION_SPEED = 1; //The maximum rotational speed of the character.
+	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
 	double rotationSpeed; //The current rotational speed of the character.
 	final double HANDLING = 1; //The rotational acceleration of the character.
 	
