@@ -4,26 +4,27 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class Map {
-    private String mapFolder;
+    private String mapFolder; //The folder all map files are found in.
     private String name;
 
     private int mapWidth;
     private int mapHeight;
 
-    public int[][] wallMap;
-    public int[][] groundMap;
+    public int[][] wallMap; //The map determining the location of walls.
+    public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
+    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.
 
-    public Texture groundTexture;
-    public Texture skyTexture;
+    public Texture groundTexture; //The texture used for the ground.
+    public Texture skyTexture; //The texture used for the skybox.
 
-    public Texture[] wallTextures;
-    public Texture[] spriteTextures;
+    public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
+    public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
 
-    private int numSprites;
+    private int numSprites; //The number of sprites.
 
-    public Sprite[] sprites;
+    public Sprite[] sprites; //The sprites used in the level.
 
-    final int groundMapScale = 8;
+    //Constants used for file access. 
     final String wallMapFile = "wallMap.txt";
     final String groundMapFile = "groundMap.png";
     final String spriteMapFile = "spriteMap.txt";
@@ -33,6 +34,11 @@ public class Map {
 
     final String wallTextureFolder = "wallTextures";
 
+    /**
+     * Map constructor.
+     * @param name      The name of the map.
+     * @param mapFolder The folder the map is located in.
+     */
     public Map (String name, String mapFolder){
         this.name = name;
         this.mapFolder = "CentralKartRacing\\" + mapFolder + "\\";
@@ -42,6 +48,9 @@ public class Map {
         loadWallTextures();
     }
 
+    /**
+     * Loads the wallMap from wallMap.txt
+     */
     private void loadWallMap() {
         File wallMapPath = new File(mapFolder + wallMapFile);
         try {
@@ -71,6 +80,9 @@ public class Map {
         } 
     }
 
+    /**
+     * Loads the groundMap from groundMap.png. (Png, as it's easier to visuallize)
+     */
     private void loadGroundMap() {
         File groundMapPath = new File(mapFolder + groundMapFile);
         BufferedImage groundMapImage;
@@ -98,6 +110,9 @@ public class Map {
         }
     }
 
+    /**
+     * Loads the spriteMap from spriteMap.txt
+     */
     private void loadSpriteMap() {
         File spriteMapPath = new File(mapFolder + spriteMapFile);
         try {
@@ -127,6 +142,9 @@ public class Map {
         }
     }
 
+    /**
+     * Loads the wall textures in the wallTextures folder using wallTextures.txt as a guide.
+     */
     private void loadWallTextures() {
         File wallTexturePath = new File(mapFolder + wallTextureFile);
         try {

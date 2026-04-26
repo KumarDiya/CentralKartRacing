@@ -8,7 +8,7 @@ public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
 	// double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-     //double rotSpeed = frameTime * 2.0; //the constant value is in radians/second
+    //double rotSpeed = frameTime * 2.0; //the constant value is in radians/second
 	
 	//Linear movement vars
 	Vector pos; //The position of the player.
