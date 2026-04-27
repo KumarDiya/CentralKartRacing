@@ -54,8 +54,8 @@ public class Player {
 	//GETTER AND SETTER
 	
 	public void movePlayer() {
-		pos.x += direction.x*speed;
-		pos.y += direction.y*speed;
+		pos.x += direction.x * speed;
+		pos.y += direction.y * speed;
 		
 		if () {
 			
