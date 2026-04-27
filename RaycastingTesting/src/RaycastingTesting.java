@@ -471,7 +471,7 @@ public class RaycastingTesting{
             if(side) perpWallDist = (sideDist.x - deltaDist.x);
             else perpWallDist = (sideDist.y - deltaDist.y);
     
-            if (perpWallDist > 2) cameraMult = 2;
+            if (perpWallDist > 16) cameraMult = 16;
             else cameraMult = perpWallDist - 0.01;
         
             cameraPos = pos.addVec(cameraDir.scalMult(cameraMult));

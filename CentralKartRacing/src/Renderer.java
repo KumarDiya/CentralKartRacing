@@ -1,27 +1,42 @@
+/**
+ * Renderer.java
+ * Justin Zhou
+ * The class that handles all rendering and screen control in the main game. 
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 public class Renderer extends JFrame{
-    private DrawingPanel panel;
-    private BufferedImage frame;
+    //General screen variables
+    private RaycastPanel panel;         //The JFrame panel to draw on.
+    private BufferedImage frame;        //The bufferredImage representing the screen.
+    //An integer array referencing the raw color data for the screen, used for performance optimization. 
     private int[] screenArr = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
-    public int Width;
-    public int Height;
-    public int ResolutionWidth = 750;
-    public int ResolutionHeight = 500;
+    public int Width;                   //The final width of the JPanel (screen).
+    public int Height;                  //The final height of the JPanel (screen).
+    public int ResolutionWidth = 750;   //The width of the resolution for the game to be rendered in.
+    public int ResolutionHeight = 500;  //The height of the resolution for the game to be rendered in.
     
-    private double skyPixelsPerRevolution;
-    private double angBetwRays;
-    private double skyStepX;
-    private double[] zBuffer;
+    //Skybox variables
+    private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
+    private double angBetwRays;             //The angle between two rays casted by the raycaster.
+    private double skyStepX;                //The amount to step by between pixels on the skybox when rendering.
 
-    //Bitmask to make colors darker for y-side walls and floor
-    public static final int DarkerNumber = Integer.parseInt("011111110111111101111111", 2); 
+    //Sprite variables
+    private double[] zBuffer;               //An array holding the distance to walls for casted rays from the player. Used to determine when to render sprites.
 
+    //Constants
+    public static final int DarkerNumber = Integer.parseInt("011111110111111101111111", 2); //Bitmask to make colors darker. Makes use of the bitwise 'and' bitshift operator (fun!)
+    public static final double CameraDistance = 2;  //The distance the camera will follow the player at.
+
+    /**
+     * Renderer constructor.
+     */
     public Renderer () {
-        panel = new DrawingPanel();
+        panel = new RaycastPanel();
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setUndecorated(true);
         this.add(panel);
@@ -32,6 +47,11 @@ public class Renderer extends JFrame{
         frame = new BufferedImage(Width, Height, BufferedImage.TYPE_INT_RGB);
     }
 
+    /**
+     * Sets up the renderer for a specific map and player FOV.
+     * @param map       The map to set up for.
+     * @param player    The player; uses its FOV to set up for.
+     */
     public void renderSetup(Map map, Player player) {
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
         angBetwRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
@@ -40,6 +60,11 @@ public class Renderer extends JFrame{
         zBuffer = new double[map.getNumSprites()];
     }
 
+    /**
+     * Renders a frame, setting frame to the final rendered frame.
+     * @param map       The map to be rendered.
+     * @param player    The player in the map to be rendered.
+     */
     public void render(Map map, Player player){
 
         Vector cameraPos = getCameraPos(map, player);
@@ -244,7 +269,13 @@ public class Renderer extends JFrame{
         }
     }
     
-    public Vector getCameraPos(Map map, Player player) {
+    /**
+     * Gets the current camera position by casting a ray backwards from where the player is facing and checking for collision.
+     * @param map
+     * @param player
+     * @return
+     */
+    private Vector getCameraPos(Map map, Player player) {
         //Camera Collision Detection (prevents camera from going through walls when close to them)
         Vector cameraPos;
         Vector cameraDir = player.direction.scalMult(-1);
@@ -301,7 +332,7 @@ public class Renderer extends JFrame{
         if(side) perpWallDist = (sideDist.x - deltaDist.x);
         else perpWallDist = (sideDist.y - deltaDist.y);
 
-        if (perpWallDist > 2) cameraMult = 2;
+        if (perpWallDist > CameraDistance) cameraMult = CameraDistance;
         else cameraMult = perpWallDist - 0.01;
     
         cameraPos = player.pos.addVec(cameraDir.scalMult(cameraMult));
@@ -309,12 +340,18 @@ public class Renderer extends JFrame{
         return cameraPos;
     }
 
+    /**
+     * Draws the current frame to the screen.
+     */
     public void drawFrame() {
         panel.repaint();
     }
 
-    private class DrawingPanel extends JPanel {
-        DrawingPanel() {}
+    /**
+     * The JPanel class
+     */
+    private class RaycastPanel extends JPanel {
+        RaycastPanel() {}
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
