@@ -26,7 +26,7 @@ public class SpriteTesting {
         for (int i = 0; i < amount; i++){
             sprites[i] = new IDPair(order[i], dist[i]);
         }
-        Arrays.sort(sprites, new SortByDist());
+        Arrays.sort(sprites, new SortByDistOld());
         for (int i = 0; i < amount; i++){
             order[amount - 1 - i] = sprites[i].x;
             dist[amount - 1 - i] = sprites[i].y;
@@ -57,7 +57,7 @@ class IDPair {
     }
 }
 
-class SortByDist implements Comparator<IDPair> {
+class SortByDistOld implements Comparator<IDPair> {
     public int compare(IDPair p1, IDPair p2){
         if (p1.y > p2.y) {
             return 1;

@@ -11,10 +11,12 @@ public class Texture {
     public BufferedImage textureImage;
     public int[][] texture;
 
+    public static final int DefaultSize = 64; 
+
     public Texture (String imageFilePath) {
-        TextureWidth = 64;
-        TextureHeight = 64;
-        loadTexture(imageFilePath, 64, 64);
+        TextureWidth = DefaultSize;
+        TextureHeight = DefaultSize;
+        loadTexture(imageFilePath, DefaultSize, DefaultSize);
     }
 
     public Texture (String imageFilePath, int width, int height) {
@@ -23,17 +25,26 @@ public class Texture {
         loadTexture(imageFilePath, width, height);
     }
 
+    public int getWidth() {
+        return TextureWidth;
+    }
+
+    public int getHeight() {
+        return TextureHeight;
+    }
+
     private void loadTexture(String imageFilePath, int width, int height) {
-        String filePath = "CentralKartRacing\\src\\" + imageFilePath + ".java";
         try {
-            textureImage = ImageIO.read(new File(filePath));
+            texture = new int[TextureWidth][TextureHeight];
+            textureImage = ImageIO.read(new File(imageFilePath));
+            for (int i = 0; i < TextureWidth; i++) {
+                for (int j = 0; j < TextureHeight; j++) {
+                    texture[i][j] = textureImage.getRGB(i, j);
+                }
+            }
         } catch (IOException e) {
             System.out.println("A texture failed to load.");
         }
-        for (int i = 0; i < TextureWidth; i++) {
-            for (int j = 0; j < TextureHeight; j++) {
-                texture[i][j] = textureImage.getRGB(i, j);
-            }
-        }
+        
     }
 }

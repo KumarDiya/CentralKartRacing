@@ -4,39 +4,72 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class Map {
-    private String mapFolder;
+    private String mapFolder; //The folder all map files are found in.
     private String name;
 
     private int mapWidth;
     private int mapHeight;
 
-    public int[][] wallMap;
-    public int[][] groundMap;
+    public int[][] wallMap; //The map determining the location of walls.
+    public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
+    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.\
 
-    public Texture groundTexture;
-    public Texture skyTexture;
+    private int numSprites; //The number of sprites.
+    public Sprite[] sprites; //The sprites used in the level.
 
-    public Texture[] wallTextures;
-    public Texture[] spriteTextures;
+    public Texture groundTexture; //The texture used for the ground.
+    public Texture skyTexture; //The texture used for the skybox.
 
-    private int numSprites;
+    public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
+    public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
 
-    public Sprite[] sprites;
-
-    final int groundMapScale = 8;
+    //Constants used for file access. 
     final String wallMapFile = "wallMap.txt";
     final String groundMapFile = "groundMap.png";
     final String spriteMapFile = "spriteMap.txt";
+    final String wallTextureFile = "wallTextures.txt";
+    final String groundSkyTextureFile = "groundSkyTextures.txt";
+    final String spriteTextureFile = "spriteTextures.txt";
 
+    final String wallTextureFolder = "wallTextures";
+
+    /**
+     * Map constructor.
+     * @param name      The name of the map.
+     * @param mapFolder The folder the map is located in.
+     */
     public Map (String name, String mapFolder){
         this.name = name;
         this.mapFolder = "CentralKartRacing\\" + mapFolder + "\\";
         loadWallMap();
         loadGroundMap();
+        loadSpriteMap();
+        loadWallTextures();
     }
 
-    
+    /**
+     * Gets the width of the map.
+     * @return  The width of the map.
+     */
+    public int getWidth() {
+        return mapWidth;
+    }
 
+    /**
+     * Gets the height of the map.
+     * @return  The height of the map.
+     */
+    public int getHeight() {
+        return mapHeight;
+    }
+
+    public int getNumSprites() {
+        return numSprites;
+    }
+
+    /**
+     * Loads the wallMap from wallMap.txt
+     */
     private void loadWallMap() {
         File wallMapPath = new File(mapFolder + wallMapFile);
         try {
@@ -66,7 +99,10 @@ public class Map {
         } 
     }
 
-    private void loadGroundMap () {
+    /**
+     * Loads the groundMap from groundMap.png. (Png, as it's easier to visuallize)
+     */
+    private void loadGroundMap() {
         File groundMapPath = new File(mapFolder + groundMapFile);
         BufferedImage groundMapImage;
         try {
@@ -93,7 +129,10 @@ public class Map {
         }
     }
 
-    private void loadSprites (String spritesFile) {
+    /**
+     * Loads the spriteMap from spriteMap.txt
+     */
+    private void loadSpriteMap() {
         File spriteMapPath = new File(mapFolder + spriteMapFile);
         try {
             FileReader r = new FileReader(spriteMapPath);
@@ -106,20 +145,51 @@ public class Map {
             r.close();
             r = new FileReader(spriteMapPath);
             reader = new BufferedReader(r);
-            wallMap = new int[mapWidth][mapHeight];
-            for (int x = 0; x < mapWidth; x++){
-                for (int y = 0; y < mapHeight; y++){
-                    wallMap[x][y] = reader.read() - 48;
-                }
-                reader.readLine();
+            sprites = new Sprite[numSprites];
+            for (int i = 0; i < numSprites; i++) {
+                String currentSprite = reader.readLine();
+                String[] spriteInfo = currentSprite.split(" ");
+                sprites[i] = new Sprite(Double.parseDouble(spriteInfo[0]), Double.parseDouble(spriteInfo[1]), Integer.parseInt(spriteInfo[2]));
             }
             reader.close();
             r.close();
 
         } catch (IOException e) {
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
-        } 
+        } catch (NumberFormatException e) {
+            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+        }
+    }
 
+    /**
+     * Loads the wall textures in the wallTextures folder using wallTextures.txt as a guide.
+     */
+    private void loadWallTextures() {
+        File wallTexturePath = new File(mapFolder + wallTextureFile);
+        try {
+            FileReader r = new FileReader(wallTexturePath);
+            BufferedReader reader = new BufferedReader(r);
+            int numWallTextures = 0;
+            while (reader.readLine() != null){
+                numWallTextures++;
+            }
+            reader.close();
+            r.close();
+            r = new FileReader(wallTexturePath);
+            reader = new BufferedReader(r);
+            wallTextures = new Texture[numWallTextures];
+            for (int i = 0; i < numWallTextures; i++) {
+                String wallTextureFile = mapFolder + wallTextureFolder + "\\" + reader.readLine();
+                wallTextures[i] = new Texture(wallTextureFile);
+            }
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+            System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
+        } catch (NumberFormatException e) {
+            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+        }
     }
 
     class GroundMapSizeException extends Exception {

@@ -8,7 +8,7 @@ public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
 	// double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-     //double rotSpeed = frameTime * 2.0; //the constant value is in radians/second
+    //double rotSpeed = frameTime * 2.0; //the constant value is in radians/second
 	
 	//Linear movement vars
 	Vector pos; //The position of the player.
@@ -19,6 +19,7 @@ public class Player {
 	//Rotational movment vars
 	Vector direction; //The direction the player is facing.
 	final double MAX_ROTATION_SPEED = 1; //The maximum rotational speed of the character.
+	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
 	double rotationSpeed; //The current rotational speed of the character.
 	final double HANDLING = 1; //The rotational acceleration of the character.
 	
@@ -53,8 +54,8 @@ public class Player {
 	//GETTER AND SETTER
 	
 	public void movePlayer() {
-		pos.x += direction.x*speed;
-		pos.y += direction.y*speed;
+		pos.x += direction.x * speed;
+		pos.y += direction.y * speed;
 		
 		// if () {
 			
