@@ -56,9 +56,9 @@ public class Player {
 		pos.x += direction.x*speed;
 		pos.y += direction.y*speed;
 		
-		if () {
+		// if () {
 			
-		}
+		// }
 		//slight change idea: make direction able to be negative so when backing up, * by -1
 		
 		/*
@@ -107,12 +107,15 @@ Used in movePlayer().
 Returns a boolean array of length 4; each boolean corresponds to a collision with a direction of wall (pos x, pos y, neg x, neg y)
 
 	 */
-	public boolean[] checkStoppingCollisions() {
+	public boolean[] checkStoppingCollisions(int[][] wallMap) {
 		boolean[] wallCollisions = new boolean[4];
 		
 		//old collisions
 		//if(map[(int)(pos.x + dir.x * moveSpeed)][(int)pos.y] == 0) 
         //if(map[(int)pos.x][(int)(pos.y + dir.y * moveSpeed)] == 0) 
+		
+		
+		
 		
 		return wallCollisions;
 	}
@@ -123,7 +126,8 @@ Returns an integer corresponding to the type of ground currently being collided 
 0 for road, 1 for grass, 2 for sand/gravel, 3 for a boost pad, etc.
 
 	 */
-	public int checkGroundCollisions() {
+	public int checkGroundCollisions(int[][] groundMap) {
+		
 		int x = 0;
 		
 		return x;
