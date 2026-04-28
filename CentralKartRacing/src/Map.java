@@ -1,6 +1,5 @@
-import java.io.*;
 import java.awt.image.BufferedImage;
-
+import java.io.*;
 import javax.imageio.ImageIO;
 
 public class Map {
@@ -22,16 +21,21 @@ public class Map {
 
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
+    public Texture[] groundTextures; //The textures of the ground, index determined by order of placement in groundTexture.txt
 
     //Constants used for file access. 
     final String wallMapFile = "wallMap.txt";
     final String groundMapFile = "groundMap.png";
     final String spriteMapFile = "spriteMap.txt";
     final String wallTextureFile = "wallTextures.txt";
-    final String groundSkyTextureFile = "groundSkyTextures.txt";
+    final String groundTextureFile = "groundTextures.txt";
+    final String skyTextureFile = "skyTextures.txt";
     final String spriteTextureFile = "spriteTextures.txt";
 
     final String wallTextureFolder = "wallTextures";
+    final String groundTextureFolder = "groundTextures";
+    final String skyTextureFolder = "skyTextures";
+    final String spriteTextureFolder = "spriteTextures";
 
     /**
      * Map constructor.
@@ -204,6 +208,7 @@ public class Map {
         } catch (IOException e) {
             //Error handling for IO errors.
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
+<<<<<<< Updated upstream
         } 
     }
 
@@ -211,6 +216,108 @@ public class Map {
      * A special exception class for the case where the groundMap doesn't match the size its supposed to.
      */
     private class GroundMapSizeException extends Exception {
+=======
+        } catch (NumberFormatException e) {
+            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+        }
+    }
+    
+    /**
+     * Loads the ground textures in the groundTexture folder using groundTexture.txt as a guide
+     */
+    private void loadGroundTexture(){
+        File groundTexturePath = new File(mapFolder + groundTextureFile);
+    	try {
+            FileReader r = new FileReader(groundTexturePath);
+            BufferedReader reader = new BufferedReader(r);
+            int numGroundTextures = 0;
+            while (reader.readLine() != null){
+                numGroundTextures ++;
+            }
+            reader.close();
+            r.close();
+            r = new FileReader(groundTexturePath);
+            reader = new BufferedReader(r);
+            for (int i = 0; i < numGroundTextures; i++){
+                String groundTextureFile = mapFolder + groundTextureFolder + "\\" + reader.readLine();
+                groundTextures[i] = new Texture(groundTextureFile);
+            }
+
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
+        } catch (NumberFormatException e) {
+            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+        
+        }
+    }
+
+    /**
+     * Loads the sky textures in the skyTexture folder using skyTexture.txt as a guide
+     */
+    private void loadSkyTexture(){
+        File skyTexturePath = new File(mapFolder + skyTextureFile);
+    	try {
+            FileReader r = new FileReader(skyTexturePath);
+            BufferedReader reader = new BufferedReader(r);
+            int numSkyTextures = 0;
+            while (reader.readLine() != null){
+                numSkyTextures ++;
+            }
+            reader.close();
+            r.close();
+            r = new FileReader(skyTexturePath);
+            reader = new BufferedReader(r);
+            for (int i = 0; i < numSkyTextures; i++){
+                String skyTextureFile = mapFolder + skyTextureFolder + "\\" + reader.readLine();
+                groundTextures[i] = new Texture(skyTextureFile);
+            }
+
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
+        } catch (NumberFormatException e) {
+            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+        
+        }
+    }
+
+    private void loadSpriteTexture(){
+        File spriteTexturePath = new File(mapFolder + spriteTextureFile);
+    	try {
+            FileReader r = new FileReader(spriteTexturePath);
+            BufferedReader reader = new BufferedReader(r);
+            int numSpriteTextures = 0;
+            while (reader.readLine() != null){
+                numSpriteTextures ++;
+            }
+            reader.close();
+            r.close();
+            r = new FileReader(spriteTexturePath);
+            reader = new BufferedReader(r);
+            for (int i = 0; i < numSpriteTextures; i++){
+                String spriteTextureFile = mapFolder + spriteTextureFolder + "\\" + reader.readLine();
+                groundTextures[i] = new Texture(spriteTextureFile);
+            }
+
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
+        } catch (NumberFormatException e) {
+            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+        
+        }
+    }
+
+
+    class GroundMapSizeException extends Exception {
+>>>>>>> Stashed changes
         public GroundMapSizeException() {}
     }
 
