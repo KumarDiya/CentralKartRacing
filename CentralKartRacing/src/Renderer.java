@@ -67,13 +67,12 @@ public class Renderer extends JFrame{
      * @param player    The player in the map to be rendered.
      */
     public void render(Map map, Player player){
-        
+        //The camera position
         Vector cameraPos = getCameraPos(map, player);
 
         //Render Floor
-        double dirAng = Math.atan2(player.direction.y, player.direction.x);
-        Vector rayDir0 = new Vector(player.direction.x - player.plane.x, player.direction.y - player.plane.y);
-        Vector rayDir1 = new Vector(player.direction.x + player.plane.x, player.direction.y + player.plane.y);
+        Vector rayDirMin = new Vector(player.direction.x - player.plane.x, player.direction.y - player.plane.y);
+        Vector rayDirMax = new Vector(player.direction.x + player.plane.x, player.direction.y + player.plane.y);
 
         for (int y = ResolutionHeight/2; y < ResolutionHeight; y++) {
 
@@ -81,8 +80,8 @@ public class Renderer extends JFrame{
             double posZ = 0.5 * ResolutionHeight;
             double rowDistance = posZ / p;
             
-            Vector floorStep = new Vector(rowDistance * (rayDir1.x - rayDir0.x) / ResolutionWidth, rowDistance * (rayDir1.y - rayDir0.y) / ResolutionWidth);
-            Vector floor = new Vector(cameraPos.x + rowDistance * rayDir0.x, cameraPos.y + rowDistance * rayDir0.y);
+            Vector floorStep = new Vector(rowDistance * (rayDirMax.x - rayDirMin.x) / ResolutionWidth, rowDistance * (rayDirMax.y - rayDirMin.y) / ResolutionWidth);
+            Vector floor = new Vector(cameraPos.x + rowDistance * rayDirMin.x, cameraPos.y + rowDistance * rayDirMin.y);
 
             for (int x = 0; x < ResolutionWidth; x++){
                 VectorInt cell = new VectorInt((int)(floor.x), (int)(floor.y));
@@ -97,6 +96,9 @@ public class Renderer extends JFrame{
                 screenArr[y * ResolutionWidth + x] = color;
             }
         }
+
+        //The current angle the player is facing.
+        double dirAng = Math.atan2(player.direction.y, player.direction.x);
 
         //Render Walls and Sky
         for (int x = 0; x < ResolutionWidth; x++){
