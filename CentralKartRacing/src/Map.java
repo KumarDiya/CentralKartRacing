@@ -191,6 +191,10 @@ public class Map {
             System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
         }
     }
+    
+    private void loadGroundTexture(){
+    	
+    }
 
     class GroundMapSizeException extends Exception {
         public GroundMapSizeException() {}
