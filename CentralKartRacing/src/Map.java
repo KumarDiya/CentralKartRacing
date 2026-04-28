@@ -12,7 +12,7 @@ public class Map {
 
     public int[][] wallMap; //The map determining the location of walls.
     public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
-    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.\
+    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.
 
     private int numSprites; //The number of sprites.
     public Sprite[] sprites; //The sprites used in the level.
@@ -71,7 +71,9 @@ public class Map {
      * Loads the wallMap from wallMap.txt
      */
     private void loadWallMap() {
+        //Gets the full filepath for the wallMap.
         File wallMapPath = new File(mapFolder + wallMapFile);
+        //Reads and loads the wallMap to the array, determining its width and height in the process.
         try {
             FileReader r = new FileReader(wallMapPath);
             BufferedReader reader = new BufferedReader(r);
@@ -95,6 +97,7 @@ public class Map {
             r.close();
 
         } catch (IOException e) {
+            //Error handling, with specificity.
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
         } 
     }
@@ -103,8 +106,11 @@ public class Map {
      * Loads the groundMap from groundMap.png. (Png, as it's easier to visuallize)
      */
     private void loadGroundMap() {
+        //Gets the full filepath for the groundMap.
         File groundMapPath = new File(mapFolder + groundMapFile);
-        BufferedImage groundMapImage;
+        BufferedImage groundMapImage; //The image representing the groundMap.
+
+        //Reads and loads the groundMap from an image. We use an image because it's more visually intuitive to draw out a groundmap this way.
         try {
             groundMapImage = ImageIO.read(groundMapPath);
             if (groundMapImage.getWidth() != mapWidth * groundMapScale || groundMapImage.getHeight() != mapHeight * groundMapScale) {
@@ -123,8 +129,10 @@ public class Map {
             }
 
         } catch (IOException e) {
+            //Error handling for IO errors.
             System.out.printf("An error loading the groundMap for the map \"%s\" occurred.\n", name);
         } catch (GroundMapSizeException e) {
+            //A SPECIAL ERROR for when the groundMap size doesn't line up with what it's supposed to for the real map.
             System.out.printf("The groundMap file is the wrong size for the map \"%s\".\n", name);
         }
     }
@@ -133,7 +141,10 @@ public class Map {
      * Loads the spriteMap from spriteMap.txt
      */
     private void loadSpriteMap() {
+        //Gets the full filepath for the spriteMap.
         File spriteMapPath = new File(mapFolder + spriteMapFile);
+
+        //Loads the spriteMap, determining the number of sprites in the process.
         try {
             FileReader r = new FileReader(spriteMapPath);
             BufferedReader reader = new BufferedReader(r);
@@ -155,8 +166,10 @@ public class Map {
             r.close();
 
         } catch (IOException e) {
+            //Error handling for IO errors.
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
         } catch (NumberFormatException e) {
+            //Error handling for if the spriteMap contains an unparseable character.
             System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
         }
     }
@@ -165,7 +178,10 @@ public class Map {
      * Loads the wall textures in the wallTextures folder using wallTextures.txt as a guide.
      */
     private void loadWallTextures() {
+        //Gets the full filepath for the wallTextures.
         File wallTexturePath = new File(mapFolder + wallTextureFile);
+
+        //Loads all the wallTextures from the files specified using wallTextures.txt.
         try {
             FileReader r = new FileReader(wallTexturePath);
             BufferedReader reader = new BufferedReader(r);
@@ -186,13 +202,15 @@ public class Map {
             r.close();
 
         } catch (IOException e) {
+            //Error handling for IO errors.
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
-        } catch (NumberFormatException e) {
-            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
-        }
+        } 
     }
 
-    class GroundMapSizeException extends Exception {
+    /**
+     * A special exception class for the case where the groundMap doesn't match the size its supposed to.
+     */
+    private class GroundMapSizeException extends Exception {
         public GroundMapSizeException() {}
     }
 

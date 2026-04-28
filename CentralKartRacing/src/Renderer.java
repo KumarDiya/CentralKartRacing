@@ -1,7 +1,7 @@
 /**
  * Renderer.java
  * Justin Zhou
- * The class that handles all rendering and screen control in the main game. 
+ * The class that handles all rendering in the main game. 
  */
 
 import javax.swing.*;
@@ -14,7 +14,7 @@ public class Renderer extends JFrame{
     private RaycastPanel panel;         //The JFrame panel to draw on.
     private BufferedImage frame;        //The bufferredImage representing the screen.
     //An integer array referencing the raw color data for the screen, used for performance optimization. 
-    private int[] screenArr = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+    private int[] screenArr;
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
     public int ResolutionWidth = 750;   //The width of the resolution for the game to be rendered in.
@@ -44,7 +44,8 @@ public class Renderer extends JFrame{
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         Width = this.getWidth();
         Height = this.getHeight();
-        frame = new BufferedImage(Width, Height, BufferedImage.TYPE_INT_RGB);
+        frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+        screenArr = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
     }
 
     /**
@@ -66,7 +67,7 @@ public class Renderer extends JFrame{
      * @param player    The player in the map to be rendered.
      */
     public void render(Map map, Player player){
-
+        
         Vector cameraPos = getCameraPos(map, player);
 
         //Render Floor
@@ -355,7 +356,7 @@ public class Renderer extends JFrame{
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            g.drawImage(frame, 0, 0, null);
+            g.drawImage(frame.getScaledInstance(Width, Height, Image.SCALE_FAST), 0, 0, null);
         }
     }
 }
