@@ -1,5 +1,3 @@
-import java.awt.Rectangle;
-
 /**
  * CollisionBox.java
  * Justin Zhou
@@ -18,6 +16,10 @@ public class CollisionBox {
     //The width and the height of the box.
     double width;
     double height;
+    //Half the width and height of the box, used in calculations.
+    private double halfWidth;
+    private double halfHeight;
+    
 
     /**
      * Constructs a new CollisionBox whose center is specified as (x,y) and whose width and height are specified by the arguments of the same name.
@@ -31,6 +33,8 @@ public class CollisionBox {
         centY = y;
         this.width = width;
         this.height = height;
+        halfWidth = width/2;
+        halfHeight = height/2;
     }
 
     /**
@@ -44,8 +48,8 @@ public class CollisionBox {
         centY = v.y;
         this.width = width;
         this.height = height;
-        Rectangle a = new Rectangle(1, 1, 1, 1);
-        a.intersects(1, 1, 1, 1);
+        halfWidth = width/2;
+        halfHeight = height/2;
     }
 
     /**
@@ -95,12 +99,12 @@ public class CollisionBox {
         double tw = this.width;
         double th = this.height;
         double rw = width;
-        double rh = width;
+        double rh = height;
         if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) {
             return false;
         }
-        double tx = this.centX - tw/2;
-        double ty = this.centY - th/2;
+        double tx = this.centX - halfWidth;
+        double ty = this.centY - halfHeight;
         double rx = x - rw/2;
         double ry = y - rh/2;
         rw += rx;
@@ -120,7 +124,26 @@ public class CollisionBox {
      * @return  {@code true} if the CollisionBox intersects this CollisionBox, {@code false} otherwise.
      */
     public boolean intersects(CollisionBox b) {
-        return this.intersects(b.centX, b.centY, b.width, b.height);
+        double tw = this.width;
+        double th = this.height;
+        double rw = b.width;
+        double rh = b.height;
+        if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) {
+            return false;
+        }
+        double tx = this.centX - this.halfWidth;
+        double ty = this.centY - this.halfHeight;
+        double rx = b.centX - b.halfWidth;
+        double ry = b.centY - b.halfHeight;
+        rw += rx;
+        rh += ry;
+        tw += tx;
+        th += th;
+        //      overflow || intersect
+        return ((rw < rx || rw > tx) &&
+                (rh < ry || rh > ty) &&
+                (tw < tx || tw > rx) &&
+                (th < ty || th > ry));
     }
 
 
