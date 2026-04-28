@@ -206,6 +206,10 @@ public class Map {
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
         } 
     }
+    
+    private void loadGroundTexture(){
+    	
+    }
 
     /**
      * A special exception class for the case where the groundMap doesn't match the size its supposed to.
