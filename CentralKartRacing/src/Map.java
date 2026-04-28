@@ -211,6 +211,10 @@ public class Map {
 <<<<<<< Updated upstream
         } 
     }
+    
+    private void loadGroundTexture(){
+    	
+    }
 
     /**
      * A special exception class for the case where the groundMap doesn't match the size its supposed to.
