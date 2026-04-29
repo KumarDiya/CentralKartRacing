@@ -9,7 +9,7 @@ public class Map {
     private int mapWidth;
     private int mapHeight;
 
-    public int[][] wallMap; //The map determining the location of walls.
+    public static int[][] wallMap; //The map determining the location of walls.
     public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
     final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.
 
