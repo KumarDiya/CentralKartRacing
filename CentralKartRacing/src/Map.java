@@ -48,13 +48,9 @@ public class Map {
         loadGroundMap();
         loadSpriteMap();
         loadWallTextures();
-        System.out.println("wall");
         loadGroundTexture();
-        System.out.println("ground");
         loadSkyTexture();
-        System.out.println("sky");
         loadSpriteTextures();
-        System.out.println("sprite");
     }
 
     /**
