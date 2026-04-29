@@ -22,6 +22,7 @@ public class Player {
 	double turboSpeed = 2; //The speed that a boost sets you to.
 	Map map; //map used for wall collisions
 
+
 	//Getter for direction
 	public Vector getDirection() {
 		return direction;
