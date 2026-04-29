@@ -208,19 +208,6 @@ public class Map {
         } catch (IOException e) {
             //Error handling for IO errors.
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
-<<<<<<< Updated upstream
-        } 
-    }
-    
-    private void loadGroundTexture(){
-    	
-    }
-
-    /**
-     * A special exception class for the case where the groundMap doesn't match the size its supposed to.
-     */
-    private class GroundMapSizeException extends Exception {
-=======
         } catch (NumberFormatException e) {
             System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
         }
@@ -321,7 +308,6 @@ public class Map {
 
 
     class GroundMapSizeException extends Exception {
->>>>>>> Stashed changes
         public GroundMapSizeException() {}
     }
 
