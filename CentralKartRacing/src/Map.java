@@ -48,9 +48,13 @@ public class Map {
         loadGroundMap();
         loadSpriteMap();
         loadWallTextures();
+        System.out.println("wall");
         loadGroundTexture();
+        System.out.println("ground");
         loadSkyTexture();
+        System.out.println("sky");
         loadSpriteTextures();
+        System.out.println("sprite");
     }
 
     /**
@@ -219,7 +223,7 @@ public class Map {
      * Loads the ground textures in the groundTexture folder using groundTexture.txt as a guide
      */
     private void loadGroundTexture(){
-        String groundTexturePath =  mapFolder + groundSkyTextureFolder + groundTextureFile;
+        String groundTexturePath =  mapFolder + groundTextureFile;
         groundTexture = new Texture(groundTexturePath);
     }
 
@@ -227,7 +231,7 @@ public class Map {
      * Loads the sky textures in the groundSkyTextures folder
      */
     private void loadSkyTexture(){
-        String skyTexturePath = mapFolder + groundSkyTextureFolder + skyTextureFile;
+        String skyTexturePath = mapFolder + skyTextureFile;
         skyTexture = new Texture(skyTexturePath);
     }
 
@@ -244,6 +248,7 @@ public class Map {
             r.close();
             r = new FileReader(spriteTexturePath);
             reader = new BufferedReader(r);
+            spriteTextures = new Texture[numSpriteTextures];
             for (int i = 0; i < numSpriteTextures; i++){
                 String spriteTextureFile = mapFolder + spriteTextureFolder + "\\" + reader.readLine();
                 spriteTextures[i] = new Texture(spriteTextureFile);
