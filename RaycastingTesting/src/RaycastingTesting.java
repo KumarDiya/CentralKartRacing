@@ -375,9 +375,9 @@ public class RaycastingTesting{
             drawGraphics();
 
             //Movement
-            double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-            double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
-            //move forward if no wall in front of you
+            // double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
+            // double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
+            // //move forward if no wall in front of you
             if(gc.isKeyDown(87)) {
                 if(map[(int)(pos.x + dir.x * moveSpeed)][(int)pos.y] == 0) pos.x += dir.x * moveSpeed;
                 if(map[(int)pos.x][(int)(pos.y + dir.y * moveSpeed)] == 0) pos.y += dir.y * moveSpeed;
@@ -388,25 +388,25 @@ public class RaycastingTesting{
                 if(map[(int)(pos.x)][(int)(pos.y - dir.y * moveSpeed)] == 0) pos.y -= dir.y * moveSpeed;
             }
             //rotate to the right
-            if(gc.isKeyDown(68)) {
-                //both camera direction and camera plane must be rotated
-                double olddirX = dir.x;
-                dir.x = dir.x * Math.cos(-rotSpeed) - dir.y * Math.sin(-rotSpeed);
-                dir.y = olddirX * Math.sin(-rotSpeed) + dir.y * Math.cos(-rotSpeed);
-                double oldplaneX = plane.x;
-                plane.x = plane.x * Math.cos(-rotSpeed) - plane.y * Math.sin(-rotSpeed);
-                plane.y = oldplaneX * Math.sin(-rotSpeed) + plane.y * Math.cos(-rotSpeed);
-            }
+            // if(gc.isKeyDown(68)) {
+            //     //both camera direction and camera plane must be rotated
+            //     double olddirX = dir.x;
+            //     dir.x = dir.x * Math.cos(-rotSpeed) - dir.y * Math.sin(-rotSpeed);
+            //     dir.y = olddirX * Math.sin(-rotSpeed) + dir.y * Math.cos(-rotSpeed);
+            //     double oldplaneX = plane.x;
+            //     plane.x = plane.x * Math.cos(-rotSpeed) - plane.y * Math.sin(-rotSpeed);
+            //     plane.y = oldplaneX * Math.sin(-rotSpeed) + plane.y * Math.cos(-rotSpeed);
+            // }
             //rotate to the left
-            if(gc.isKeyDown(65)) {
-                //both camera direction and camera plane must be rotated
-                double olddirX = dir.x;
-                dir.x = dir.x * Math.cos(rotSpeed) - dir.y * Math.sin(rotSpeed);
-                dir.y = olddirX * Math.sin(rotSpeed) + dir.y * Math.cos(rotSpeed);
-                double oldplaneX = plane.x;
-                plane.x = plane.x * Math.cos(rotSpeed) - plane.y * Math.sin(rotSpeed);
-                plane.y = oldplaneX * Math.sin(rotSpeed) + plane.y * Math.cos(rotSpeed);
-            }
+            // if(gc.isKeyDown(65)) {
+            //     //both camera direction and camera plane must be rotated
+            //     double olddirX = dir.x;
+            //     dir.x = dir.x * Math.cos(rotSpeed) - dir.y * Math.sin(rotSpeed);
+            //     dir.y = olddirX * Math.sin(rotSpeed) + dir.y * Math.cos(rotSpeed);
+            //     double oldplaneX = plane.x;
+            //     plane.x = plane.x * Math.cos(rotSpeed) - plane.y * Math.sin(rotSpeed);
+            //     plane.y = oldplaneX * Math.sin(rotSpeed) + plane.y * Math.cos(rotSpeed);
+            // }
 
             //Haha funny plane skewing (makes for very funny visual effects)
             if(gc.isKeyDown(81)){

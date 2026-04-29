@@ -17,8 +17,8 @@ public class CollisionBox {
     double width;
     double height;
     //Half the width and height of the box, used in calculations.
-    private double halfWidth;
-    private double halfHeight;
+    double halfWidth;
+    double halfHeight;
     
 
     /**
