@@ -9,9 +9,9 @@
  */
 
 public class CollisionBox {
-    //The center of the box.
-    double centX;
-    double centY;
+    //The top left corner of the box.
+    double x;
+    double y;
     
     //The width and the height of the box.
     double width;
@@ -29,8 +29,8 @@ public class CollisionBox {
      * @param height    The specified height.
      */
     public CollisionBox(double x, double y, double width, double height) {
-        centX = x;
-        centY = y;
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
         halfWidth = width/2;
@@ -44,12 +44,21 @@ public class CollisionBox {
      * @param height    The specified height.
      */
     public CollisionBox(Vector v, double width, double height) {
-        centX = v.x;
-        centY = v.y;
+        this.x = v.x;
+        this.y = v.y;
         this.width = width;
         this.height = height;
         halfWidth = width/2;
         halfHeight = height/2;
+    }
+
+    public Vector[] getCorners() {
+        Vector[] corners = new Vector[4];
+        corners[0] = new Vector(x, y);
+        corners[1] = new Vector(x + width, y);
+        corners[2] = new Vector(x, y + height);
+        corners[3] = new Vector(x + width, y + height);
+        return corners;
     }
 
     /**
@@ -66,8 +75,8 @@ public class CollisionBox {
             return false;
         }
         // Note: if either dimension is zero, tests below must return false...
-        double x = this.centX - w/2;
-        double y = this.centY - h/2;
+        double x = this.x;
+        double y = this.y;
         if (X < x || Y < y) {
             return false;
         }
@@ -103,10 +112,10 @@ public class CollisionBox {
         if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) {
             return false;
         }
-        double tx = this.centX - halfWidth;
-        double ty = this.centY - halfHeight;
-        double rx = x - rw/2;
-        double ry = y - rh/2;
+        double tx = this.x;
+        double ty = this.y;
+        double rx = x;
+        double ry = y;
         rw += rx;
         rh += ry;
         tw += tx;
@@ -131,10 +140,10 @@ public class CollisionBox {
         if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) {
             return false;
         }
-        double tx = this.centX - this.halfWidth;
-        double ty = this.centY - this.halfHeight;
-        double rx = b.centX - b.halfWidth;
-        double ry = b.centY - b.halfHeight;
+        double tx = this.x;
+        double ty = this.y;
+        double rx = b.x;
+        double ry = b.y;
         rw += rx;
         rh += ry;
         tw += tx;
@@ -145,6 +154,47 @@ public class CollisionBox {
                 (tw < tx || tw > rx) &&
                 (th < ty || th > ry));
     }
+
+    public CollisionBox intersection(CollisionBox r) {
+        double tx1 = this.x;
+        double ty1 = this.y;
+        double rx1 = r.x;
+        double ry1 = r.y;
+        double tx2 = tx1 + this.width;
+        double ty2 = ty1 + this.height;
+        double rx2 = rx1 + r.width;
+        double ry2 = ry1 + r.height;
+        if (tx1 < rx1) tx1 = rx1;
+        if (ty1 < ry1) ty1 = ry1;
+        if (tx2 > rx2) tx2 = rx2;
+        if (ty2 > ry2) ty2 = ry2;
+        tx2 -= tx1;
+        ty2 -= ty1;
+        return new CollisionBox(tx1, ty1, tx2, ty2);
+    }
+
+    // public Rectangle intersection(Rectangle r) {
+    //     int tx1 = this.x;
+    //     int ty1 = this.y;
+    //     int rx1 = r.x;
+    //     int ry1 = r.y;
+    //     long tx2 = tx1; tx2 += this.width;
+    //     long ty2 = ty1; ty2 += this.height;
+    //     long rx2 = rx1; rx2 += r.width;
+    //     long ry2 = ry1; ry2 += r.height;
+    //     if (tx1 < rx1) tx1 = rx1;
+    //     if (ty1 < ry1) ty1 = ry1;
+    //     if (tx2 > rx2) tx2 = rx2;
+    //     if (ty2 > ry2) ty2 = ry2;
+    //     tx2 -= tx1;
+    //     ty2 -= ty1;
+    //     // tx2,ty2 will never overflow (they will never be
+    //     // larger than the smallest of the two source w,h)
+    //     // they might underflow, though...
+    //     if (tx2 < Integer.MIN_VALUE) tx2 = Integer.MIN_VALUE;
+    //     if (ty2 < Integer.MIN_VALUE) ty2 = Integer.MIN_VALUE;
+    //     return new Rectangle(tx1, ty1, (int) tx2, (int) ty2);
+    // }
 
 
 }
