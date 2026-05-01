@@ -19,20 +19,24 @@ public class Player {
 
 	//Drifting vars
 	boolean isDrifting = false; //True if the player is currently drifting, false otherwise.
+
+	//Boost vars
 	double turboSpeed = 2; //The speed that a boost sets you to.
+	int boostBar = 3; //The current amount of boost the player has. Max boost: 10, min: 0
+	boolean isFullBoost = false; //True if the player has a full boost bar, false otherwise.
+
 	Map map; //map used for wall collisions
 
-
-	//Getter for direction
+	//Getter for direction - random thing (not really needed)
 	public Vector getDirection() {
 		return direction;
 	}
-
 	
 	Player(Map map){
 		this.map = map;
 	}
 	
+	//use this one when we have more characters
 	Player(Map map, String character){
 		//Creates a new character using a specified character, where char is the selected character.
 		//Loads all stats of the character either directly in code, or from a stats.txt file for the character.
@@ -73,7 +77,6 @@ public class Player {
 		pos.y += direction.y * speed;
 		//slight change idea: make direction able to be negative so when backing up, * by -1
 
-		
 		//check collisions
 		if((wallCollisions[0] || wallCollisions[2]) && speed > 0) {
 			pos.x = posXinitial; //set current position back to initial
@@ -81,12 +84,27 @@ public class Player {
 		if((wallCollisions[1] || wallCollisions[3]) && speed > 0) { //&& speed > 0 so can reverse out
 			pos.y = posYinitial; //set current position back to initial
 		}
+	}
 
-
-		//WIP
+	public void drift(double initialSpeed){ //initialSpeed is the speed when the player starts drifting!!! (when they first press the drift button)
 		if (isDrifting){
+			speed = initialSpeed*0.9; //arbitrary slow factor for drifting
 
+			//makes the player able to turn more sharply when drifting
+			rotationSpeed = HANDLING*1.5; //arbitrary handling increase
+
+			//limits the player's turn so they can't turn the other way or go straight while drifting
+			if (rotationSpeed < 0) rotationSpeed = Math.max(rotationSpeed, -0.5); //arbitrary turn limit
+			else rotationSpeed = Math.min(rotationSpeed, 0.5);
+			
 		}
+
+		//charge the boost bar
+	}
+
+	public void boost(){
+		speed = turboSpeed;
+		//WIP: add boost duration and boost bar depletion
 	}
 
 	public void turnPlayer(double frameTime){

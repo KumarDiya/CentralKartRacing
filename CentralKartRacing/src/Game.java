@@ -5,6 +5,8 @@ public class Game {
         Renderer r = new Renderer();
         r.renderSetup(testMap, testPlayer);
 
+        HeadsUpDisplay hud = new HeadsUpDisplay();
+
         //Time Setup
         long startTime = System.currentTimeMillis();
         System.out.println(startTime);
@@ -13,6 +15,8 @@ public class Game {
             //Player Movement here
             r.render(testMap, testPlayer);
             r.drawFrame();
+
+            hud.drawHUD();
         }
     }
 }
