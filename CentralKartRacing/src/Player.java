@@ -24,7 +24,8 @@ public class Player {
 	double turboSpeed = 2; //The speed that a boost sets you to.
 	int boostBar = 3; //The current amount of boost the player has. Max boost: 10, min: 0
 	boolean isFullBoost = false; //True if the player has a full boost bar, false otherwise.
-
+	int boostTime; //The amount of time the player has been boosting for
+	
 	Map map; //map used for wall collisions
 
 	//Getter for direction - random thing (not really needed)
@@ -104,7 +105,19 @@ public class Player {
 
 	public void boost(){
 		speed = turboSpeed;
-		//WIP: add boost duration and boost bar depletion
+		//boost for a certain amount of time or until boost bar runs out
+		//if boost bar full, bonus boost time
+		if (isFullBoost){
+			boostTime = 5000; 
+		}
+
+		if (boostBar == 10){
+			isFullBoost = true;
+			break;
+		} 
+
+		boostBar = 0; //resets boost bar	
+		isFullBoost = false;
 	}
 
 	public void turnPlayer(double frameTime){
