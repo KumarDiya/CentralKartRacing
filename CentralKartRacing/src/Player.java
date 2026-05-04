@@ -1,19 +1,18 @@
-
 public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
 	//Linear movement vars
 	Vector pos; //The position of the player.
-	final double MAX_SPEED = 1; //The maximum speed for the character.
+	final double MAX_SPEED = 5; //The maximum speed for the character.
 	double speed; //The current speed for the character.
-	final double ACCELERATION = 3; //The acceleration of the character.
+	final double ACCELERATION = 0.01; //The acceleration of the character.
 	
 	//Rotational movment vars
 	Vector direction; //The direction the player is facing.
-	final double MAX_ROTATION_SPEED = 1; //The maximum rotational speed of the character.
+	final double MAX_ROTATION_SPEED = 2; //The maximum rotational speed of the character.
 	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
 	double rotationSpeed; //The current rotational speed of the character.
-	final double HANDLING = 2; //The rotational acceleration of the character.
+	final double HANDLING = 0.02; //The rotational acceleration of the character.
 	
 	boolean isTurning = false; //True if player is turning, false otherwise
 
@@ -27,6 +26,9 @@ public class Player {
 	final double playerHeight = 0.4;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
+
+	//Constants
+	final double FrameMovementMultiplier = 500;
 
 	//Getter for direction
 	public Vector getDirection() {
@@ -59,23 +61,27 @@ public class Player {
 	
  //Movement
 	//accelerates player
-	public void acceleratePlayer(boolean wDown, boolean sDown){
+	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, double frameTime){
+		double currentAcceleration = ACCELERATION * frameTime * FrameMovementMultiplier;
 		if (wDown && !sDown) {
-			if (Math.abs(speed) <= MAX_SPEED) speed += ACCELERATION; //limits max speed
+			if (Math.abs(speed + currentAcceleration) <= MAX_SPEED) speed += currentAcceleration; //limits max speed
 		} else if (sDown && !wDown) {
-			if (Math.abs(speed) <= MAX_SPEED*0.25) speed -= ACCELERATION*0.75;
+			if (speed > 0){
+				speed -= currentAcceleration;
+			} else if (Math.abs(speed - currentAcceleration * 0.5) <= MAX_SPEED * 0.5) speed -= currentAcceleration * 0.5;
 		} else {
-			speed *= 0.5;
+			speed *= 0.99;
 		}
 	}
 
-	public void angularlyAcceleratePlayer(boolean aDown, boolean dDown) {
+	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, double frameTime) {
+		double currentHandling = HANDLING * frameTime * FrameMovementMultiplier;
 		if (aDown && !dDown) {
-			if (Math.abs(rotationSpeed) <= MAX_ROTATION_SPEED) rotationSpeed += HANDLING; //limits max speed
+			if (Math.abs(rotationSpeed + currentHandling) <= MAX_ROTATION_SPEED) rotationSpeed += currentHandling; //limits max speed
 		} else if (dDown && !aDown) {
-			if (Math.abs(rotationSpeed) <= MAX_ROTATION_SPEED) rotationSpeed -= HANDLING;
+			if (Math.abs(rotationSpeed - currentHandling) <= MAX_ROTATION_SPEED) rotationSpeed -= currentHandling;
 		} else {
-			rotationSpeed *= 0.9;
+			rotationSpeed *= 0.99;
 		}
 	}
 
@@ -84,7 +90,7 @@ public class Player {
 	 */
 	//REMEMBER TO SET rotSpeed to NEGATIVE WHEN TURNING OTHER WAY
 
-	public void movePlayer(double frameTime) {
+	public synchronized void movePlayer(double frameTime) {
 		double currentSpeed = speed * frameTime; //the constant value is in squares/second
 
 		Vector moveX = new Vector(direction.x * currentSpeed, 0);
@@ -140,7 +146,7 @@ public class Player {
 		}
 	}
 
-	public void turnPlayer(double frameTime){
+	public synchronized void turnPlayer(double frameTime){
 		double currentRotationSpeed = rotationSpeed * frameTime; //the constant value is in radians/second
 		double olddirX = direction.x;
 		direction.x = direction.x * Math.cos(currentRotationSpeed) - direction.y * Math.sin(currentRotationSpeed);

@@ -1,5 +1,8 @@
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Map {
@@ -17,11 +20,13 @@ public class Map {
     public Sprite[] sprites; //The sprites used in the level.
 
     public Texture groundTexture; //The texture used for the ground.
-    public Texture skyTexture; //The texture used for the skybox.
+    final int groundTextureScale = 3;
+    final int groundTextureWidth = 72, groundTextureHeight = 72;
+    public Texture skyTexture; //The texture used for the skybox. The theoretical ideal texture size should be 3447px by resolutionWidth/2.
+    final int skyTextureWidth = 3447, skyTextureHeight = 250;
 
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
-    public Texture[] groundTextures; //The textures of the ground, index determined by order of placement in groundTexture.txt
 
     //Constants used for file access. 
     final String wallMapFile = "wallMap.txt";
@@ -121,7 +126,7 @@ public class Map {
             groundMapImage = ImageIO.read(groundMapPath);
             if (groundMapImage.getWidth() != mapWidth * groundMapScale || groundMapImage.getHeight() != mapHeight * groundMapScale) {
                 System.out.printf("Ground Map size: %d x %d\nMap size: %d x %d\n", groundMapImage.getWidth(), groundMapImage.getHeight(), mapWidth, mapHeight);
-                throw new GroundMapSizeException();
+                throw new WrongSizeException();
             }
             groundMap = new int[mapWidth * groundMapScale][mapHeight * groundMapScale];
             for (int x = 0; x < groundMap.length; x++) {
@@ -137,7 +142,7 @@ public class Map {
         } catch (IOException e) {
             //Error handling for IO errors.
             System.out.printf("An error loading the groundMap for the map \"%s\" occurred.\n", name);
-        } catch (GroundMapSizeException e) {
+        } catch (WrongSizeException e) {
             //A SPECIAL ERROR for when the groundMap size doesn't line up with what it's supposed to for the real map.
             System.out.printf("The groundMap file is the wrong size for the map \"%s\".\n", name);
         }
@@ -219,8 +224,15 @@ public class Map {
      * Loads the ground textures in the groundTexture folder using groundTexture.txt as a guide
      */
     private void loadGroundTexture(){
-        String groundTexturePath =  mapFolder + groundTextureFile;
-        groundTexture = new Texture(groundTexturePath, 72, 72);
+        try {
+            String groundTexturePath =  mapFolder + groundTextureFile;
+            if (groundTextureWidth != mapWidth * groundTextureScale || groundTextureHeight != mapHeight * groundTextureScale){
+                throw new WrongSizeException();
+            }
+            groundTexture = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
+        } catch (WrongSizeException e) {
+            System.out.printf("The groundTexture is the wrong size for the map \"%s\".\n", name);
+        }
     }
 
     /**
@@ -228,7 +240,7 @@ public class Map {
      */
     private void loadSkyTexture(){
         String skyTexturePath = mapFolder + skyTextureFile;
-        skyTexture = new Texture(skyTexturePath, 1000, 480);
+        skyTexture = new Texture(skyTexturePath, skyTextureWidth, skyTextureHeight);
     }
 
     private void loadSpriteTextures(){
@@ -259,8 +271,8 @@ public class Map {
     }
 
 
-    class GroundMapSizeException extends Exception {
-        public GroundMapSizeException() {}
+    class WrongSizeException extends Exception {
+        public WrongSizeException() {}
     }
 
 }

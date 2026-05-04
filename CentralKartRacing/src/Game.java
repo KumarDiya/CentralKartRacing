@@ -1,5 +1,5 @@
 public class Game {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         Map testMap = new Map("Test", "testMap");
         Player testPlayer = new Player(testMap);
         Renderer r = new Renderer();
@@ -14,17 +14,16 @@ public class Game {
         int frameCounter = 0;
 
         while (r.isActive()) {
-            r.render();
-            r.drawFrame();
             timeElapsed = getTimeElapsed(previousTime);
+
+            double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
             
-            testPlayer.acceleratePlayer(r.wDown(), r.sDown());
-            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown());
-            testPlayer.movePlayer((double)(System.currentTimeMillis() - previousFrameTime)/1000);
-            testPlayer.turnPlayer((double)(System.currentTimeMillis() - previousFrameTime)/1000);
+            testPlayer.acceleratePlayer(r.wDown(), r.sDown(), timeElapsedFrame);
+            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
+            testPlayer.movePlayer(timeElapsedFrame);
+            testPlayer.turnPlayer(timeElapsedFrame);
             previousFrameTime = System.currentTimeMillis();
             //testPlayer.printPos();
-            System.out.printf("%.2f %.2f %.2f %.2f\n", testPlayer.pos.x, testPlayer.pos.y, testPlayer.direction.x, testPlayer.direction.y);
 
             if (timeElapsed > 1000) {
                 timeElapsed -= 1000;
@@ -32,8 +31,18 @@ public class Game {
                 previousTime = System.currentTimeMillis();
                 frameCounter = 0;
             }
-
             frameCounter++;
+            try {
+                r.renderScreen();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                break;
+            }
+            try {
+                Thread.sleep(0, 250);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
     }
 

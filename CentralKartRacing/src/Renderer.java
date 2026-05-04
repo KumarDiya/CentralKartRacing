@@ -4,8 +4,10 @@
  * The class that handles all rendering in the main game. 
  */
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Graphics;
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -18,6 +20,8 @@ public class Renderer extends JFrame implements KeyListener{
     public int Height;                  //The final height of the JPanel (screen).
     public int ResolutionWidth = 750;   //The width of the resolution for the game to be rendered in.
     public int ResolutionHeight = 500;  //The height of the resolution for the game to be rendered in.
+    BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
 
     //Map and Player
     Map map;
@@ -71,9 +75,7 @@ public class Renderer extends JFrame implements KeyListener{
      * @param map       The map to be rendered.
      * @param player    The player in the map to be rendered.
      */
-    public BufferedImage render(){
-        BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
-        int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+    public synchronized BufferedImage render(){
 
         //The camera position
         Vector cameraPos = getCameraPos();
@@ -276,12 +278,12 @@ public class Renderer extends JFrame implements KeyListener{
                 }
             }
         }
-
         return frame;
     }
 
     private void makeGUI() { 
 		panel = new RaycastPanel();
+        this.setTitle("Central Kart Racing");
         this.setUndecorated(false);
         this.add(panel);
         this.addKeyListener(this);
@@ -371,7 +373,7 @@ public class Renderer extends JFrame implements KeyListener{
     /**
      * Draws the current frame to the screen.
      */
-    public void drawFrame() {
+    public synchronized void renderScreen() {
         panel.repaint();
     }
 
@@ -385,7 +387,11 @@ public class Renderer extends JFrame implements KeyListener{
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            g.drawImage(render(), 0, 0, null);
+            try {
+                g.drawImage(render(), 0, 0, null);
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
     }
 
@@ -403,6 +409,11 @@ public class Renderer extends JFrame implements KeyListener{
 
     public boolean dDown() {
         return dPressed;
+    }
+
+    public boolean[] getControlsDown() {
+        boolean[] controls = {wPressed, sPressed, aPressed, dPressed};
+        return controls;
     }
 
     @Override
