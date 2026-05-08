@@ -18,8 +18,8 @@ public class Renderer extends JFrame implements KeyListener{
     private RaycastPanel panel;         //The JFrame panel to draw on.
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
-    public int ResolutionWidth = 750;   //The width of the resolution for the game to be rendered in.
-    public int ResolutionHeight = 500;  //The height of the resolution for the game to be rendered in.
+    public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
+    public int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
     BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
     int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
 
@@ -29,7 +29,7 @@ public class Renderer extends JFrame implements KeyListener{
     
     //Skybox variables
     private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
-    private double angBetwRays;             //The angle between two rays casted by the raycaster.
+    private double angBetweenRays;             //The angle between two rays casted by the raycaster.
     private double skyStepX;                //The amount to step by between pixels on the skybox when rendering.
 
     //Sprite variables
@@ -40,34 +40,35 @@ public class Renderer extends JFrame implements KeyListener{
     public static final double CameraDistance = 2;  //The distance the camera will follow the player at.
 
     //Key Pressed Booleans
-    public boolean wPressed;
-    public boolean sPressed;
-    public boolean aPressed;
-    public boolean dPressed;
+    public boolean wPressed, sPressed, aPressed, dPressed;
+
+    //Renderer framerate (for testing)
+    public int framesRendered;
 
     /**
      * Renderer constructor.
      */
-    public Renderer () {
-        makeGUI();
-    }
-
-    /**
-     * Sets up the renderer for a specific map and player FOV.
-     * @param map       The map to set up for.
-     * @param player    The player; uses its FOV to set up for.
-     */
-    public void renderSetup(Map map, Player player) {
+    public Renderer (Map map, Player player) {
         this.map = map;
         this.player = player;
 
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
-        angBetwRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
-        skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetwRays);
+        angBetweenRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
+        skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
 
         zBuffer = new double[ResolutionWidth];
 
         wPressed = sPressed = aPressed = dPressed = false;
+        framesRendered = 0;
+    }
+
+    /**
+     * Sets up the renderer for a specific map and player FOV.
+     * @param map       The {@code map} object to set up for.
+     * @param player    The {@code player} object; uses its FOV to set up for.
+     */
+    public void renderSetup() {
+        makeGUI();
     }
 
     /**
@@ -95,14 +96,14 @@ public class Renderer extends JFrame implements KeyListener{
 
             for (int x = 0; x < ResolutionWidth; x++){
                 VectorInt cell = new VectorInt((int)(floor.x), (int)(floor.y));
-                VectorInt fcTexture = new VectorInt(Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) % (map.groundTexture.getWidth())), map.groundTexture.getHeight() - 1 - Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) % (map.groundTexture.getHeight())));
+                VectorInt fcTexture = new VectorInt(map.groundTexture.getHeight() - 1 - Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) % (map.groundTexture.getHeight())), map.groundTexture.getWidth() - 1 - Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) % (map.groundTexture.getWidth())));
+                // VectorInt fcTexture = new VectorInt(Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) & (map.groundTexture.getHeight() - 1)), Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) & (map.groundTexture.getHeight() - 1)));
 
                 floor.x += floorStep.x;
                 floor.y += floorStep.y;
 
                 int color;
                 color = map.groundTexture.texture[fcTexture.x][fcTexture.y];
-                color = (color >> 1) & DarkerNumber;
                 frameBuffer[y * ResolutionWidth + x] = color;
             }
         }
@@ -231,7 +232,7 @@ public class Renderer extends JFrame implements KeyListener{
             spriteDistance[i] = ((cameraPos.x - map.sprites[i].position.x)*(cameraPos.x - map.sprites[i].position.x) + (cameraPos.y - map.sprites[i].position.y)*(cameraPos.y - map.sprites[i].position.y));
         }
 
-        SpriteTesting.sortSprites(spriteOrder, spriteDistance, map.getNumSprites());
+        Sprite.sortSprites(spriteOrder, spriteDistance, map.getNumSprites());
 
         for (int i = 0; i < map.getNumSprites(); i++){
             Vector spriteCamPos = new Vector(map.sprites[spriteOrder[i]].position.x - cameraPos.x, map.sprites[spriteOrder[i]].position.y - cameraPos.y);
@@ -278,6 +279,7 @@ public class Renderer extends JFrame implements KeyListener{
                 }
             }
         }
+        framesRendered++;
         return frame;
     }
 
@@ -386,12 +388,7 @@ public class Renderer extends JFrame implements KeyListener{
         }
 
         public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            try {
-                g.drawImage(render(), 0, 0, null);
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
+            g.drawImage(render(), 0, 0, null);
         }
     }
 

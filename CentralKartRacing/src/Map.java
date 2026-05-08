@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -14,14 +15,14 @@ public class Map {
 
     public int[][] wallMap; //The map determining the location of walls.
     public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
-    final int groundMapScale = 8; //The upscale factor of groundmap to wallMap.
+    final int groundMapScale = 8; //The upscale factor of groundMap to wallMap.
 
     private int numSprites; //The number of sprites.
     public Sprite[] sprites; //The sprites used in the level.
 
     public Texture groundTexture; //The texture used for the ground.
-    final int groundTextureScale = 3;
-    final int groundTextureWidth = 72, groundTextureHeight = 72;
+    final int groundTextureScale = 8;
+    final int groundTextureWidth = 192, groundTextureHeight = 192;
     public Texture skyTexture; //The texture used for the skybox. The theoretical ideal texture size should be 3447px by resolutionWidth/2.
     final int skyTextureWidth = 3447, skyTextureHeight = 250;
 
@@ -29,17 +30,22 @@ public class Map {
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
 
     //Constants used for file access. 
-    final String wallMapFile = "wallMap.txt";
-    final String groundMapFile = "groundMap.png";
-    final String spriteMapFile = "spriteMap.txt";
-    final String wallTexturesFile = "wallTextures.txt";
-    final String groundTextureFile = "groundTexture.png";
-    final String skyTextureFile = "skyTexture.png";
-    final String spriteTexturesFile = "spriteTextures.txt";
+    private final String wallMapFile = "wallMap.txt";
+    private final String groundMapFile = "groundMap.png";
+    private final String spriteMapFile = "spriteMap.txt";
+    private final String wallTexturesFile = "wallTextures.txt";
+    private final String groundTextureFile = "groundTexture.png";
+    private final String skyTextureFile = "skyTexture.png";
+    private final String spriteTexturesFile = "spriteTextures.txt";
 
-    final String wallTextureFolder = "wallTextures";
-    final String spriteTextureFolder = "spriteTextures";
-    final String groundSkyTextureFolder = "groundSkyTextures";
+    private final String wallTextureFolder = "wallTextures";
+    private final String spriteTextureFolder = "spriteTextures";
+
+    //Constants used for groundMap color setting
+    private final int WallColor = new Color(0, 0, 0).getRGB();
+    private final int RoadColor = new Color(28, 27, 27).getRGB();
+    private final int GrassColor = new Color(86, 147, 64).getRGB();
+    private final int SandColor = new Color(200, 196, 121).getRGB();
 
     /**
      * Map constructor.
@@ -114,14 +120,14 @@ public class Map {
     }
 
     /**
-     * Loads the groundMap from groundMap.png. (Png, as it's easier to visuallize)
+     * Loads the groundMap from groundMap.png. (Png, as it's easier to visualize)
      */
     private void loadGroundMap() {
         //Gets the full filepath for the groundMap.
         File groundMapPath = new File(mapFolder + groundMapFile);
         BufferedImage groundMapImage; //The image representing the groundMap.
 
-        //Reads and loads the groundMap from an image. We use an image because it's more visually intuitive to draw out a groundmap this way.
+        //Reads and loads the groundMap from an image. We use an image because it's more visually intuitive to draw out a groundMap this way.
         try {
             groundMapImage = ImageIO.read(groundMapPath);
             if (groundMapImage.getWidth() != mapWidth * groundMapScale || groundMapImage.getHeight() != mapHeight * groundMapScale) {
@@ -131,10 +137,17 @@ public class Map {
             groundMap = new int[mapWidth * groundMapScale][mapHeight * groundMapScale];
             for (int x = 0; x < groundMap.length; x++) {
                 for (int y = 0; y < groundMap[0].length; y++) {
-                    if (groundMapImage.getRGB(x, y) == 0){
+                    int groundRGB = groundMapImage.getRGB(y, x);
+                    if (groundRGB == WallColor){
                         groundMap[x][y] = 0;
-                    } else {
+                    } else if (groundRGB == RoadColor) {
                         groundMap[x][y] = 1;
+                    } else if (groundRGB == GrassColor) {
+                        groundMap[x][y] = 2;
+                    } else if (groundRGB == SandColor) {
+                        groundMap[x][y] = 3;
+                    } else {
+                        System.out.println("A color used in the groundMap is undefined.");
                     }
                 }
             }
@@ -180,8 +193,8 @@ public class Map {
             //Error handling for IO errors.
             System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
         } catch (NumberFormatException e) {
-            //Error handling for if the spriteMap contains an unparseable character.
-            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+            //Error handling for if the spriteMap contains an un-parseable character.
+            System.out.printf("The spriteFile for the map \"%s\" contained an un-parseable number.", name);
         }
     }
 
@@ -216,7 +229,7 @@ public class Map {
             //Error handling for IO errors.
             System.out.printf("An error loading the wallTextures for the map \"%s\" occurred.\n", name);
         } catch (NumberFormatException e) {
-            System.out.printf("The spriteFile for the map \"%s\" contained an unparseable number.", name);
+            System.out.printf("The spriteFile for the map \"%s\" contained an un-parseable number.", name);
         }
     }
     

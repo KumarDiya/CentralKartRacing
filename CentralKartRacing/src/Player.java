@@ -2,14 +2,17 @@ public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
 	//Linear movement vars
+	final Vector StartPos;
 	Vector pos; //The position of the player.
 	final double MAX_SPEED = 5; //The maximum speed for the character.
+	double currentMaxSpeed;
 	double speed; //The current speed for the character.
 	final double ACCELERATION = 0.01; //The acceleration of the character.
 	
-	//Rotational movment vars
+	//Rotational movement vars
 	Vector direction; //The direction the player is facing.
 	final double MAX_ROTATION_SPEED = 2; //The maximum rotational speed of the character.
+	double currentMaxRotationSpeed;
 	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
 	double rotationSpeed; //The current rotational speed of the character.
 	final double HANDLING = 0.02; //The rotational acceleration of the character.
@@ -30,6 +33,8 @@ public class Player {
 	//Constants
 	final double FrameMovementMultiplier = 500;
 
+	final double[] groundMoveSpeeds = {0.1, 1.0, 0.6, 0.4}; //Wall speed, road speed, grass speed, sand speed.
+
 	//Getter for direction
 	public Vector getDirection() {
 		return direction;
@@ -42,8 +47,9 @@ public class Player {
 	Player(Map map){
 		this.map = map;
 		this.pos = new Vector(12, 12);
+		this.StartPos = new Vector(12, 12);
 		this.direction = new Vector(-1, 0);
-		this.plane = new Vector(0, 0.66);
+		this.plane = new Vector(0, 0.88);
 		this.rotationSpeed = 0;
 		this.speed = 0;
 	}
@@ -55,40 +61,64 @@ public class Player {
 		//NOTE: some variables can not be constants then!!
 		//if (character.equals("Ghost")) {}
 			
-		this.map = map;
+		this(map);
 	}
 	
 	
  //Movement
 	//accelerates player
 	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, double frameTime){
-		double currentAcceleration = ACCELERATION * frameTime * FrameMovementMultiplier;
+		double currentGroundMoveSpeed = groundMoveSpeeds[map.groundMap[(int)(pos.x * map.groundMapScale)][(int)(pos.y * map.groundMapScale)]];
+		double currentAcceleration = ACCELERATION * frameTime * FrameMovementMultiplier * currentGroundMoveSpeed;
+		currentMaxSpeed = MAX_SPEED * currentGroundMoveSpeed;
+
 		if (wDown && !sDown) {
-			if (Math.abs(speed + currentAcceleration) <= MAX_SPEED) speed += currentAcceleration; //limits max speed
+			if (Math.abs(speed + currentAcceleration) <= currentMaxSpeed) speed += currentAcceleration; //limits max speed
 		} else if (sDown && !wDown) {
 			if (speed > 0){
-				speed -= currentAcceleration;
-			} else if (Math.abs(speed - currentAcceleration * 0.5) <= MAX_SPEED * 0.5) speed -= currentAcceleration * 0.5;
+				speed -= currentAcceleration * 2;
+			} else if (Math.abs(speed - currentAcceleration * 0.5) <= currentMaxSpeed * 0.5) speed -= currentAcceleration * 0.5;
 		} else {
-			speed *= 0.99;
+			speed *= (1 - frameTime);
+			if (Math.abs(speed) < 0.05){
+				speed = 0;
+			}
+		}
+
+		if (speed < 0 && speed < -currentMaxSpeed) {
+			speed = -currentMaxSpeed;
+		} else if (speed > 0 && speed > currentMaxSpeed){
+			speed = currentMaxSpeed;
 		}
 	}
 
 	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, double frameTime) {
 		double currentHandling = HANDLING * frameTime * FrameMovementMultiplier;
+
+		if (Math.abs(speed) < 3) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / 3);
+		else currentMaxRotationSpeed = MAX_ROTATION_SPEED;
+		
 		if (aDown && !dDown) {
-			if (Math.abs(rotationSpeed + currentHandling) <= MAX_ROTATION_SPEED) rotationSpeed += currentHandling; //limits max speed
+			if (Math.abs(rotationSpeed + currentHandling) <= currentMaxRotationSpeed) rotationSpeed += currentHandling; //limits max speed
 		} else if (dDown && !aDown) {
-			if (Math.abs(rotationSpeed - currentHandling) <= MAX_ROTATION_SPEED) rotationSpeed -= currentHandling;
+			if (Math.abs(rotationSpeed - currentHandling) <= currentMaxRotationSpeed) rotationSpeed -= currentHandling;
 		} else {
-			rotationSpeed *= 0.99;
+			rotationSpeed *= (1 - frameTime * 4);
+			if (Math.abs(rotationSpeed) < 0.005) {
+				rotationSpeed = 0;
+			}
+		}
+
+		if (rotationSpeed < 0 && rotationSpeed < -currentMaxRotationSpeed) {
+			rotationSpeed = -currentMaxRotationSpeed;
+		} else if (rotationSpeed > 0 && rotationSpeed > currentMaxRotationSpeed){
+			rotationSpeed = currentMaxRotationSpeed;
 		}
 	}
 
 	/**
 	 * Moves the position of the player
 	 */
-	//REMEMBER TO SET rotSpeed to NEGATIVE WHEN TURNING OTHER WAY
 
 	public synchronized void movePlayer(double frameTime) {
 		double currentSpeed = speed * frameTime; //the constant value is in squares/second
@@ -100,8 +130,8 @@ public class Player {
 		Vector[] corners;
 		boolean colliding;
 
-		Vector newPosX = pos.addVec(moveX);
-		playerBox = new CollisionBox(newPosX.x - halfPlayerWidth, newPosX.y - halfPlayerHeight, playerWidth, playerHeight);
+		Vector newPos = pos.addVec(moveX);
+		playerBox = new CollisionBox(newPos.x - halfPlayerWidth, newPos.y - halfPlayerHeight, playerWidth, playerHeight);
 		corners = playerBox.getCorners();
 		adjacentBoxes = getSurroundingCollisionBoxes(map.wallMap);
 
@@ -117,11 +147,11 @@ public class Player {
 		}
 
 		if (!colliding) {
-			pos = newPosX;
+			pos = newPos;
 		}
 
-		Vector newPosY = pos.addVec(moveY);
-		playerBox = new CollisionBox(newPosY.x - halfPlayerWidth, newPosY.y - halfPlayerHeight, playerWidth, playerHeight);
+		newPos = pos.addVec(moveY);
+		playerBox = new CollisionBox(newPos.x - halfPlayerWidth, newPos.y - halfPlayerHeight, playerWidth, playerHeight);
 		corners = playerBox.getCorners();
 		adjacentBoxes = getSurroundingCollisionBoxes(map.wallMap);
 
@@ -137,7 +167,7 @@ public class Player {
 		}
 
 		if (!colliding) {
-			pos = newPosY;
+			pos = newPos;
 		}
 		
 		//WIP
@@ -146,14 +176,27 @@ public class Player {
 		}
 	}
 
+	public synchronized void teleportPlayer(double x, double y) {
+		pos.addVec(new Vector(x, y));
+	}
+
 	public synchronized void turnPlayer(double frameTime){
 		double currentRotationSpeed = rotationSpeed * frameTime; //the constant value is in radians/second
-		double olddirX = direction.x;
+		double oldDirX = direction.x;
 		direction.x = direction.x * Math.cos(currentRotationSpeed) - direction.y * Math.sin(currentRotationSpeed);
-		direction.y = olddirX * Math.sin(currentRotationSpeed) + direction.y * Math.cos(currentRotationSpeed);
-		double oldplaneX = plane.x;
+		direction.y = oldDirX * Math.sin(currentRotationSpeed) + direction.y * Math.cos(currentRotationSpeed);
+		double oldPlaneX = plane.x;
 		plane.x = plane.x * Math.cos(currentRotationSpeed) - plane.y * Math.sin(currentRotationSpeed);
-		plane.y = oldplaneX * Math.sin(currentRotationSpeed) + plane.y * Math.cos(currentRotationSpeed);
+		plane.y = oldPlaneX * Math.sin(currentRotationSpeed) + plane.y * Math.cos(currentRotationSpeed);
+	}
+
+	public synchronized void turnPlayerInstant(double angle){
+		double oldDirX = direction.x;
+		direction.x = direction.x * Math.cos(angle) - direction.y * Math.sin(angle);
+		direction.y = oldDirX * Math.sin(angle) + direction.y * Math.cos(angle);
+		double oldPlaneX = plane.x;
+		plane.x = plane.x * Math.cos(angle) - plane.y * Math.sin(angle);
+		plane.y = oldPlaneX * Math.sin(angle) + plane.y * Math.cos(angle);
 	}
 
 		/*
@@ -193,40 +236,6 @@ Used in movePlayer().
 		}
 
 		return adjacentTiles;
-
-		// for (int x = 0; x<wallMap.length; x++){
-		// 	for (int y = 0; y<wallMap[0].length;y++){
-		// 		if 
-		// 		(wallMap[x][y] == 1){ //if there is a wall here
-		// 			CollisionBox wallBox = new CollisionBox(x, y, 1, 1); //the width and height of the wall are arbitrary
-					
-		// 			/*
-		// 			*   1
-		// 			* 2   0
-		// 			*   3
-		// 			*/
-		// 			if (playerBox.contains(wallBox.centX + wallBox.halfWidth, wallBox.centY)){
-		// 				//if the player box contains the right wall edge
-		// 				wallCollisions[0] = true; //collision in positive x direction
-		// 			}
-		// 			if (playerBox.contains(wallBox.centX - wallBox.halfWidth, wallBox.centY)){
-		// 				wallCollisions[2] = true; //collision in negative x direction
-		// 			}
-		// 			if (playerBox.contains(wallBox.centX, wallBox.centY + wallBox.halfHeight)){
-		// 				//if the player box contains the top wall edge
-		// 				wallCollisions[1] = true; //collision in positive y direction
-						
-		// 			}
-		// 			if (playerBox.contains(wallBox.centX, wallBox.centY - wallBox.halfHeight)){
-		// 				wallCollisions[3] = true; //collision in negative y direction
-		// 			}
-		// 		}
-		// 	}
-		// }
-		//return wallCollisions;
-		//old collisions
-		//if(map[(int)(pos.x + dir.x * moveSpeed)][(int)pos.y] == 0) 
-        //if(map[(int)pos.x][(int)(pos.y + dir.y * moveSpeed)] == 0) 
 		
 	}
 
