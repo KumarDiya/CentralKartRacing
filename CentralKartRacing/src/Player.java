@@ -24,6 +24,9 @@ public class Player {
 	double turboSpeed = 2; //The speed that a boost sets you to.
 	Map map; //map used for wall collisions
 
+	int currentCheckpoint;
+	int lap;
+
 	//Player Collision vars
 	final double playerWidth = 0.4;
 	final double playerHeight = 0.4;
@@ -44,6 +47,10 @@ public class Player {
 		System.out.printf("%.2f, %.2f\n", pos.x, pos.y);
 	}
 
+	public void printDirection() {
+		System.out.printf("%.2f, %.2f\n", direction.x, direction.y);
+	}
+
 	Player(Map map){
 		this.map = map;
 		this.pos = new Vector(12, 12);
@@ -52,6 +59,8 @@ public class Player {
 		this.plane = new Vector(0, 0.88);
 		this.rotationSpeed = 0;
 		this.speed = 0;
+		this.currentCheckpoint = 0;
+		this.lap = 1;
 	}
 	
 	Player(Map map, String character){
@@ -197,6 +206,21 @@ public class Player {
 		double oldPlaneX = plane.x;
 		plane.x = plane.x * Math.cos(angle) - plane.y * Math.sin(angle);
 		plane.y = oldPlaneX * Math.sin(angle) + plane.y * Math.cos(angle);
+	}
+
+	public synchronized void checkCheckpoints() {
+		if (currentCheckpoint == map.getNumCheckpoints() - 1) {
+			if (map.checkpoints[0].contains(pos)) {
+				currentCheckpoint = 0;
+				lap++;
+				System.out.printf("Lap %d\n", lap);
+			}
+		} else {
+			if (map.checkpoints[currentCheckpoint + 1].contains(pos)) {
+				currentCheckpoint++;
+				System.out.printf("Checkpoint %d\n", currentCheckpoint);
+			}
+		}
 	}
 
 		/*

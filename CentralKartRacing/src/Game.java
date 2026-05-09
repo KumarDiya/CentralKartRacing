@@ -27,8 +27,10 @@ public class Game {
             testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
             testPlayer.movePlayer(timeElapsedFrame);
             testPlayer.turnPlayer(timeElapsedFrame);
+            testPlayer.checkCheckpoints();
             previousFrameTime = System.currentTimeMillis();
             //testPlayer.printPos();
+            //testPlayer.printDirection();
 
             if (timeElapsedSecond > 1000) {
                 timeElapsedSecond -= 1000;
@@ -41,7 +43,7 @@ public class Game {
             
             r.renderScreen();
             try {
-                Thread.sleep(16);
+                Thread.sleep(1);
             } catch (Exception e) {
                 System.out.println("Thread could not sleep.");
             }

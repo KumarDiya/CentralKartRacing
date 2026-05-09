@@ -222,7 +222,7 @@ public class Renderer extends JFrame implements KeyListener{
         }
 
         //Sprite Rendering
-        map.sprites[3].setXY(player.pos);
+        map.sprites[4].setXY(player.pos);
 
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
@@ -267,12 +267,14 @@ public class Renderer extends JFrame implements KeyListener{
                 //2) it's on the screen (left)
                 //3) it's on the screen (right)
                 //4) ZBuffer, with perpendicular distance
-                if(transform.y > 0 && transform.y < zBuffer[stripe]) {
+                if(transform.y > 0 && stripe > 0 && stripe < ResolutionWidth && transform.y < zBuffer[stripe]) {
                     for(int y = drawStartY; y < drawEndY; y++){ //for every pixel of the current stripe
                         int d = (y) * 256 - ResolutionHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
                         int texY = (int)((((long) d * Texture.DefaultSize) / spriteHeight) / 256);
+                        if (texY < 0) texY = 0;
                         int color;
                         color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
+                        
                         if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
                         
                     }

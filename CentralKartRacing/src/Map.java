@@ -29,6 +29,9 @@ public class Map {
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
 
+    private int numCheckpoints;
+    public CollisionBox[] checkpoints; //The checkpoints of the map, used for lap determination.
+
     //Constants used for file access. 
     private final String wallMapFile = "wallMap.txt";
     private final String groundMapFile = "groundMap.png";
@@ -37,6 +40,7 @@ public class Map {
     private final String groundTextureFile = "groundTexture.png";
     private final String skyTextureFile = "skyTexture.png";
     private final String spriteTexturesFile = "spriteTextures.txt";
+    private final String checkpointsFile = "checkpoints.txt";
 
     private final String wallTextureFolder = "wallTextures";
     private final String spriteTextureFolder = "spriteTextures";
@@ -62,6 +66,7 @@ public class Map {
         loadGroundTexture();
         loadSkyTexture();
         loadSpriteTextures();
+        loadCheckpoints();
     }
 
     /**
@@ -82,6 +87,10 @@ public class Map {
 
     public int getNumSprites() {
         return numSprites;
+    }
+
+    public int getNumCheckpoints() {
+        return numCheckpoints;
     }
 
     /**
@@ -184,14 +193,14 @@ public class Map {
             for (int i = 0; i < numSprites; i++) {
                 String currentSprite = reader.readLine();
                 String[] spriteInfo = currentSprite.split(" ");
-                sprites[i] = new Sprite(Double.parseDouble(spriteInfo[0]), Double.parseDouble(spriteInfo[1]), Integer.parseInt(spriteInfo[2]));
+                sprites[i] = new Sprite(Double.parseDouble(spriteInfo[1]), Double.parseDouble(spriteInfo[0]), Integer.parseInt(spriteInfo[2]));
             }
             reader.close();
             r.close();
 
         } catch (IOException e) {
             //Error handling for IO errors.
-            System.out.printf("An error loading the wallMap for the map \"%s\" occurred.\n", name);
+            System.out.printf("An error loading the spriteMap for the map \"%s\" occurred.\n", name);
         } catch (NumberFormatException e) {
             //Error handling for if the spriteMap contains an un-parseable character.
             System.out.printf("The spriteFile for the map \"%s\" contained an un-parseable number.", name);
@@ -228,9 +237,7 @@ public class Map {
         } catch (IOException e) {
             //Error handling for IO errors.
             System.out.printf("An error loading the wallTextures for the map \"%s\" occurred.\n", name);
-        } catch (NumberFormatException e) {
-            System.out.printf("The spriteFile for the map \"%s\" contained an un-parseable number.", name);
-        }
+        } 
     }
     
     /**
@@ -281,6 +288,40 @@ public class Map {
         } catch (IOException e) {
              System.out.printf("An error loading the spriteTextures for the map \"%s\" occurred.\n", name);
         } 
+    }
+
+    private void loadCheckpoints(){
+        //Gets the full filepath for the spriteMap.
+        File checkpointsPath = new File(mapFolder + checkpointsFile);
+
+        //Loads the spriteMap, determining the number of sprites in the process.
+        try {
+            FileReader r = new FileReader(checkpointsPath);
+            BufferedReader reader = new BufferedReader(r);
+            numCheckpoints = 0;
+            while (reader.readLine() != null){
+                numCheckpoints++;
+            }
+            reader.close();
+            r.close();
+            r = new FileReader(checkpointsPath);
+            reader = new BufferedReader(r);
+            checkpoints = new CollisionBox[numCheckpoints];
+            for (int i = 0; i < numCheckpoints; i++) {
+                String currentCheckpoint = reader.readLine();
+                String[] checkpointInfo = currentCheckpoint.split(" ");
+                checkpoints[i] = new CollisionBox(Double.parseDouble(checkpointInfo[1]), Double.parseDouble(checkpointInfo[0]), Double.parseDouble(checkpointInfo[3]), Double.parseDouble(checkpointInfo[2]));
+            }
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+            //Error handling for IO errors.
+            System.out.printf("An error loading the checkpoints for the map \"%s\" occurred.\n", name);
+        } catch (NumberFormatException e) {
+            //Error handling for if the spriteMap contains an un-parseable character.
+            System.out.printf("The checkpointsFile for the map \"%s\" contained an un-parseable number.", name);
+        }
     }
 
 
