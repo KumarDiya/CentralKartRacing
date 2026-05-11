@@ -9,12 +9,12 @@ public class Game {
         r.renderSetup();
 
         //Time Setup
-        //long startTime = System.currentTimeMillis();
         long previousFrameTime = System.currentTimeMillis();
         long previousTime = System.currentTimeMillis();
         int timeElapsedSecond;
 
         int frameCounter = 0;
+        long why = 0;
         System.out.println(r.isActive());
 
         while (r.isDisplayable()) {
@@ -22,7 +22,8 @@ public class Game {
             timeElapsedSecond = getTimeElapsed(previousTime);
 
             double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
-            
+            long startTime = System.nanoTime();
+
             testPlayer.acceleratePlayer(r.wDown(), r.sDown(), timeElapsedFrame);
             testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
             testPlayer.movePlayer(timeElapsedFrame);
@@ -34,18 +35,21 @@ public class Game {
 
             if (timeElapsedSecond > 1000) {
                 timeElapsedSecond -= 1000;
-                System.out.printf("%d, %d\n", frameCounter, r.framesRendered);
+                System.out.printf("%d, %d\n", frameCounter, (int)why);
                 previousTime = System.currentTimeMillis();
                 frameCounter = 0;
-                r.framesRendered = 0;
+                why = 0;
             }
             frameCounter++;
             
-            r.renderScreen();
-            try {
-                Thread.sleep(1);
-            } catch (Exception e) {
-                System.out.println("Thread could not sleep.");
+            r.render();
+            r.requestRepaint();
+
+            long imSleepy = startTime + (long)(1e9 * Renderer.TargetFrameTime);
+
+            while (System.nanoTime() < imSleepy) {
+                why++;
+                continue;
             }
         }
     }

@@ -20,8 +20,15 @@ public class Renderer extends JFrame implements KeyListener{
     public int Height;                  //The final height of the JPanel (screen).
     public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
     public int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
-    BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
-    int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+
+    final static double StandardFOV = 82.7;
+    static double FOV = StandardFOV;
+
+    BufferedImage frameA = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBufferA = ((DataBufferInt) frameA.getRaster().getDataBuffer()).getData();
+    private volatile BufferedImage activeFrame = frameA;
+    BufferedImage frameB = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBufferB = ((DataBufferInt) frameB.getRaster().getDataBuffer()).getData();
 
     //Map and Player
     Map map;
@@ -42,8 +49,8 @@ public class Renderer extends JFrame implements KeyListener{
     //Key Pressed Booleans
     public boolean wPressed, sPressed, aPressed, dPressed;
 
-    //Renderer framerate (for testing)
-    public int framesRendered;
+    public static final int TargetFrameRate = 60;
+    public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
     /**
      * Renderer constructor.
@@ -59,7 +66,6 @@ public class Renderer extends JFrame implements KeyListener{
         zBuffer = new double[ResolutionWidth];
 
         wPressed = sPressed = aPressed = dPressed = false;
-        framesRendered = 0;
     }
 
     /**
@@ -76,7 +82,18 @@ public class Renderer extends JFrame implements KeyListener{
      * @param map       The map to be rendered.
      * @param player    The player in the map to be rendered.
      */
-    public synchronized BufferedImage render(){
+    public synchronized void render(){
+
+        //Frame buffer chooser
+        BufferedImage inactiveFrame;
+        int[] frameBuffer;
+        if (frameA == activeFrame) {
+            inactiveFrame = frameB;
+            frameBuffer = frameBufferB;
+        } else {
+            inactiveFrame = frameA;
+            frameBuffer = frameBufferA;
+        }
 
         //The camera position
         Vector cameraPos = getCameraPos();
@@ -242,7 +259,7 @@ public class Renderer extends JFrame implements KeyListener{
             // [ planeY   dirY ]                                          [ -planeY  planeX ]
             double invDet = 1.0/(player.plane.x * player.direction.y - player.direction.x * player.plane.y);
             Vector transform = new Vector(invDet * (player.direction.y * spriteCamPos.x - player.direction.x * spriteCamPos.y), invDet * (-player.plane.y * spriteCamPos.x + player.plane.x * spriteCamPos.y));
-            int spriteScreenX = (int)((ResolutionWidth/2)*(1 + transform.x/transform.y));
+            int spriteScreenX = (int)Math.round((ResolutionWidth/2)*(1 + transform.x/transform.y));
 
             //calculate height of the sprite on screen
             int spriteHeight = Math.abs((int)(ResolutionHeight / transform.y)); //using 'transformY' instead of the real distance prevents fisheye
@@ -281,8 +298,7 @@ public class Renderer extends JFrame implements KeyListener{
                 }
             }
         }
-        framesRendered++;
-        return frame;
+        activeFrame = inactiveFrame;
     }
 
     private void makeGUI() { 
@@ -377,7 +393,7 @@ public class Renderer extends JFrame implements KeyListener{
     /**
      * Draws the current frame to the screen.
      */
-    public synchronized void renderScreen() {
+    public synchronized void requestRepaint() {
         panel.repaint();
     }
 
@@ -390,7 +406,11 @@ public class Renderer extends JFrame implements KeyListener{
         }
 
         public void paintComponent(Graphics g) {
-            g.drawImage(render(), 0, 0, null);
+            BufferedImage framePin;
+            synchronized (this) {
+                framePin = activeFrame;
+            }
+            g.drawImage(framePin, 0, 0, null);
         }
     }
 

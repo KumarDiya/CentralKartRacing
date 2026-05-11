@@ -4,8 +4,6 @@
  * 04/28/26
  * A class similar to Rectangle, but with two major differences:
  *      1. Works with doubles
- *      2. Defined with the centre of the rectangle, rather than the top right corner.
- *          Done to make collisions in game easier, as sprites are defined by their center.
  */
 
 public class CollisionBox {

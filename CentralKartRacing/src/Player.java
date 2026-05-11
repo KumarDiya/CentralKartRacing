@@ -7,15 +7,16 @@ public class Player {
 	final double MAX_SPEED = 5; //The maximum speed for the character.
 	double currentMaxSpeed;
 	double speed; //The current speed for the character.
-	final double ACCELERATION = 0.01; //The acceleration of the character.
+	final double ACCELERATION = 5; //The acceleration of the character.
 	
 	//Rotational movement vars
 	Vector direction; //The direction the player is facing.
 	final double MAX_ROTATION_SPEED = 2; //The maximum rotational speed of the character.
 	double currentMaxRotationSpeed;
+	Vector unRotatedPlane;
 	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
 	double rotationSpeed; //The current rotational speed of the character.
-	final double HANDLING = 0.02; //The rotational acceleration of the character.
+	final double HANDLING = 10; //The rotational acceleration of the character.
 	
 	boolean isTurning = false; //True if player is turning, false otherwise
 
@@ -24,18 +25,17 @@ public class Player {
 	double turboSpeed = 2; //The speed that a boost sets you to.
 	Map map; //map used for wall collisions
 
+	//Checkpoint and lap vars
 	int currentCheckpoint;
 	int lap;
 
 	//Player Collision vars
-	final double playerWidth = 0.4;
-	final double playerHeight = 0.4;
+	final double playerWidth = 0.6;
+	final double playerHeight = 0.6;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
 
 	//Constants
-	final double FrameMovementMultiplier = 500;
-
 	final double[] groundMoveSpeeds = {0.1, 1.0, 0.6, 0.4}; //Wall speed, road speed, grass speed, sand speed.
 
 	//Getter for direction
@@ -56,7 +56,8 @@ public class Player {
 		this.pos = new Vector(12, 12);
 		this.StartPos = new Vector(12, 12);
 		this.direction = new Vector(-1, 0);
-		this.plane = new Vector(0, 0.88);
+		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.rotationSpeed = 0;
 		this.speed = 0;
 		this.currentCheckpoint = 0;
@@ -77,22 +78,26 @@ public class Player {
  //Movement
 	//accelerates player
 	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, double frameTime){
-		double currentGroundMoveSpeed = groundMoveSpeeds[map.groundMap[(int)(pos.x * map.groundMapScale)][(int)(pos.y * map.groundMapScale)]];
-		double currentAcceleration = ACCELERATION * frameTime * FrameMovementMultiplier * currentGroundMoveSpeed;
-		currentMaxSpeed = MAX_SPEED * currentGroundMoveSpeed;
+		double currentCarFriction = getCarFriction();
+		currentMaxSpeed = MAX_SPEED * currentCarFriction;
 
 		if (wDown && !sDown) {
-			if (Math.abs(speed + currentAcceleration) <= currentMaxSpeed) speed += currentAcceleration; //limits max speed
+			if (Math.abs(speed + ACCELERATION * frameTime) <= currentMaxSpeed) speed += ACCELERATION * frameTime; //limits max speed
 		} else if (sDown && !wDown) {
 			if (speed > 0){
-				speed -= currentAcceleration * 2;
-			} else if (Math.abs(speed - currentAcceleration * 0.5) <= currentMaxSpeed * 0.5) speed -= currentAcceleration * 0.5;
+				speed -= ACCELERATION * frameTime * 2;
+			} else if (Math.abs(speed - ACCELERATION * frameTime * 0.5) <= currentMaxSpeed * 0.5) speed -= ACCELERATION * frameTime * 0.5;
 		} else {
-			speed *= (1 - frameTime);
+			speed *= Math.pow(0.3 * currentCarFriction * currentCarFriction, frameTime);
+			//decayRate is % remaining after 1 second
+			//speed -= (speed * 0.02) * (frameTime/Renderer.TargetFrameTime);
 			if (Math.abs(speed) < 0.05){
 				speed = 0;
 			}
 		}
+
+		// Renderer.FOV = Renderer.StandardFOV + Math.pow(1.7, speed);
+		// this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 
 		if (speed < 0 && speed < -currentMaxSpeed) {
 			speed = -currentMaxSpeed;
@@ -102,17 +107,16 @@ public class Player {
 	}
 
 	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, double frameTime) {
-		double currentHandling = HANDLING * frameTime * FrameMovementMultiplier;
-
 		if (Math.abs(speed) < 3) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / 3);
 		else currentMaxRotationSpeed = MAX_ROTATION_SPEED;
 		
-		if (aDown && !dDown) {
-			if (Math.abs(rotationSpeed + currentHandling) <= currentMaxRotationSpeed) rotationSpeed += currentHandling; //limits max speed
-		} else if (dDown && !aDown) {
-			if (Math.abs(rotationSpeed - currentHandling) <= currentMaxRotationSpeed) rotationSpeed -= currentHandling;
+		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {
+			if (Math.abs(rotationSpeed + HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeed += HANDLING * frameTime; //limits max speed
+		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {
+			if (Math.abs(rotationSpeed - HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeed -= HANDLING * frameTime;
 		} else {
-			rotationSpeed *= (1 - frameTime * 4);
+			//rotationSpeed -= (rotationSpeed * 0.03) * (frameTime/Renderer.TargetFrameTime);
+			rotationSpeed *= Math.pow(0.08, frameTime);
 			if (Math.abs(rotationSpeed) < 0.005) {
 				rotationSpeed = 0;
 			}
@@ -185,6 +189,24 @@ public class Player {
 		}
 	}
 
+	public double getCarFriction() {
+		return (
+			groundMoveSpeeds[sampleGroundMap(pos.x + halfPlayerWidth, pos.y + halfPlayerHeight)] +
+			groundMoveSpeeds[sampleGroundMap(pos.x + halfPlayerWidth, pos.y - halfPlayerHeight)] + 
+			groundMoveSpeeds[sampleGroundMap(pos.x - halfPlayerWidth, pos.y + halfPlayerHeight)] + 
+			groundMoveSpeeds[sampleGroundMap(pos.x - halfPlayerWidth, pos.y - halfPlayerHeight)]
+		) / 4;
+	}
+
+	private int sampleGroundMap(double x, double y) {
+		return map.groundMap[(int)((x) * map.groundMapScale)][(int)((y) * map.groundMapScale)];
+	}
+
+	@SuppressWarnings("unused")
+	private int sampleGroundMap(Vector v) {
+		return sampleGroundMap(v.x, v.y);
+	}
+
 	public synchronized void teleportPlayer(double x, double y) {
 		pos.addVec(new Vector(x, y));
 	}
@@ -194,9 +216,9 @@ public class Player {
 		double oldDirX = direction.x;
 		direction.x = direction.x * Math.cos(currentRotationSpeed) - direction.y * Math.sin(currentRotationSpeed);
 		direction.y = oldDirX * Math.sin(currentRotationSpeed) + direction.y * Math.cos(currentRotationSpeed);
-		double oldPlaneX = plane.x;
-		plane.x = plane.x * Math.cos(currentRotationSpeed) - plane.y * Math.sin(currentRotationSpeed);
-		plane.y = oldPlaneX * Math.sin(currentRotationSpeed) + plane.y * Math.cos(currentRotationSpeed);
+		double rotation = Math.atan2(direction.y, direction.x);
+		plane.x = unRotatedPlane.y * Math.sin(rotation);
+		plane.y = -unRotatedPlane.y * Math.cos(rotation);
 	}
 
 	public synchronized void turnPlayerInstant(double angle){
