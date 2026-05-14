@@ -3,117 +3,77 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class HeadsUpDisplay extends JPanel{
-    //everything will be drawn on a jpane that is on top of the main game 
-    
-        int time = 0;
-        final int panW = 300, panH = 150; //arbitrary dimensions for the HUD
-		
-        HeadsUpDisplay() {
+    //everything will be drawn on a jpanel that is on top of the main game 
+        int lap;
+		double posX, posY;
+		long timeStarted;
+		long timeElapsed;
+		BoostBar bb = new BoostBar();
+
+		Graphics2D g2;
+        HeadsUpDisplay(Graphics2D g2, int panW, int panH, long timeStarted) {
 			this.setPreferredSize(new Dimension(panW, panH));
+			this.g2 = g2;
+			this.setOpaque(false);//enable transparency
+			this.timeStarted = timeStarted;
 		}
 
-    // public void drawHUD(){
-    //     drawTimer();
-    //     drawBoostBar();
-    // }
-
-    
-
-    private void drawBoostBar(){
+	/*
+	*@param lap  			lap number player is currently on
+	*@param posX 			x-position of player on the map
+	*@param posY 			y-position of player on the map 
+	*/
+    public void drawHUD(int lap, double posX, double posY){
+        drawTimer();
+        drawBoostBar();
+		drawLap();
 
     }
-    private void drawTimer(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D)g;
-        
-        //Set the font and print the time
-        g2.setFont(new Font("Arial", Font.BOLD, 100));
-        g2.setPaint(Color.blue);
-        double currentTime = (double)time / 1000;
-        
-        //use system time
 
-        //This formats the value of currentTime to have 2 decimal places and saves as String
-        String displayTime = String.format("%.2f",  currentTime);
-        g2.drawString(displayTime, panW/3, panH/2);
-    }	
-	
+	private void drawLap(){
+		g2.setFont(new Font("Arial", Font.BOLD, 50));
+        g2.setPaint(Color.red);
+		g2.drawString("Lap " + String.valueOf(lap), 100, 80); //positioned near the top left
+	}
     
+    private void drawBoostBar(){
+		
+		//g2.fillRect();
+		g2.setPaint(Color.orange);
+		g2.setStroke(new BasicStroke(10));
+		g2.fillRect(bb.x, bb.y, bb.width, bb.height); //
+		g2.drawRect(bb.x, bb.y, bb.maxFill, bb.height); //outline for the boostbar
+
+    }
+    private void drawTimer() {
+        //update time elapsed since start of race
+		timeElapsed = System.currentTimeMillis() -  timeStarted; 
+		int timeMilli = (int)(timeElapsed % 1000)/10;//time shown in milliseconds; divides by 10 to show the first 2 digits rather than all 3
+		int timeSec = (int)(timeElapsed/1000 % 60);//time shown in seconds
+		int timeMin = (int)(timeElapsed/60000 % 60);
+
+
+        g2.setFont(new Font("Arial", Font.BOLD, 80));
+        g2.setPaint(Color.blue);
+
+		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
+		
+        g2.drawString(timeShown, 830, 90); // positioned near the top right
+    }	
+
+	private void drawMap(){
+		//constrain map image to a square area //maybe another jpanel
+	}
 }
 
-
-
-/*
-
-public class TimerCountUp extends JFrame implements ActionListener{
-	
-	DrawingPanel panel;
-	Timer timer;
-	final int tSpeed = 1;
-	int time = 0;
-
-	public static void main(String[] args) {
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new TimerCountUp();
-			}
-		});
+class BoostBar extends Rectangle{
+	BoostBar(){
 	}
-	
-	TimerCountUp() {
-		this.setTitle("Timer");
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		
-		panel = new DrawingPanel();
-		this.add(panel);
-		this.pack();
-		this.setLocationRelativeTo(null);
-		this.setVisible(true);
-		//Add the KeyListener to the frame
-		this.addKeyListener(new KeystrokeListener());
-		//Set timer to count up and repaint the panel
-		timer = new Timer(tSpeed, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				time++;
-				panel.repaint();
-			}
-		});
-		timer.start();	//start the timer
-	}
-	
-	private class DrawingPanel extends JPanel {
-		final int panW = 300, panH = 150;
-		DrawingPanel() {
-			this.setPreferredSize(new Dimension(panW, panH));
-		}
-		
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			Graphics2D g2 = (Graphics2D)g;
-			
-			//Set the font and print the time
-			g2.setFont(new Font("Arial", Font.BOLD, 50));
-			g2.setPaint(Color.blue);
-			double currentTime = (double)time / 1000;
-			
-			//This formats the value of currentTime to have 2 decimal places and saves as String
-			String displayTime = String.format("%.2f",  currentTime);
-			g2.drawString(displayTime, panW/3, panH/2);
-		}	
-	}
-	private class KeystrokeListener extends KeyAdapter {
-		@Override
-		public void keyPressed(KeyEvent e) {
-			if (e.getKeyCode() == KeyEvent.VK_UP){
-				if (timer.isRunning()) timer.stop();
-				else{
-					time = 0;
-					timer.start();
-				}
-			}
-		}
-	}
-	@Override
-	public void actionPerformed(ActionEvent e) {}
+	double boostFill;
+	int x = 500; //positioned near the top middle
+	int y = 50;
+	final int height = 50;
+	int maxFill = 200; //width of the boost rectangle when full
+	int width = (int)boostFill;
+
 }
-*/

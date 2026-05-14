@@ -13,5 +13,7 @@
 			"path": "../../../../../eclipse-workspace/SwingGraphics"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"java.debug.settings.onBuildFailureProceed": true
+	}
 }
