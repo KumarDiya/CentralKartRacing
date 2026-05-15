@@ -5,6 +5,8 @@ public class Game {
         Renderer r = new Renderer();
         r.renderSetup(testMap, testPlayer);
 
+        HeadsUpDisplay hud = new HeadsUpDisplay();
+
         //Time Setup
         //long startTime = System.currentTimeMillis();
         long previousFrameTime = System.currentTimeMillis();

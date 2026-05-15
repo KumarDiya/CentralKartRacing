@@ -19,7 +19,13 @@ public class Player {
 
 	//Drifting vars
 	boolean isDrifting = false; //True if the player is currently drifting, false otherwise.
+
+	//Boost vars
 	double turboSpeed = 2; //The speed that a boost sets you to.
+	int boostBar = 3; //The current amount of boost the player has. Max boost: 10, min: 0
+	boolean isFullBoost = false; //True if the player has a full boost bar, false otherwise.
+	int boostTime; //The amount of time the player has been boosting for
+	
 	Map map; //map used for wall collisions
 
 	//Player Collision vars
@@ -46,6 +52,7 @@ public class Player {
 		this.speed = 0;
 	}
 	
+	//use this one when we have more characters
 	Player(Map map, String character){
 		//Creates a new character using a specified character, where char is the selected character.
 		//Loads all stats of the character either directly in code, or from a stats.txt file for the character.
@@ -113,6 +120,7 @@ public class Player {
 		if (!colliding) {
 			pos = newPosX;
 		}
+	}
 
 		Vector newPosY = pos.addVec(moveY);
 		playerBox = new CollisionBox(newPosY.x - halfPlayerWidth, newPosY.y - halfPlayerHeight, playerWidth, playerHeight);
@@ -136,8 +144,35 @@ public class Player {
 		
 		//WIP
 		if (isDrifting){
+			speed = initialSpeed*0.9; //arbitrary slow factor for drifting
 
+			//makes the player able to turn more sharply when drifting
+			rotationSpeed = HANDLING*1.5; //arbitrary handling increase
+
+			//limits the player's turn so they can't turn the other way or go straight while drifting
+			if (rotationSpeed < 0) rotationSpeed = Math.max(rotationSpeed, -0.5); //arbitrary turn limit
+			else rotationSpeed = Math.min(rotationSpeed, 0.5);
+			
 		}
+
+		//charge the boost bar
+	}
+
+	public void boost(){
+		speed = turboSpeed;
+		//boost for a certain amount of time or until boost bar runs out
+		//if boost bar full, bonus boost time
+		if (isFullBoost){
+			boostTime = 5000; 
+		}
+
+		if (boostBar == 10){
+			isFullBoost = true;
+			break;
+		} 
+
+		boostBar = 0; //resets boost bar	
+		isFullBoost = false;
 	}
 
 	public void turnPlayer(double frameTime){
