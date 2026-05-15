@@ -82,7 +82,7 @@ public class RaycastingTesting{
         //Initilization of map and textures
         int mapWidth = 0, mapHeight = 1;
         int[][] map = {};
-        File mapFile = new File("RaycastingTesting/src/map.txt");
+        File mapFile = new File("RaycastingTesting/src/wallMap.txt");
 
         gc.setBackgroundColor(Color.BLACK);
 
@@ -98,9 +98,9 @@ public class RaycastingTesting{
             r = new FileReader(mapFile);
             reader = new BufferedReader(r);
             //System.out.printf("%d, %d", mapHeight, mapWidth);
-            map = new int[mapHeight][mapWidth];
-            for (int i = 0; i < mapHeight; i++){
-                for (int j = 0; j < mapWidth; j++){
+            map = new int[mapWidth][mapHeight];
+            for (int i = 0; i < mapWidth; i++){
+                for (int j = 0; j < mapHeight; j++){
                     map[i][j] = reader.read() - 48;
                 }
                 reader.readLine();
@@ -162,7 +162,7 @@ public class RaycastingTesting{
         
         //Game Loop
         while (true) {
-
+            System.out.printf("%.2f, %.2f\n", pos.x, pos.y);
             //Render Floor
             double dirAng = Math.atan2(dir.y, dir.x);
             Vector rayDir0 = new Vector(dir.x - plane.x, dir.y - plane.y);
@@ -375,8 +375,8 @@ public class RaycastingTesting{
             drawGraphics();
 
             //Movement
-            // double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
-            // double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
+            double moveSpeed = frameTime * 5.0; //the constant value is in squares/second
+            double rotSpeed = frameTime * 3.0; //the constant value is in radians/second
             // //move forward if no wall in front of you
             if(gc.isKeyDown(87)) {
                 if(map[(int)(pos.x + dir.x * moveSpeed)][(int)pos.y] == 0) pos.x += dir.x * moveSpeed;
@@ -388,25 +388,25 @@ public class RaycastingTesting{
                 if(map[(int)(pos.x)][(int)(pos.y - dir.y * moveSpeed)] == 0) pos.y -= dir.y * moveSpeed;
             }
             //rotate to the right
-            // if(gc.isKeyDown(68)) {
-            //     //both camera direction and camera plane must be rotated
-            //     double olddirX = dir.x;
-            //     dir.x = dir.x * Math.cos(-rotSpeed) - dir.y * Math.sin(-rotSpeed);
-            //     dir.y = olddirX * Math.sin(-rotSpeed) + dir.y * Math.cos(-rotSpeed);
-            //     double oldplaneX = plane.x;
-            //     plane.x = plane.x * Math.cos(-rotSpeed) - plane.y * Math.sin(-rotSpeed);
-            //     plane.y = oldplaneX * Math.sin(-rotSpeed) + plane.y * Math.cos(-rotSpeed);
-            // }
+            if(gc.isKeyDown(68)) {
+                //both camera direction and camera plane must be rotated
+                double olddirX = dir.x;
+                dir.x = dir.x * Math.cos(-rotSpeed) - dir.y * Math.sin(-rotSpeed);
+                dir.y = olddirX * Math.sin(-rotSpeed) + dir.y * Math.cos(-rotSpeed);
+                double oldplaneX = plane.x;
+                plane.x = plane.x * Math.cos(-rotSpeed) - plane.y * Math.sin(-rotSpeed);
+                plane.y = oldplaneX * Math.sin(-rotSpeed) + plane.y * Math.cos(-rotSpeed);
+            }
             //rotate to the left
-            // if(gc.isKeyDown(65)) {
-            //     //both camera direction and camera plane must be rotated
-            //     double olddirX = dir.x;
-            //     dir.x = dir.x * Math.cos(rotSpeed) - dir.y * Math.sin(rotSpeed);
-            //     dir.y = olddirX * Math.sin(rotSpeed) + dir.y * Math.cos(rotSpeed);
-            //     double oldplaneX = plane.x;
-            //     plane.x = plane.x * Math.cos(rotSpeed) - plane.y * Math.sin(rotSpeed);
-            //     plane.y = oldplaneX * Math.sin(rotSpeed) + plane.y * Math.cos(rotSpeed);
-            // }
+            if(gc.isKeyDown(65)) {
+                //both camera direction and camera plane must be rotated
+                double olddirX = dir.x;
+                dir.x = dir.x * Math.cos(rotSpeed) - dir.y * Math.sin(rotSpeed);
+                dir.y = olddirX * Math.sin(rotSpeed) + dir.y * Math.cos(rotSpeed);
+                double oldplaneX = plane.x;
+                plane.x = plane.x * Math.cos(rotSpeed) - plane.y * Math.sin(rotSpeed);
+                plane.y = oldplaneX * Math.sin(rotSpeed) + plane.y * Math.cos(rotSpeed);
+            }
 
             //Haha funny plane skewing (makes for very funny visual effects)
             if(gc.isKeyDown(81)){
@@ -471,7 +471,7 @@ public class RaycastingTesting{
             if(side) perpWallDist = (sideDist.x - deltaDist.x);
             else perpWallDist = (sideDist.y - deltaDist.y);
     
-            if (perpWallDist > 16) cameraMult = 16;
+            if (perpWallDist > 2) cameraMult = 2;
             else cameraMult = perpWallDist - 0.01;
         
             cameraPos = pos.addVec(cameraDir.scalMult(cameraMult));

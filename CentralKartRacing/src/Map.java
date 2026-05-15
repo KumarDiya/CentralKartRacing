@@ -220,7 +220,7 @@ public class Map {
      */
     private void loadGroundTexture(){
         String groundTexturePath =  mapFolder + groundTextureFile;
-        groundTexture = new Texture(groundTexturePath);
+        groundTexture = new Texture(groundTexturePath, 72, 72);
     }
 
     /**
@@ -228,7 +228,7 @@ public class Map {
      */
     private void loadSkyTexture(){
         String skyTexturePath = mapFolder + skyTextureFile;
-        skyTexture = new Texture(skyTexturePath);
+        skyTexture = new Texture(skyTexturePath, 1000, 480);
     }
 
     private void loadSpriteTextures(){

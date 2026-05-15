@@ -6,19 +6,22 @@
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-public class Renderer extends JFrame{
+public class Renderer extends JFrame implements KeyListener{
     //General screen variables
     private RaycastPanel panel;         //The JFrame panel to draw on.
-    private BufferedImage frame;        //The bufferredImage representing the screen.
-    //An integer array referencing the raw color data for the screen, used for performance optimization. 
-    private int[] screenArr;
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
     public int ResolutionWidth = 750;   //The width of the resolution for the game to be rendered in.
     public int ResolutionHeight = 500;  //The height of the resolution for the game to be rendered in.
+
+    //Map and Player
+    Map map;
+    Player player;
     
     //Skybox variables
     private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
@@ -32,20 +35,17 @@ public class Renderer extends JFrame{
     public static final int DarkerNumber = Integer.parseInt("011111110111111101111111", 2); //Bitmask to make colors darker. Makes use of the bitwise 'and' bitshift operator (fun!)
     public static final double CameraDistance = 2;  //The distance the camera will follow the player at.
 
+    //Key Pressed Booleans
+    public boolean wPressed;
+    public boolean sPressed;
+    public boolean aPressed;
+    public boolean dPressed;
+
     /**
      * Renderer constructor.
      */
     public Renderer () {
-        panel = new RaycastPanel();
-        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        this.setUndecorated(true);
-        this.add(panel);
-        this.setVisible(true);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        Width = this.getWidth();
-        Height = this.getHeight();
-        frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
-        screenArr = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+        makeGUI();
     }
 
     /**
@@ -54,11 +54,16 @@ public class Renderer extends JFrame{
      * @param player    The player; uses its FOV to set up for.
      */
     public void renderSetup(Map map, Player player) {
+        this.map = map;
+        this.player = player;
+
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
         angBetwRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
         skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetwRays);
 
-        zBuffer = new double[map.getNumSprites()];
+        zBuffer = new double[ResolutionWidth];
+
+        wPressed = sPressed = aPressed = dPressed = false;
     }
 
     /**
@@ -66,9 +71,12 @@ public class Renderer extends JFrame{
      * @param map       The map to be rendered.
      * @param player    The player in the map to be rendered.
      */
-    public void render(Map map, Player player){
+    public BufferedImage render(){
+        BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+        int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+
         //The camera position
-        Vector cameraPos = getCameraPos(map, player);
+        Vector cameraPos = getCameraPos();
 
         //Render Floor
         Vector rayDirMin = new Vector(player.direction.x - player.plane.x, player.direction.y - player.plane.y);
@@ -85,7 +93,7 @@ public class Renderer extends JFrame{
 
             for (int x = 0; x < ResolutionWidth; x++){
                 VectorInt cell = new VectorInt((int)(floor.x), (int)(floor.y));
-                VectorInt fcTexture = new VectorInt(Math.abs((int)(map.groundTexture.getWidth() * (floor.y / map.getWidth() - cell.y)) % (map.groundTexture.getWidth())), Math.abs((int)(map.groundTexture.getHeight() * (floor.x / map.getHeight() - cell.x)) % (map.groundTexture.getHeight())));
+                VectorInt fcTexture = new VectorInt(Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) % (map.groundTexture.getWidth())), map.groundTexture.getHeight() - 1 - Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) % (map.groundTexture.getHeight())));
 
                 floor.x += floorStep.x;
                 floor.y += floorStep.y;
@@ -93,7 +101,7 @@ public class Renderer extends JFrame{
                 int color;
                 color = map.groundTexture.texture[fcTexture.x][fcTexture.y];
                 color = (color >> 1) & DarkerNumber;
-                screenArr[y * ResolutionWidth + x] = color;
+                frameBuffer[y * ResolutionWidth + x] = color;
             }
         }
 
@@ -158,8 +166,6 @@ public class Renderer extends JFrame{
 
             if (!side) perpWallDist = sideDist.x - deltaDist.x;
             else perpWallDist = sideDist.y - deltaDist.y;
-            //if (!side) perpWallDist = sideDist.x;
-            //else perpWallDist = sideDist.y;
 
             //Calculate line's parameters to draw on screen
             int lineHeight = (int)(ResolutionHeight / perpWallDist);
@@ -195,7 +201,7 @@ public class Renderer extends JFrame{
                 texPos += texStep;
                 int color = map.wallTextures[texNum].texture[texX][texY];
                 if (side) color = (color >> 1) & DarkerNumber;
-                screenArr[y * ResolutionWidth + x] = color;
+                frameBuffer[y * ResolutionWidth + x] = color;
             }
 
             //Render Sky
@@ -205,7 +211,7 @@ public class Renderer extends JFrame{
 
             for (int y = 0; y < drawStart; y++) {
                 int color = map.skyTexture.texture[skyX][y];
-                screenArr[y * ResolutionWidth + x] = color;
+                frameBuffer[y * ResolutionWidth + x] = color;
             }
 
             //Set ZBuffer for sprite rendering
@@ -213,7 +219,7 @@ public class Renderer extends JFrame{
         }
 
         //Sprite Rendering
-        map.sprites[19].setXY(player.pos);
+        map.sprites[3].setXY(player.pos);
 
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
@@ -264,13 +270,27 @@ public class Renderer extends JFrame{
                         int texY = (int)((((long) d * Texture.DefaultSize) / spriteHeight) / 256);
                         int color;
                         color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
-                        if((color & 0x00FFFFFF) != 0) screenArr[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
+                        if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
                         
                     }
                 }
             }
         }
+
+        return frame;
     }
+
+    private void makeGUI() { 
+		panel = new RaycastPanel();
+        this.setUndecorated(false);
+        this.add(panel);
+        this.addKeyListener(this);
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.pack();
+        this.setVisible(true);
+        Width = this.getWidth();
+        Height = this.getHeight();
+	}
     
     /**
      * Gets the current camera position by casting a ray backwards from where the player is facing and checking for collision.
@@ -278,7 +298,7 @@ public class Renderer extends JFrame{
      * @param player
      * @return
      */
-    private Vector getCameraPos(Map map, Player player) {
+    private Vector getCameraPos() {
         //Camera Collision Detection (prevents camera from going through walls when close to them)
         Vector cameraPos;
         Vector cameraDir = player.direction.scalMult(-1);
@@ -328,8 +348,12 @@ public class Renderer extends JFrame{
                 mapSquare.y += step.y;
                 side = false;
             }
-            //System.out.println(mapSquare.x + ", " + mapSquare.y);
-            if (map.groundMap[mapSquare.x][mapSquare.y] > 0) hit = 1;
+            
+            if (map.wallMap[mapSquare.x][mapSquare.y] > 0) {
+                hit = 1;
+                //System.out.print(map.wallMap[mapSquare.x][mapSquare.y] + ", ");
+                //System.out.println(mapSquare.x + ", " + mapSquare.y);
+            }
         }
 
         if(side) perpWallDist = (sideDist.x - deltaDist.x);
@@ -338,6 +362,7 @@ public class Renderer extends JFrame{
         if (perpWallDist > CameraDistance) cameraMult = CameraDistance;
         else cameraMult = perpWallDist - 0.01;
     
+        //System.out.println(perpWallDist);
         cameraPos = player.pos.addVec(cameraDir.scalMult(cameraMult));
 
         return cameraPos;
@@ -354,11 +379,64 @@ public class Renderer extends JFrame{
      * The JPanel class
      */
     private class RaycastPanel extends JPanel {
-        RaycastPanel() {}
+        RaycastPanel() {
+            this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
+        }
 
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            g.drawImage(frame.getScaledInstance(Width, Height, Image.SCALE_FAST), 0, 0, null);
+            g.drawImage(render(), 0, 0, null);
         }
     }
+
+    public boolean wDown () {
+        return wPressed;
+    }
+
+    public boolean sDown() {
+        return sPressed;
+    }
+
+    public boolean aDown() {
+        return aPressed;
+    }
+
+    public boolean dDown() {
+        return dPressed;
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            wPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            sPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_A) {
+            aPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_D) {
+            dPressed = true;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            wPressed = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_S) {
+            sPressed = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_A) {
+            aPressed = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_D) {
+            dPressed = false;
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
 }
