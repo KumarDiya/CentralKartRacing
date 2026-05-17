@@ -44,10 +44,10 @@ public class Renderer extends JFrame implements KeyListener{
 
     //Constants
     public static final int DarkerNumber = Integer.parseInt("011111110111111101111111", 2); //Bitmask to make colors darker. Makes use of the bitwise 'and' bitshift operator (fun!)
-    public static final double CameraDistance = 2;  //The distance the camera will follow the player at.
+    public static double CameraDistance = 2;  //The distance the camera will follow the player at.
 
     //Key Pressed Booleans
-    public boolean wPressed, sPressed, aPressed, dPressed;
+    public boolean wPressed, sPressed, aPressed, dPressed, uPressed;
 
     public static final int TargetFrameRate = 60;
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
@@ -321,6 +321,13 @@ public class Renderer extends JFrame implements KeyListener{
      * @return
      */
     private Vector getCameraPos() {
+
+        // if (player.speed > player.MAX_SPEED) {
+        //     CameraDistance = 2 + (player.speed - player.MAX_SPEED)/player.MAX_SPEED;
+        // } else {
+        //     CameraDistance = 2;
+        // }
+
         //Camera Collision Detection (prevents camera from going through walls when close to them)
         Vector cameraPos;
         Vector cameraDir = player.direction.scalMult(-1);
@@ -430,6 +437,10 @@ public class Renderer extends JFrame implements KeyListener{
         return dPressed;
     }
 
+    public boolean uDown() {
+        return uPressed;
+    }
+
     public boolean[] getControlsDown() {
         boolean[] controls = {wPressed, sPressed, aPressed, dPressed};
         return controls;
@@ -449,6 +460,9 @@ public class Renderer extends JFrame implements KeyListener{
         if (e.getKeyCode() == KeyEvent.VK_D) {
             dPressed = true;
         }
+        if (e.getKeyCode() == KeyEvent.VK_U) {
+            uPressed = true;
+        }
     }
 
     @Override
@@ -464,6 +478,9 @@ public class Renderer extends JFrame implements KeyListener{
         }
         if (e.getKeyCode() == KeyEvent.VK_D) {
             dPressed = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_U) {
+            uPressed = false;
         }
     }
 

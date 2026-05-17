@@ -24,6 +24,7 @@ public class Game {
             double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
             long startTime = System.nanoTime();
 
+            testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown());
             testPlayer.acceleratePlayer(r.wDown(), r.sDown(), timeElapsedFrame);
             testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
             testPlayer.movePlayer(timeElapsedFrame);
