@@ -19,8 +19,15 @@ public class Renderer extends JPanel implements KeyListener{
     public int Height;                  //The final height of the JPanel (screen).
     public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
     public int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
-    BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
-    int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+
+    final static double StandardFOV = 82.7;
+    static double FOV = StandardFOV;
+
+    BufferedImage frameA = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBufferA = ((DataBufferInt) frameA.getRaster().getDataBuffer()).getData();
+    private volatile BufferedImage activeFrame = frameA;
+    BufferedImage frameB = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBufferB = ((DataBufferInt) frameB.getRaster().getDataBuffer()).getData();
 
     //paused boolean
     boolean paused;
@@ -39,13 +46,13 @@ public class Renderer extends JPanel implements KeyListener{
 
     //Constants
     public static final int DarkerNumber = Integer.parseInt("011111110111111101111111", 2); //Bitmask to make colors darker. Makes use of the bitwise 'and' bitshift operator (fun!)
-    public static final double CameraDistance = 2;  //The distance the camera will follow the player at.
+    public static double CameraDistance = 2;  //The distance the camera will follow the player at.
 
     //Key Pressed Booleans
-    public boolean wPressed, sPressed, aPressed, dPressed;
+    public boolean wPressed, sPressed, aPressed, dPressed, uPressed;
 
-    //Renderer framerate (for testing)
-    public int framesRendered;
+    public static final int TargetFrameRate = 60;
+    public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
     /**
      * Renderer constructor. extra param added: selectedPlayer
@@ -78,7 +85,18 @@ public class Renderer extends JPanel implements KeyListener{
      * @param map       The map to be rendered.
      * @param player    The player in the map to be rendered.
      */
-    public synchronized BufferedImage render(){
+    public synchronized void render(){
+
+        //Frame buffer chooser
+        BufferedImage inactiveFrame;
+        int[] frameBuffer;
+        if (frameA == activeFrame) {
+            inactiveFrame = frameB;
+            frameBuffer = frameBufferB;
+        } else {
+            inactiveFrame = frameA;
+            frameBuffer = frameBufferA;
+        }
 
         //The camera position
         Vector cameraPos = getCameraPos();
@@ -244,7 +262,7 @@ public class Renderer extends JPanel implements KeyListener{
             // [ planeY   dirY ]                                          [ -planeY  planeX ]
             double invDet = 1.0/(player.plane.x * player.direction.y - player.direction.x * player.plane.y);
             Vector transform = new Vector(invDet * (player.direction.y * spriteCamPos.x - player.direction.x * spriteCamPos.y), invDet * (-player.plane.y * spriteCamPos.x + player.plane.x * spriteCamPos.y));
-            int spriteScreenX = (int)((ResolutionWidth/2)*(1 + transform.x/transform.y));
+            int spriteScreenX = (int)Math.round((ResolutionWidth/2)*(1 + transform.x/transform.y));
 
             //calculate height of the sprite on screen
             int spriteHeight = Math.abs((int)(ResolutionHeight / transform.y)); //using 'transformY' instead of the real distance prevents fisheye
@@ -283,8 +301,7 @@ public class Renderer extends JPanel implements KeyListener{
                 }
             }
         }
-        framesRendered++;
-        return frame;
+        activeFrame = inactiveFrame;
     }
 
    
@@ -295,6 +312,13 @@ public class Renderer extends JPanel implements KeyListener{
      * @return
      */
     private Vector getCameraPos() {
+
+        // if (player.speed > player.MAX_SPEED) {
+        //     CameraDistance = 2 + (player.speed - player.MAX_SPEED)/player.MAX_SPEED;
+        // } else {
+        //     CameraDistance = 2;
+        // }
+
         //Camera Collision Detection (prevents camera from going through walls when close to them)
         Vector cameraPos;
         Vector cameraDir = player.direction.scalMult(-1);
@@ -400,6 +424,10 @@ public class Renderer extends JPanel implements KeyListener{
         return dPressed;
     }
 
+    public boolean uDown() {
+        return uPressed;
+    }
+
     public boolean[] getControlsDown() {
         boolean[] controls = {wPressed, sPressed, aPressed, dPressed};
         return controls;
@@ -442,6 +470,9 @@ public class Renderer extends JPanel implements KeyListener{
         }
         if (e.getKeyCode() == KeyEvent.VK_D) {
             dPressed = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_U) {
+            uPressed = false;
         }
     }
 
