@@ -1,4 +1,3 @@
-
 public class Game{
 
     static final int loadingChunks = 128;
@@ -45,8 +44,11 @@ public class Game{
                     timeElapsedSecond = getTimeElapsed(previousTime);
 
                     double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
+
+                    long startTime = System.nanoTime();
                     
-                     if (!r.paused) {
+                    if (!r.paused) {
+                        testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown());
                         testPlayer.acceleratePlayer(r.wDown(), r.sDown(), timeElapsedFrame);
                         testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
                         testPlayer.movePlayer(timeElapsedFrame);
@@ -59,18 +61,18 @@ public class Game{
 
                     if (timeElapsedSecond > 1000) {
                         timeElapsedSecond -= 1000;
-                        System.out.printf("%d, %d\n", frameCounter, r.framesRendered);
+                        System.out.printf("%d\n", frameCounter);
                         previousTime = System.currentTimeMillis();
                         frameCounter = 0;
-                        r.framesRendered = 0;
                     }
                     frameCounter++;
                     
-                    r.renderScreen();
-                    try {
-                        Thread.sleep(1);
-                    } catch (Exception e) {
-                        System.out.println("Thread could not sleep.");
+                    r.render();
+                    r.requestRepaint();
+                    long imSleepy = startTime + (long)(1e9 * Renderer.TargetFrameTime);
+
+                    while (System.nanoTime() < imSleepy) {
+                        continue;
                     }
                 }
             }

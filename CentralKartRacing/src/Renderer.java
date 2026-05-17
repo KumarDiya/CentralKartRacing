@@ -71,7 +71,6 @@ public class Renderer extends JPanel implements KeyListener{
         zBuffer = new double[ResolutionWidth];
 
         wPressed = sPressed = aPressed = dPressed = false;
-        framesRendered = 0;
 
         //set up panel
         this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
@@ -391,13 +390,17 @@ public class Renderer extends JPanel implements KeyListener{
     /**
      * Draws the current frame to the screen.
      */
-    public synchronized void renderScreen() {
+    public synchronized void requestRepaint() {
         this.repaint();
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(render(), 0, 0, null);
+        BufferedImage framePin;
+        synchronized (this) {
+            framePin = activeFrame;
+        }
+        g.drawImage(framePin, 0, 0, null);
         /*if (paused){
             Graphics2D g2 = (Graphics2D)g;
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -449,6 +452,9 @@ public class Renderer extends JPanel implements KeyListener{
             dPressed = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_U) {
+            uPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_K) {
             MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
             if(!paused){
                 paused = true;
@@ -480,7 +486,7 @@ public class Renderer extends JPanel implements KeyListener{
     public void keyTyped(KeyEvent e) {}
 
     /**
-     * determines index of the player textyre the user chooses
+     * determines index of the player texture the user chooses
      * @param character
      */
     public void setPlayerCharacter(String character) {
