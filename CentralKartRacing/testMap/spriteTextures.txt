@@ -1,2 +1,4 @@
 tires.png
-player.png
+blondeguy.png
+po.png
+jeff1.png

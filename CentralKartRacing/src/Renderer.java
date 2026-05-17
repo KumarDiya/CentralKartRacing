@@ -4,18 +4,17 @@
  * The class that handles all rendering in the main game. 
  */
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.Graphics;
-import java.awt.Dimension;
+
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public class Renderer extends JFrame implements KeyListener{
+public class Renderer extends JPanel implements KeyListener{
     //General screen variables
-    private RaycastPanel panel;         //The JFrame panel to draw on.
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
     public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
@@ -29,6 +28,9 @@ public class Renderer extends JFrame implements KeyListener{
     private volatile BufferedImage activeFrame = frameA;
     BufferedImage frameB = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
     int[] frameBufferB = ((DataBufferInt) frameB.getRaster().getDataBuffer()).getData();
+
+    //paused boolean
+    boolean paused;
 
     //Map and Player
     Map map;
@@ -53,11 +55,14 @@ public class Renderer extends JFrame implements KeyListener{
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
     /**
-     * Renderer constructor.
+     * Renderer constructor. extra param added: selectedPlayer
      */
     public Renderer (Map map, Player player) {
+
         this.map = map;
         this.player = player;
+
+        paused = false;
 
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
         angBetweenRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
@@ -66,16 +71,14 @@ public class Renderer extends JFrame implements KeyListener{
         zBuffer = new double[ResolutionWidth];
 
         wPressed = sPressed = aPressed = dPressed = false;
-    }
+        framesRendered = 0;
 
-    /**
-     * Sets up the renderer for a specific map and player FOV.
-     * @param map       The {@code map} object to set up for.
-     * @param player    The {@code player} object; uses its FOV to set up for.
-     */
-    public void renderSetup() {
-        makeGUI();
+        //set up panel
+        this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
+        this.setFocusable(true);
+        this.addKeyListener(this);
     }
+    
 
     /**
      * Renders a frame, setting frame to the final rendered frame.
@@ -301,19 +304,7 @@ public class Renderer extends JFrame implements KeyListener{
         activeFrame = inactiveFrame;
     }
 
-    private void makeGUI() { 
-		panel = new RaycastPanel();
-        this.setTitle("Central Kart Racing");
-        this.setUndecorated(false);
-        this.add(panel);
-        this.addKeyListener(this);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.pack();
-        this.setVisible(true);
-        Width = this.getWidth();
-        Height = this.getHeight();
-	}
-    
+   
     /**
      * Gets the current camera position by casting a ray backwards from where the player is facing and checking for collision.
      * @param map
@@ -400,25 +391,21 @@ public class Renderer extends JFrame implements KeyListener{
     /**
      * Draws the current frame to the screen.
      */
-    public synchronized void requestRepaint() {
-        panel.repaint();
+    public synchronized void renderScreen() {
+        this.repaint();
     }
 
-    /**
-     * The JPanel class
-     */
-    private class RaycastPanel extends JPanel {
-        RaycastPanel() {
-            this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
-        }
-
-        public void paintComponent(Graphics g) {
-            BufferedImage framePin;
-            synchronized (this) {
-                framePin = activeFrame;
-            }
-            g.drawImage(framePin, 0, 0, null);
-        }
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(render(), 0, 0, null);
+        /*if (paused){
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setColor(new Color(0, 0, 0, 180));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            
+        }*/
     }
 
     public boolean wDown () {
@@ -446,6 +433,7 @@ public class Renderer extends JFrame implements KeyListener{
         return controls;
     }
 
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W) {
@@ -461,7 +449,11 @@ public class Renderer extends JFrame implements KeyListener{
             dPressed = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_U) {
-            uPressed = true;
+            MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+            if(!paused){
+                paused = true;
+                mainFrame.switchToScreen("pause");
+            }
         }
     }
 
@@ -486,4 +478,24 @@ public class Renderer extends JFrame implements KeyListener{
 
     @Override
     public void keyTyped(KeyEvent e) {}
+
+    /**
+     * determines index of the player textyre the user chooses
+     * @param character
+     */
+    public void setPlayerCharacter(String character) {
+        int textureIndex = 0;
+        if (character.equals("Jeff")) {
+            textureIndex = 3;
+        } else if (character.equals("Po")) {
+            textureIndex = 2;
+        } else if (character.equals("Blonde Guy")) {
+            textureIndex = 1;
+        }
+
+        map.sprites[4].texture = textureIndex;
+        System.out.println("Player texture set to index: " + textureIndex);
+    }
+
+    
 }
