@@ -81,6 +81,7 @@ public class Player {
 		driftTimer.setRepeats(false);
 	}
 	
+	//use this one when we have more characters
 	Player(Map map, String character){
 		//Creates a new character using a specified character, where char is the selected character.
 		//Loads all stats of the character either directly in code, or from a stats.txt file for the character.
