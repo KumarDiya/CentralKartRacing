@@ -1,45 +1,125 @@
-public class Game {
-    public static void main(String[] args) throws Exception {
-        Map testMap = new Map("Test", "testMap");
-        Player testPlayer = new Player(testMap);
-        Renderer r = new Renderer();
-        r.renderSetup(testMap, testPlayer);
+public class Game{
 
-        HeadsUpDisplay hud = new HeadsUpDisplay();
+    static final int loadingChunks = 128;
+    private Map testMap;
+    private Player testPlayer;
+    private Renderer r;
+    private boolean isRunning = false;
+    private Thread gameLoopThread;
 
-        //Time Setup
-        //long startTime = System.currentTimeMillis();
-        long previousFrameTime = System.currentTimeMillis();
-        long previousTime = System.currentTimeMillis();
-        int timeElapsed;
+    /**
+     * constructor
+     */
+    public Game(){
+        testMap = new Map("Test", "testMap");
+        testPlayer = new Player(testMap);
+        r = new Renderer(testMap, testPlayer);
+        loadMap(testPlayer, testMap, r);
+    }
 
-        int frameCounter = 0;
+    public void start(){
 
-        while (r.isActive()) {
-            r.render();
-            r.drawFrame();
-            timeElapsed = getTimeElapsed(previousTime);
-            
-            testPlayer.acceleratePlayer(r.wDown(), r.sDown());
-            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown());
-            testPlayer.movePlayer((double)(System.currentTimeMillis() - previousFrameTime)/1000);
-            testPlayer.turnPlayer((double)(System.currentTimeMillis() - previousFrameTime)/1000);
-            previousFrameTime = System.currentTimeMillis();
-            //testPlayer.printPos();
-            System.out.printf("%.2f %.2f %.2f %.2f\n", testPlayer.pos.x, testPlayer.pos.y, testPlayer.direction.x, testPlayer.direction.y);
+        r.setFocusable(true);
+        r.requestFocusInWindow();
 
-            if (timeElapsed > 1000) {
-                timeElapsed -= 1000;
-                System.out.println(frameCounter);
-                previousTime = System.currentTimeMillis();
-                frameCounter = 0;
+        if (isRunning||(gameLoopThread) != null && gameLoopThread.isAlive()){
+            System.out.println("Game is running already");
+            return;
+        }
+
+        System.out.println("Game starting...");
+        isRunning = true;
+
+        gameLoopThread = new Thread(new Runnable(){
+            public void run(){
+                long previousFrameTime = System.currentTimeMillis();
+                long previousTime = System.currentTimeMillis();
+                int timeElapsedSecond;
+
+                int frameCounter = 0;
+
+                while (isRunning && r.isDisplayable()) {
+                    
+                    //System.out.println("rendering");
+                    timeElapsedSecond = getTimeElapsed(previousTime);
+
+                    double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
+
+                    long startTime = System.nanoTime();
+                    
+                    if (!r.paused) {
+                        testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown());
+                        testPlayer.acceleratePlayer(r.wDown(), r.sDown(), timeElapsedFrame);
+                        testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
+                        testPlayer.movePlayer(timeElapsedFrame);
+                        testPlayer.turnPlayer(timeElapsedFrame);
+                        testPlayer.checkCheckpoints();
+                    }
+                    previousFrameTime = System.currentTimeMillis();
+                    //testPlayer.printPos();
+                    //testPlayer.printDirection();
+
+                    if (timeElapsedSecond > 1000) {
+                        timeElapsedSecond -= 1000;
+                        System.out.printf("%d\n", frameCounter);
+                        previousTime = System.currentTimeMillis();
+                        frameCounter = 0;
+                    }
+                    frameCounter++;
+                    
+                    r.render();
+                    r.requestRepaint();
+                    long imSleepy = startTime + (long)(1e9 * Renderer.TargetFrameTime);
+
+                    while (System.nanoTime() < imSleepy) {
+                        continue;
+                    }
+                }
             }
+        });
 
-            frameCounter++;
+        gameLoopThread.start();
+
+       
+    }
+
+    /**
+     * stops the game
+     */
+    public void stop(){
+        isRunning = false;
+        if (gameLoopThread != null){
+            gameLoopThread.interrupt();
+        }
+    }
+
+    /**
+     * set the chosen player character
+     * @param player   the selected player
+     */
+    public void setPlayerCharacter(String player) {
+        r.setPlayerCharacter(player);
+    }
+
+    /**
+     * get the renderer
+     * @return   the renderer
+     */
+    public Renderer getRenderer(){
+        return r;
+    }
+
+    public static void loadMap(Player player, Map map, Renderer r) {
+        for (int i = 0; i < loadingChunks*2; i++) {
+            player.turnPlayerInstant(i*2*Math.PI/loadingChunks);
+            player.teleportPlayer(player.StartPos.x + (i - loadingChunks)/loadingChunks, player.StartPos.y + (i - loadingChunks)/loadingChunks);
+            r.render();
         }
     }
 
     public static int getTimeElapsed(long startTime) {
         return (int)(System.currentTimeMillis() - startTime);
     }
+
+    
 }

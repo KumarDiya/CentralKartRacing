@@ -1,5 +1,3 @@
-import java.awt.Rectangle;
-
 public class Testing {
     public static void main(String[] args) {
         CollisionBox a = new CollisionBox(3, 3, 4,4);

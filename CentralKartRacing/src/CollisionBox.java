@@ -4,8 +4,6 @@
  * 04/28/26
  * A class similar to Rectangle, but with two major differences:
  *      1. Works with doubles
- *      2. Defined with the centre of the rectangle, rather than the top right corner.
- *          Done to make collisions in game easier, as sprites are defined by their center.
  */
 
 public class CollisionBox {
@@ -98,7 +96,7 @@ public class CollisionBox {
 
     /**
      * Checks whether or not this CollisionBox intersects a rectangle defined by point (x,y), and a width and height.
-     * @param x the x coodinate of the center of the rectangle.
+     * @param x the x coordinate of the center of the rectangle.
      * @param y the y coordinate of the center of the rectangle.
      * @param width     the width of the rectangle.
      * @param height    the height of the rectangle.

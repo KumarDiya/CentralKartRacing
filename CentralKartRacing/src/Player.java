@@ -1,38 +1,58 @@
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
 
 public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
 	//Linear movement vars
+	final Vector StartPos;
 	Vector pos; //The position of the player.
-	final double MAX_SPEED = 1; //The maximum speed for the character.
+	final double MAX_SPEED = 8; //The maximum speed for the character.
+	double currentMaxSpeed;
 	double speed; //The current speed for the character.
-	final double ACCELERATION = 3; //The acceleration of the character.
+	final double ACCELERATION = 5; //The acceleration of the character.
 	
-	//Rotational movment vars
+	//Rotational movement vars
 	Vector direction; //The direction the player is facing.
-	final double MAX_ROTATION_SPEED = 1; //The maximum rotational speed of the character.
+	final double MAX_ROTATION_SPEED = 1.5; //The maximum rotational speed of the character.
+	double currentMaxRotationSpeed;
+	Vector unRotatedPlane;
 	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
+	double rotationSpeedNoDrifting;
 	double rotationSpeed; //The current rotational speed of the character.
-	final double HANDLING = 2; //The rotational acceleration of the character.
+	final double HANDLING = 10; //The rotational acceleration of the character.
 	
 	boolean isTurning = false; //True if player is turning, false otherwise
 
-	//Drifting vars
-	boolean isDrifting = false; //True if the player is currently drifting, false otherwise.
-
-	//Boost vars
+	//Drifting var
+	long driftStartTime = 0, driftingTime = 0;
+	boolean driftingBoost = false;
+	boolean canDriftBoost = false;
+	boolean isDrifting = false, isDriftingPrevious = false;
+	boolean playerDriftStopped = false;
+	boolean initiallyTurningRight = false;
 	double turboSpeed = 2; //The speed that a boost sets you to.
-	int boostBar = 3; //The current amount of boost the player has. Max boost: 10, min: 0
-	boolean isFullBoost = false; //True if the player has a full boost bar, false otherwise.
-	int boostTime; //The amount of time the player has been boosting for
-	
+	Timer driftTimer = new Timer(1000, new ActionListener() {
+		public void actionPerformed(java.awt.event.ActionEvent e) {
+			driftingBoost = false;
+		};
+	});
+
 	Map map; //map used for wall collisions
 
+	//Checkpoint and lap vars
+	int currentCheckpoint;
+	int lap;
+
 	//Player Collision vars
-	final double playerWidth = 0.4;
-	final double playerHeight = 0.4;
+	final double playerWidth = 0.6;
+	final double playerHeight = 0.6;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
+
+	//Constants
+	final double[] groundMoveSpeeds = {0.1, 1.0, 0.6, 0.4}; //Wall speed, road speed, grass speed, sand speed.
 
 	//Getter for direction
 	public Vector getDirection() {
@@ -43,13 +63,22 @@ public class Player {
 		System.out.printf("%.2f, %.2f\n", pos.x, pos.y);
 	}
 
+	public void printDirection() {
+		System.out.printf("%.2f, %.2f\n", direction.x, direction.y);
+	}
+
 	Player(Map map){
 		this.map = map;
 		this.pos = new Vector(12, 12);
+		this.StartPos = new Vector(12, 12);
 		this.direction = new Vector(-1, 0);
-		this.plane = new Vector(0, 0.66);
-		this.rotationSpeed = 0;
+		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.rotationSpeedNoDrifting = 0;
 		this.speed = 0;
+		this.currentCheckpoint = 0;
+		this.lap = 1;
+		driftTimer.setRepeats(false);
 	}
 	
 	//use this one when we have more characters
@@ -60,38 +89,104 @@ public class Player {
 		//NOTE: some variables can not be constants then!!
 		//if (character.equals("Ghost")) {}
 			
-		this.map = map;
+		this(map);
 	}
 	
+	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown) {
+		isDriftingPrevious = isDrifting;
+		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7) {
+			isDrifting = true;
+		} else if (!uDown){
+			isDrifting = false;
+			playerDriftStopped = true;
+			driftingTime = System.currentTimeMillis() - driftStartTime;
+		} else if (speed < MAX_SPEED * 0.7) {
+			isDrifting = false;
+			playerDriftStopped = false;
+			driftingTime = System.currentTimeMillis() - driftStartTime;
+		}
+
+		if (isDriftingPrevious && !isDrifting && !uDown && playerDriftStopped && driftingTime > 750) {
+			driftingBoost = true;
+			driftTimer.restart();
+		} else if (!isDriftingPrevious && isDrifting) {
+			if (aDown) initiallyTurningRight = true;
+			else initiallyTurningRight = false;
+			driftStartTime = System.currentTimeMillis();
+		}
+	}
 	
  //Movement
 	//accelerates player
-	public void acceleratePlayer(boolean wDown, boolean sDown){
-		if (wDown && !sDown) {
-			if (Math.abs(speed) <= MAX_SPEED) speed += ACCELERATION; //limits max speed
+	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, double frameTime){
+		double currentCarFriction = getCarFriction();
+		currentMaxSpeed = MAX_SPEED * currentCarFriction;
+
+		if (driftingBoost) {
+			speed = MAX_SPEED * 1.5;
+			currentMaxSpeed = MAX_SPEED * 1.5;
+		} else if (wDown && !sDown) {
+			if (Math.abs(speed + ACCELERATION * frameTime) <= currentMaxSpeed) speed += ACCELERATION * frameTime; //limits max speed
 		} else if (sDown && !wDown) {
-			if (Math.abs(speed) <= MAX_SPEED*0.25) speed -= ACCELERATION*0.75;
+			if (speed > 0){
+				speed -= ACCELERATION * frameTime * 2;
+			} else if (Math.abs(speed - ACCELERATION * frameTime * 0.5) <= currentMaxSpeed * 0.5) speed -= ACCELERATION * frameTime * 0.5;
 		} else {
-			speed *= 0.5;
+			speed *= Math.pow(0.3 * currentCarFriction * currentCarFriction, frameTime);
+			//decayRate is % remaining after 1 second
+			//speed -= (speed * 0.02) * (frameTime/Renderer.TargetFrameTime);
+			if (Math.abs(speed) < 0.05){
+				speed = 0;
+			}
+		}
+
+		// Speed-based FOV Effects (polish for later)
+		// Renderer.FOV = Renderer.StandardFOV + Math.pow(1.7, speed);
+		// this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+
+		if (speed < 0 && speed < -currentMaxSpeed) {
+			speed = -currentMaxSpeed;
+		} else if (speed > 0 && speed > currentMaxSpeed){
+			speed = currentMaxSpeed;
 		}
 	}
 
-	public void angularlyAcceleratePlayer(boolean aDown, boolean dDown) {
-		if (aDown && !dDown) {
-			if (Math.abs(rotationSpeed) <= MAX_ROTATION_SPEED) rotationSpeed += HANDLING; //limits max speed
-		} else if (dDown && !aDown) {
-			if (Math.abs(rotationSpeed) <= MAX_ROTATION_SPEED) rotationSpeed -= HANDLING;
-		} else {
-			rotationSpeed *= 0.9;
+	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, double frameTime) {
+		if (Math.abs(speed) < MAX_SPEED * 0.6) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / (MAX_SPEED * 0.6));
+		else currentMaxRotationSpeed = MAX_ROTATION_SPEED;
+
+		double driftingRotationLock = 0;
+		if (isDrifting) {
+			if (initiallyTurningRight) driftingRotationLock = currentMaxRotationSpeed;
+			else driftingRotationLock = -currentMaxRotationSpeed;
 		}
+		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {
+			if (Math.abs(rotationSpeedNoDrifting + HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting += HANDLING * frameTime; //limits max speed
+		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {
+			if (Math.abs(rotationSpeedNoDrifting - HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting -= HANDLING * frameTime;
+		} else {
+			//rotationSpeedNoDrifting -= (rotationSpeedNoDrifting * 0.03) * (frameTime/Renderer.TargetFrameTime);
+			rotationSpeedNoDrifting *= Math.pow(0.06, frameTime);
+			if (Math.abs(rotationSpeedNoDrifting) < 0.005) {
+				rotationSpeedNoDrifting = 0;
+			}
+		}
+		if (rotationSpeedNoDrifting < 0 && rotationSpeedNoDrifting < -currentMaxRotationSpeed) {
+			rotationSpeedNoDrifting = -currentMaxRotationSpeed;
+		} else if (rotationSpeedNoDrifting > 0 && rotationSpeedNoDrifting > currentMaxRotationSpeed){
+			rotationSpeedNoDrifting = currentMaxRotationSpeed;
+		}
+
+		if (isDrifting)	rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75;
+		else rotationSpeed = rotationSpeedNoDrifting;
+		
 	}
 
 	/**
 	 * Moves the position of the player
 	 */
-	//REMEMBER TO SET rotSpeed to NEGATIVE WHEN TURNING OTHER WAY
 
-	public void movePlayer(double frameTime) {
+	public synchronized void movePlayer(double frameTime) {
 		double currentSpeed = speed * frameTime; //the constant value is in squares/second
 
 		Vector moveX = new Vector(direction.x * currentSpeed, 0);
@@ -101,8 +196,8 @@ public class Player {
 		Vector[] corners;
 		boolean colliding;
 
-		Vector newPosX = pos.addVec(moveX);
-		playerBox = new CollisionBox(newPosX.x - halfPlayerWidth, newPosX.y - halfPlayerHeight, playerWidth, playerHeight);
+		Vector newPos = pos.addVec(moveX);
+		playerBox = new CollisionBox(newPos.x - halfPlayerWidth, newPos.y - halfPlayerHeight, playerWidth, playerHeight);
 		corners = playerBox.getCorners();
 		adjacentBoxes = getSurroundingCollisionBoxes(map.wallMap);
 
@@ -118,12 +213,11 @@ public class Player {
 		}
 
 		if (!colliding) {
-			pos = newPosX;
+			pos = newPos;
 		}
-	}
 
-		Vector newPosY = pos.addVec(moveY);
-		playerBox = new CollisionBox(newPosY.x - halfPlayerWidth, newPosY.y - halfPlayerHeight, playerWidth, playerHeight);
+		newPos = pos.addVec(moveY);
+		playerBox = new CollisionBox(newPos.x - halfPlayerWidth, newPos.y - halfPlayerHeight, playerWidth, playerHeight);
 		corners = playerBox.getCorners();
 		adjacentBoxes = getSurroundingCollisionBoxes(map.wallMap);
 
@@ -139,50 +233,66 @@ public class Player {
 		}
 
 		if (!colliding) {
-			pos = newPosY;
+			pos = newPos;
 		}
 		
 		//WIP
-		if (isDrifting){
-			speed = initialSpeed*0.9; //arbitrary slow factor for drifting
-
-			//makes the player able to turn more sharply when drifting
-			rotationSpeed = HANDLING*1.5; //arbitrary handling increase
-
-			//limits the player's turn so they can't turn the other way or go straight while drifting
-			if (rotationSpeed < 0) rotationSpeed = Math.max(rotationSpeed, -0.5); //arbitrary turn limit
-			else rotationSpeed = Math.min(rotationSpeed, 0.5);
-			
-		}
-
-		//charge the boost bar
 	}
 
-	public void boost(){
-		speed = turboSpeed;
-		//boost for a certain amount of time or until boost bar runs out
-		//if boost bar full, bonus boost time
-		if (isFullBoost){
-			boostTime = 5000; 
-		}
-
-		if (boostBar == 10){
-			isFullBoost = true;
-			break;
-		} 
-
-		boostBar = 0; //resets boost bar	
-		isFullBoost = false;
+	public double getCarFriction() {
+		return (
+			groundMoveSpeeds[sampleGroundMap(pos.x + halfPlayerWidth, pos.y + halfPlayerHeight)] +
+			groundMoveSpeeds[sampleGroundMap(pos.x + halfPlayerWidth, pos.y - halfPlayerHeight)] + 
+			groundMoveSpeeds[sampleGroundMap(pos.x - halfPlayerWidth, pos.y + halfPlayerHeight)] + 
+			groundMoveSpeeds[sampleGroundMap(pos.x - halfPlayerWidth, pos.y - halfPlayerHeight)]
+		) / 4;
 	}
 
-	public void turnPlayer(double frameTime){
+	private int sampleGroundMap(double x, double y) {
+		return map.groundMap[(int)((x) * map.groundMapScale)][(int)((y) * map.groundMapScale)];
+	}
+
+	@SuppressWarnings("unused")
+	private int sampleGroundMap(Vector v) {
+		return sampleGroundMap(v.x, v.y);
+	}
+
+	public synchronized void teleportPlayer(double x, double y) {
+		pos.addVec(new Vector(x, y));
+	}
+
+	public synchronized void turnPlayer(double frameTime){
 		double currentRotationSpeed = rotationSpeed * frameTime; //the constant value is in radians/second
-		double olddirX = direction.x;
+		double oldDirX = direction.x;
 		direction.x = direction.x * Math.cos(currentRotationSpeed) - direction.y * Math.sin(currentRotationSpeed);
-		direction.y = olddirX * Math.sin(currentRotationSpeed) + direction.y * Math.cos(currentRotationSpeed);
-		double oldplaneX = plane.x;
-		plane.x = plane.x * Math.cos(currentRotationSpeed) - plane.y * Math.sin(currentRotationSpeed);
-		plane.y = oldplaneX * Math.sin(currentRotationSpeed) + plane.y * Math.cos(currentRotationSpeed);
+		direction.y = oldDirX * Math.sin(currentRotationSpeed) + direction.y * Math.cos(currentRotationSpeed);
+		double rotation = Math.atan2(direction.y, direction.x);
+		plane.x = unRotatedPlane.y * Math.sin(rotation);
+		plane.y = -unRotatedPlane.y * Math.cos(rotation);
+	}
+
+	public synchronized void turnPlayerInstant(double angle){
+		double oldDirX = direction.x;
+		direction.x = direction.x * Math.cos(angle) - direction.y * Math.sin(angle);
+		direction.y = oldDirX * Math.sin(angle) + direction.y * Math.cos(angle);
+		double oldPlaneX = plane.x;
+		plane.x = plane.x * Math.cos(angle) - plane.y * Math.sin(angle);
+		plane.y = oldPlaneX * Math.sin(angle) + plane.y * Math.cos(angle);
+	}
+
+	public synchronized void checkCheckpoints() {
+		if (currentCheckpoint == map.getNumCheckpoints() - 1) {
+			if (map.checkpoints[0].contains(pos)) {
+				currentCheckpoint = 0;
+				lap++;
+				System.out.printf("Lap %d\n", lap);
+			}
+		} else {
+			if (map.checkpoints[currentCheckpoint + 1].contains(pos)) {
+				currentCheckpoint++;
+				System.out.printf("Checkpoint %d\n", currentCheckpoint);
+			}
+		}
 	}
 
 		/*
@@ -222,40 +332,6 @@ Used in movePlayer().
 		}
 
 		return adjacentTiles;
-
-		// for (int x = 0; x<wallMap.length; x++){
-		// 	for (int y = 0; y<wallMap[0].length;y++){
-		// 		if 
-		// 		(wallMap[x][y] == 1){ //if there is a wall here
-		// 			CollisionBox wallBox = new CollisionBox(x, y, 1, 1); //the width and height of the wall are arbitrary
-					
-		// 			/*
-		// 			*   1
-		// 			* 2   0
-		// 			*   3
-		// 			*/
-		// 			if (playerBox.contains(wallBox.centX + wallBox.halfWidth, wallBox.centY)){
-		// 				//if the player box contains the right wall edge
-		// 				wallCollisions[0] = true; //collision in positive x direction
-		// 			}
-		// 			if (playerBox.contains(wallBox.centX - wallBox.halfWidth, wallBox.centY)){
-		// 				wallCollisions[2] = true; //collision in negative x direction
-		// 			}
-		// 			if (playerBox.contains(wallBox.centX, wallBox.centY + wallBox.halfHeight)){
-		// 				//if the player box contains the top wall edge
-		// 				wallCollisions[1] = true; //collision in positive y direction
-						
-		// 			}
-		// 			if (playerBox.contains(wallBox.centX, wallBox.centY - wallBox.halfHeight)){
-		// 				wallCollisions[3] = true; //collision in negative y direction
-		// 			}
-		// 		}
-		// 	}
-		// }
-		//return wallCollisions;
-		//old collisions
-		//if(map[(int)(pos.x + dir.x * moveSpeed)][(int)pos.y] == 0) 
-        //if(map[(int)pos.x][(int)(pos.y + dir.y * moveSpeed)] == 0) 
 		
 	}
 

@@ -4,20 +4,33 @@
  * The class that handles all rendering in the main game. 
  */
 
-import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public class Renderer extends JFrame implements KeyListener{
+public class Renderer extends JPanel implements KeyListener{
     //General screen variables
-    private RaycastPanel panel;         //The JFrame panel to draw on.
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
-    public int ResolutionWidth = 750;   //The width of the resolution for the game to be rendered in.
-    public int ResolutionHeight = 500;  //The height of the resolution for the game to be rendered in.
+    public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
+    public int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
+
+    final static double StandardFOV = 82.7;
+    static double FOV = StandardFOV;
+
+    BufferedImage frameA = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBufferA = ((DataBufferInt) frameA.getRaster().getDataBuffer()).getData();
+    private volatile BufferedImage activeFrame = frameA;
+    BufferedImage frameB = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
+    int[] frameBufferB = ((DataBufferInt) frameB.getRaster().getDataBuffer()).getData();
+
+    //paused boolean
+    boolean paused;
 
     //Map and Player
     Map map;
@@ -25,7 +38,7 @@ public class Renderer extends JFrame implements KeyListener{
     
     //Skybox variables
     private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
-    private double angBetwRays;             //The angle between two rays casted by the raycaster.
+    private double angBetweenRays;             //The angle between two rays casted by the raycaster.
     private double skyStepX;                //The amount to step by between pixels on the skybox when rendering.
 
     //Sprite variables
@@ -33,47 +46,56 @@ public class Renderer extends JFrame implements KeyListener{
 
     //Constants
     public static final int DarkerNumber = Integer.parseInt("011111110111111101111111", 2); //Bitmask to make colors darker. Makes use of the bitwise 'and' bitshift operator (fun!)
-    public static final double CameraDistance = 2;  //The distance the camera will follow the player at.
+    public static double CameraDistance = 2;  //The distance the camera will follow the player at.
 
     //Key Pressed Booleans
-    public boolean wPressed;
-    public boolean sPressed;
-    public boolean aPressed;
-    public boolean dPressed;
+    public boolean wPressed, sPressed, aPressed, dPressed, uPressed;
+
+    public static final int TargetFrameRate = 60;
+    public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
     /**
-     * Renderer constructor.
+     * Renderer constructor. extra param added: selectedPlayer
      */
-    public Renderer () {
-        makeGUI();
-    }
+    public Renderer (Map map, Player player) {
 
-    /**
-     * Sets up the renderer for a specific map and player FOV.
-     * @param map       The map to set up for.
-     * @param player    The player; uses its FOV to set up for.
-     */
-    public void renderSetup(Map map, Player player) {
         this.map = map;
         this.player = player;
 
+        paused = false;
+
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
-        angBetwRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
-        skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetwRays);
+        angBetweenRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
+        skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
 
         zBuffer = new double[ResolutionWidth];
 
         wPressed = sPressed = aPressed = dPressed = false;
+
+        //set up panel
+        this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
+        this.setFocusable(true);
+        this.addKeyListener(this);
     }
+    
 
     /**
      * Renders a frame, setting frame to the final rendered frame.
      * @param map       The map to be rendered.
      * @param player    The player in the map to be rendered.
      */
-    public BufferedImage render(){
-        BufferedImage frame = new BufferedImage(ResolutionWidth, ResolutionHeight, BufferedImage.TYPE_INT_RGB);
-        int[] frameBuffer = ((DataBufferInt) frame.getRaster().getDataBuffer()).getData();
+    public synchronized void render(){
+
+        //Frame buffer chooser
+        BufferedImage inactiveFrame;
+        int[] frameBuffer;
+        if (frameA == activeFrame) {
+            inactiveFrame = frameB;
+            frameBuffer = frameBufferB;
+        } else {
+            inactiveFrame = frameA;
+            frameBuffer = frameBufferA;
+        }
 
         //The camera position
         Vector cameraPos = getCameraPos();
@@ -93,14 +115,14 @@ public class Renderer extends JFrame implements KeyListener{
 
             for (int x = 0; x < ResolutionWidth; x++){
                 VectorInt cell = new VectorInt((int)(floor.x), (int)(floor.y));
-                VectorInt fcTexture = new VectorInt(Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) % (map.groundTexture.getWidth())), map.groundTexture.getHeight() - 1 - Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) % (map.groundTexture.getHeight())));
+                VectorInt fcTexture = new VectorInt(map.groundTexture.getHeight() - 1 - Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) % (map.groundTexture.getHeight())), map.groundTexture.getWidth() - 1 - Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) % (map.groundTexture.getWidth())));
+                // VectorInt fcTexture = new VectorInt(Math.abs((int)(map.groundTexture.getHeight() * (floor.y / map.getHeight() - cell.y)) & (map.groundTexture.getHeight() - 1)), Math.abs((int)(map.groundTexture.getWidth() * (floor.x / map.getWidth() - cell.x)) & (map.groundTexture.getHeight() - 1)));
 
                 floor.x += floorStep.x;
                 floor.y += floorStep.y;
 
                 int color;
                 color = map.groundTexture.texture[fcTexture.x][fcTexture.y];
-                color = (color >> 1) & DarkerNumber;
                 frameBuffer[y * ResolutionWidth + x] = color;
             }
         }
@@ -219,7 +241,7 @@ public class Renderer extends JFrame implements KeyListener{
         }
 
         //Sprite Rendering
-        map.sprites[3].setXY(player.pos);
+        map.sprites[4].setXY(player.pos);
 
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
@@ -229,7 +251,7 @@ public class Renderer extends JFrame implements KeyListener{
             spriteDistance[i] = ((cameraPos.x - map.sprites[i].position.x)*(cameraPos.x - map.sprites[i].position.x) + (cameraPos.y - map.sprites[i].position.y)*(cameraPos.y - map.sprites[i].position.y));
         }
 
-        SpriteTesting.sortSprites(spriteOrder, spriteDistance, map.getNumSprites());
+        Sprite.sortSprites(spriteOrder, spriteDistance, map.getNumSprites());
 
         for (int i = 0; i < map.getNumSprites(); i++){
             Vector spriteCamPos = new Vector(map.sprites[spriteOrder[i]].position.x - cameraPos.x, map.sprites[spriteOrder[i]].position.y - cameraPos.y);
@@ -239,7 +261,7 @@ public class Renderer extends JFrame implements KeyListener{
             // [ planeY   dirY ]                                          [ -planeY  planeX ]
             double invDet = 1.0/(player.plane.x * player.direction.y - player.direction.x * player.plane.y);
             Vector transform = new Vector(invDet * (player.direction.y * spriteCamPos.x - player.direction.x * spriteCamPos.y), invDet * (-player.plane.y * spriteCamPos.x + player.plane.x * spriteCamPos.y));
-            int spriteScreenX = (int)((ResolutionWidth/2)*(1 + transform.x/transform.y));
+            int spriteScreenX = (int)Math.round((ResolutionWidth/2)*(1 + transform.x/transform.y));
 
             //calculate height of the sprite on screen
             int spriteHeight = Math.abs((int)(ResolutionHeight / transform.y)); //using 'transformY' instead of the real distance prevents fisheye
@@ -264,34 +286,24 @@ public class Renderer extends JFrame implements KeyListener{
                 //2) it's on the screen (left)
                 //3) it's on the screen (right)
                 //4) ZBuffer, with perpendicular distance
-                if(transform.y > 0 && transform.y < zBuffer[stripe]) {
+                if(transform.y > 0 && stripe > 0 && stripe < ResolutionWidth && transform.y < zBuffer[stripe]) {
                     for(int y = drawStartY; y < drawEndY; y++){ //for every pixel of the current stripe
                         int d = (y) * 256 - ResolutionHeight * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
                         int texY = (int)((((long) d * Texture.DefaultSize) / spriteHeight) / 256);
+                        if (texY < 0) texY = 0;
                         int color;
                         color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
+                        
                         if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
                         
                     }
                 }
             }
         }
-
-        return frame;
+        activeFrame = inactiveFrame;
     }
 
-    private void makeGUI() { 
-		panel = new RaycastPanel();
-        this.setUndecorated(false);
-        this.add(panel);
-        this.addKeyListener(this);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        this.pack();
-        this.setVisible(true);
-        Width = this.getWidth();
-        Height = this.getHeight();
-	}
-    
+   
     /**
      * Gets the current camera position by casting a ray backwards from where the player is facing and checking for collision.
      * @param map
@@ -299,6 +311,13 @@ public class Renderer extends JFrame implements KeyListener{
      * @return
      */
     private Vector getCameraPos() {
+
+        // if (player.speed > player.MAX_SPEED) {
+        //     CameraDistance = 2 + (player.speed - player.MAX_SPEED)/player.MAX_SPEED;
+        // } else {
+        //     CameraDistance = 2;
+        // }
+
         //Camera Collision Detection (prevents camera from going through walls when close to them)
         Vector cameraPos;
         Vector cameraDir = player.direction.scalMult(-1);
@@ -371,22 +390,25 @@ public class Renderer extends JFrame implements KeyListener{
     /**
      * Draws the current frame to the screen.
      */
-    public void drawFrame() {
-        panel.repaint();
+    public synchronized void requestRepaint() {
+        this.repaint();
     }
 
-    /**
-     * The JPanel class
-     */
-    private class RaycastPanel extends JPanel {
-        RaycastPanel() {
-            this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        BufferedImage framePin;
+        synchronized (this) {
+            framePin = activeFrame;
         }
-
-        public void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawImage(render(), 0, 0, null);
-        }
+        g.drawImage(framePin, 0, 0, null);
+        /*if (paused){
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setColor(new Color(0, 0, 0, 180));
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            
+        }*/
     }
 
     public boolean wDown () {
@@ -405,6 +427,16 @@ public class Renderer extends JFrame implements KeyListener{
         return dPressed;
     }
 
+    public boolean uDown() {
+        return uPressed;
+    }
+
+    public boolean[] getControlsDown() {
+        boolean[] controls = {wPressed, sPressed, aPressed, dPressed};
+        return controls;
+    }
+
+
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_W) {
@@ -418,6 +450,16 @@ public class Renderer extends JFrame implements KeyListener{
         }
         if (e.getKeyCode() == KeyEvent.VK_D) {
             dPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_U) {
+            uPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_K) {
+            MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+            if(!paused){
+                paused = true;
+                mainFrame.switchToScreen("pause");
+            }
         }
     }
 
@@ -435,8 +477,31 @@ public class Renderer extends JFrame implements KeyListener{
         if (e.getKeyCode() == KeyEvent.VK_D) {
             dPressed = false;
         }
+        if (e.getKeyCode() == KeyEvent.VK_U) {
+            uPressed = false;
+        }
     }
 
     @Override
     public void keyTyped(KeyEvent e) {}
+
+    /**
+     * determines index of the player texture the user chooses
+     * @param character
+     */
+    public void setPlayerCharacter(String character) {
+        int textureIndex = 0;
+        if (character.equals("Jeff")) {
+            textureIndex = 3;
+        } else if (character.equals("Po")) {
+            textureIndex = 2;
+        } else if (character.equals("Blonde Guy")) {
+            textureIndex = 1;
+        }
+
+        map.sprites[4].texture = textureIndex;
+        System.out.println("Player texture set to index: " + textureIndex);
+    }
+
+    
 }
