@@ -6,6 +6,7 @@ public class Game{
     private Renderer r;
     private boolean isRunning = false;
     private Thread gameLoopThread;
+    
 
     /**
      * constructor
@@ -15,6 +16,8 @@ public class Game{
         testPlayer = new Player(testMap);
         r = new Renderer(testMap, testPlayer);
         loadMap(testPlayer, testMap, r);
+        
+        
     }
 
     public void start(){

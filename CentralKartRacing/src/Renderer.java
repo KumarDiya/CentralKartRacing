@@ -54,6 +54,9 @@ public class Renderer extends JPanel implements KeyListener{
     public static final int TargetFrameRate = 60;
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
+    private HeadsUpDisplay HUD;
+    private long timeStart;
+
     /**
      * Renderer constructor. extra param added: selectedPlayer
      */
@@ -71,7 +74,8 @@ public class Renderer extends JPanel implements KeyListener{
         zBuffer = new double[ResolutionWidth];
 
         wPressed = sPressed = aPressed = dPressed = false;
-
+        timeStart= System.currentTimeMillis();
+        HUD = new HeadsUpDisplay(848, 477, timeStart);
         //set up panel
         this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
         this.setFocusable(true);
@@ -401,8 +405,13 @@ public class Renderer extends JPanel implements KeyListener{
             framePin = activeFrame;
         }
         g.drawImage(framePin, 0, 0, null);
+        Graphics2D g2 = (Graphics2D)g;
+        HUD.setG2(g2);
+        HUD.drawHUD(player.getLap(), 1, 1);
+        
+
         /*if (paused){
-            Graphics2D g2 = (Graphics2D)g;
+            
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2.setColor(new Color(0, 0, 0, 180));
             g2.fillRect(0, 0, getWidth(), getHeight());

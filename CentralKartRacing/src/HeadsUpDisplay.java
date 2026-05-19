@@ -11,13 +11,17 @@ public class HeadsUpDisplay extends JPanel{
 		BoostBar bb = new BoostBar();
 
 		Graphics2D g2;
-        HeadsUpDisplay(Graphics2D g2, int panW, int panH, long timeStarted) {
+        HeadsUpDisplay(int panW, int panH, long timeStarted) {
 			this.setPreferredSize(new Dimension(panW, panH));
-			this.g2 = g2;
+			//this.g2 = g2;
 			this.setOpaque(false);//enable transparency
 			this.timeStarted = timeStarted;
 		}
 
+
+	public void setG2 (Graphics2D g2){
+		this.g2 = g2;
+	}	
 	/*
 	*@param lap  			lap number player is currently on
 	*@param posX 			x-position of player on the map
@@ -31,9 +35,9 @@ public class HeadsUpDisplay extends JPanel{
     }
 
 	private void drawLap(){
-		g2.setFont(new Font("Arial", Font.BOLD, 50));
+		g2.setFont(new Font("Arial", Font.BOLD, 30));
         g2.setPaint(Color.red);
-		g2.drawString("Lap " + String.valueOf(lap), 100, 80); //positioned near the top left
+		g2.drawString("Lap " + String.valueOf(lap), 50, 50); //positioned near the top left
 	}
     
     private void drawBoostBar(){
@@ -53,12 +57,12 @@ public class HeadsUpDisplay extends JPanel{
 		int timeMin = (int)(timeElapsed/60000 % 60);
 
 
-        g2.setFont(new Font("Arial", Font.BOLD, 80));
+        g2.setFont(new Font("Arial", Font.BOLD, 30));
         g2.setPaint(Color.blue);
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		
-        g2.drawString(timeShown, 830, 90); // positioned near the top right
+        g2.drawString(timeShown, 550, 50); // positioned near the top right
     }	
 
 	private void drawMap(){
@@ -70,10 +74,10 @@ class BoostBar extends Rectangle{
 	BoostBar(){
 	}
 	double boostFill;
-	int x = 500; //positioned near the top middle
-	int y = 50;
-	final int height = 50;
-	int maxFill = 200; //width of the boost rectangle when full
+	int x = 300; //positioned near the top middle
+	int y = 30;
+	final int height = 30;
+	int maxFill = 100; //width of the boost rectangle when full
 	int width = (int)boostFill;
 
 }

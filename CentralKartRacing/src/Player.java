@@ -43,7 +43,7 @@ public class Player {
 
 	//Checkpoint and lap vars
 	int currentCheckpoint;
-	int lap;
+	private int lap;
 
 	//Player Collision vars
 	final double playerWidth = 0.6;
@@ -293,6 +293,9 @@ public class Player {
 				System.out.printf("Checkpoint %d\n", currentCheckpoint);
 			}
 		}
+	}
+	public int getLap(){
+		return lap;
 	}
 
 		/*
