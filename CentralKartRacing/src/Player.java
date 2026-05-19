@@ -43,7 +43,8 @@ public class Player {
 
 	//Checkpoint and lap vars
 	int currentCheckpoint;
-	private int lap;
+	int lap;
+	boolean win;
 
 	//Player Collision vars
 	final double playerWidth = 0.6;
@@ -59,6 +60,10 @@ public class Player {
 		return direction;
 	}
 
+	public int getLap() {
+		return lap;
+	}
+	
 	public void printPos() {
 		System.out.printf("%.2f, %.2f\n", pos.x, pos.y);
 	}
@@ -78,6 +83,7 @@ public class Player {
 		this.speed = 0;
 		this.currentCheckpoint = 0;
 		this.lap = 1;
+		this.win = false;
 		driftTimer.setRepeats(false);
 	}
 	
@@ -293,10 +299,7 @@ public class Player {
 				System.out.printf("Checkpoint %d\n", currentCheckpoint);
 			}
 		}
-	}
-	public int getLap(){
-		//System.out.println(lap);
-		return lap;
+		if (lap > 3) win = true;
 	}
 
 		/*
