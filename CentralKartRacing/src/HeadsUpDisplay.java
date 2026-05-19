@@ -30,14 +30,14 @@ public class HeadsUpDisplay extends JPanel{
     public void drawHUD(int lap, double posX, double posY){
         drawTimer();
         drawBoostBar();
-		drawLap();
+		drawLap(lap);
 
     }
 
-	private void drawLap(){
+	private void drawLap(int l){
 		g2.setFont(new Font("Arial", Font.BOLD, 30));
         g2.setPaint(Color.red);
-		g2.drawString("Lap " + String.valueOf(lap), 50, 50); //positioned near the top left
+		g2.drawString("Lap " + String.valueOf(l), 50, 50); //positioned near the top left
 	}
     
     private void drawBoostBar(){

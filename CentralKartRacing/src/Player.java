@@ -295,6 +295,7 @@ public class Player {
 		}
 	}
 	public int getLap(){
+		//System.out.println(lap);
 		return lap;
 	}
 
