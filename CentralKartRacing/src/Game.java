@@ -21,7 +21,7 @@ public class Game{
     }
 
     public void start(){
-
+        
         r.setFocusable(true);
         r.requestFocusInWindow();
 

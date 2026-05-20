@@ -1,6 +1,14 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
+
+
+//gotta fix the timer starting at the wrong time, also rather than using rendering panel, use seperate panel
 
 public class HeadsUpDisplay extends JPanel{
     //everything will be drawn on a jpanel that is on top of the main game 
@@ -65,8 +73,33 @@ public class HeadsUpDisplay extends JPanel{
         g2.drawString(timeShown, 550, 50); // positioned near the top right
     }	
 
+
+	private BufferedImage loadImage(String filename) {
+        BufferedImage image = null;
+        try {
+            
+            File file = new File("CentralKartRacing\\testScreenImages\\" + filename);
+            
+            image = ImageIO.read(file);
+            
+            if (image != null) {
+                System.out.println("Image loaded successfully!");
+            }
+            
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Image failed to load: " + filename, "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        return image;
+    }
+
 	private void drawMap(){
 		//constrain map image to a square area //maybe another jpanel
+		//bottom 1/3 width, bottom 1/3 height for the game panel
+		// circle player tracker / dot
+
+		
+		
+
 	}
 }
 
