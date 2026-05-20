@@ -73,9 +73,11 @@ public class Renderer extends JPanel implements KeyListener{
 
         zBuffer = new double[ResolutionWidth];
 
-        wPressed = sPressed = aPressed = dPressed = false;
         timeStart= System.currentTimeMillis();
         HUD = new HeadsUpDisplay(848, 477, timeStart);
+
+        wPressed = sPressed = aPressed = dPressed = uPressed = false;
+
         //set up panel
         this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
         this.setFocusable(true);
@@ -316,6 +318,7 @@ public class Renderer extends JPanel implements KeyListener{
      */
     private Vector getCameraPos() {
 
+        //Potential future FOV effects
         // if (player.speed > player.MAX_SPEED) {
         //     CameraDistance = 2 + (player.speed - player.MAX_SPEED)/player.MAX_SPEED;
         // } else {
