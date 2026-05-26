@@ -19,16 +19,9 @@ public class HeadsUpDisplay extends JPanel{
 		BoostBar bb = new BoostBar();
 
 		Graphics2D g2;
-<<<<<<< Updated upstream
         HeadsUpDisplay(int panW, int panH, long timeStarted) {
 			this.setPreferredSize(new Dimension(panW, panH));
 			//this.g2 = g2;
-=======
-        HeadsUpDisplay(int panW, int panH, long timeStarted, BufferedImage minimap) {
-			this.setPreferredSize(new Dimension(panW, panH));
-			//this.g2 = g2;
-			this.minimap = minimap;
->>>>>>> Stashed changes
 			this.setOpaque(false);//enable transparency
 			this.timeStarted = timeStarted;
 		}
