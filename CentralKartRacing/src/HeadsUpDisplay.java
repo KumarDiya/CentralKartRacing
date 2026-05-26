@@ -39,10 +39,7 @@ public class HeadsUpDisplay extends JPanel{
         drawTimer();
         drawBoostBar();
 		drawLap(lap);
-<<<<<<< Updated upstream
-=======
 		drawMap();
->>>>>>> Stashed changes
 
     }
 
@@ -132,7 +129,6 @@ public class HeadsUpDisplay extends JPanel{
 		int mapX = 20; //20 margin from left side
 		int mapY = getHeight() - newMapImgHeight - 20; //20 margin from bottom
 		g2.drawImage(minimap, mapX, mapY, newMapImgWidth, newMapImgHeight, null); 
->>>>>>> Stashed changes
 	}
 }
 
