@@ -19,9 +19,16 @@ public class HeadsUpDisplay extends JPanel{
 		BoostBar bb = new BoostBar();
 
 		Graphics2D g2;
+<<<<<<< Updated upstream
         HeadsUpDisplay(int panW, int panH, long timeStarted) {
 			this.setPreferredSize(new Dimension(panW, panH));
 			//this.g2 = g2;
+=======
+        HeadsUpDisplay(int panW, int panH, long timeStarted, BufferedImage minimap) {
+			this.setPreferredSize(new Dimension(panW, panH));
+			//this.g2 = g2;
+			this.minimap = minimap;
+>>>>>>> Stashed changes
 			this.setOpaque(false);//enable transparency
 			this.timeStarted = timeStarted;
 		}
@@ -39,6 +46,10 @@ public class HeadsUpDisplay extends JPanel{
         drawTimer();
         drawBoostBar();
 		drawLap(lap);
+<<<<<<< Updated upstream
+=======
+		drawMap();
+>>>>>>> Stashed changes
 
     }
 
@@ -74,6 +85,7 @@ public class HeadsUpDisplay extends JPanel{
     }	
 
 
+<<<<<<< Updated upstream
 	private BufferedImage loadImage(String filename) {
         BufferedImage image = null;
         try {
@@ -95,11 +107,39 @@ public class HeadsUpDisplay extends JPanel{
 	private void drawMap(){
 		//constrain map image to a square area //maybe another jpanel
 		//bottom 1/3 width, bottom 1/3 height for the game panel
+=======
+	// private BufferedImage loadImage(String filename) {
+    //     BufferedImage image = null;
+    //     try {
+            
+    //         File file = new File("CentralKartRacing\\testScreenImages\\" + filename);
+            
+    //         image = ImageIO.read(file);
+            
+    //         if (image != null) {
+    //             System.out.println("Image loaded successfully!");
+    //         }
+            
+    //     } catch (IOException e) {
+    //         JOptionPane.showMessageDialog(null, "Image failed to load: " + filename, "ERROR", JOptionPane.ERROR_MESSAGE);
+    //     }
+    //     return image;
+    // }
+	
+	private void drawMap(){
+		
+>>>>>>> Stashed changes
 		// circle player tracker / dot
 
 		
 		
+<<<<<<< Updated upstream
 
+=======
+		int mapX = 20; //20 margin from left side
+		int mapY = getHeight() - newMapImgHeight - 20; //20 margin from bottom
+		g2.drawImage(minimap, mapX, mapY, newMapImgWidth, newMapImgHeight, null); 
+>>>>>>> Stashed changes
 	}
 }
 
