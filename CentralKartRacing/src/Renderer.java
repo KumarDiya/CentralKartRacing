@@ -410,7 +410,7 @@ public class Renderer extends JPanel implements KeyListener{
         g.drawImage(framePin, 0, 0, null);
         Graphics2D g2 = (Graphics2D)g;
         HUD.setG2(g2);
-        HUD.drawHUD(player.getLap(), 1, 1);
+        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y);
         
 
         /*if (paused){
