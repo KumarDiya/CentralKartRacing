@@ -63,12 +63,52 @@ public class Player {
 		this.map = map;
 	}
 	
+<<<<<<< Updated upstream
 	
  //Movement
 	//accelerates player
 	public void acceleratePlayer(boolean wDown, boolean sDown){
 		if (wDown && !sDown) {
 			if (Math.abs(speed) <= MAX_SPEED) speed += ACCELERATION; //limits max speed
+=======
+	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown) {
+		isDriftingPrevious = isDrifting;
+		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7) {
+			isDrifting = true;
+		} else if (!uDown){
+			isDrifting = false;
+			playerDriftStopped = true;
+			driftingTime = System.currentTimeMillis() - driftStartTime;
+		} else if (speed < MAX_SPEED * 0.7) {
+			isDrifting = false;
+			playerDriftStopped = false;
+			driftingTime = System.currentTimeMillis() - driftStartTime;
+		}
+
+		if (isDriftingPrevious && !isDrifting && !uDown && playerDriftStopped && driftingTime > 750) {
+			//driftingBoost = true;
+			driftTimer.restart();
+		} else if (!isDriftingPrevious && isDrifting) {
+			if (aDown) initiallyTurningRight = true;
+			else initiallyTurningRight = false;
+			driftStartTime = System.currentTimeMillis();
+		}
+	}
+	
+ //Movement
+	//accelerates player
+	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, double frameTime){
+		double currentCarFriction = getCarFriction();
+		currentMaxSpeed = MAX_SPEED * currentCarFriction;
+
+
+		//BOOST STUFF
+		if (driftingBoost) {
+			speed = MAX_SPEED * 1.5;
+			currentMaxSpeed = MAX_SPEED * 1.5;
+		} else if (wDown && !sDown) {
+			if (Math.abs(speed + ACCELERATION * frameTime) <= currentMaxSpeed) speed += ACCELERATION * frameTime; //limits max speed
+>>>>>>> Stashed changes
 		} else if (sDown && !wDown) {
 			if (Math.abs(speed) <= MAX_SPEED*0.25) speed -= ACCELERATION*0.75;
 		} else {
@@ -141,10 +181,24 @@ public class Player {
 		if (!colliding) {
 			pos = newPosY;
 		}
+	}
+	public synchronized void useBoost(boolean uDown, boolean iDown, double frameTime, int boostFill){
+		if (boostFill > 0){
+			if (!uDown && iDown && isDrifting){ //no boosting during drift
+				//boost
+				//hold down i for boost
+			}
+		}
 		
+<<<<<<< Updated upstream
 		//WIP
 		if (isDrifting){
 			speed = initialSpeed*0.9; //arbitrary slow factor for drifting
+=======
+		
+
+	}
+>>>>>>> Stashed changes
 
 			//makes the player able to turn more sharply when drifting
 			rotationSpeed = HANDLING*1.5; //arbitrary handling increase

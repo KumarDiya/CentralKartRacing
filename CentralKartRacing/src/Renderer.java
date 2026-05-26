@@ -63,7 +63,19 @@ public class Renderer extends JFrame implements KeyListener{
 
         zBuffer = new double[ResolutionWidth];
 
+<<<<<<< Updated upstream
         wPressed = sPressed = aPressed = dPressed = false;
+=======
+        timeStart= System.currentTimeMillis();
+        HUD = new HeadsUpDisplay(848, 477, timeStart, null); //REMEMBER TO PUT IN MAP IMAGE
+
+        wPressed = sPressed = aPressed = dPressed = uPressed = false;
+
+        //set up panel
+        this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
+        this.setFocusable(true);
+        this.addKeyListener(this);
+>>>>>>> Stashed changes
     }
 
     /**
