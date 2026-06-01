@@ -54,7 +54,7 @@ public class Renderer extends JPanel implements KeyListener{
     public static final int TargetFrameRate = 60;
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
-    private HeadsUpDisplay HUD;
+    public HeadsUpDisplay HUD;
     private long timeStart;
 
     /**
@@ -245,7 +245,9 @@ public class Renderer extends JPanel implements KeyListener{
         }
 
         //Sprite Rendering
-        map.sprites[4].setXY(player.pos);
+        player.sprite.setXY(player.pos);
+        map.sprites[map.sprites.length - 1] = player.sprite;
+        map.spriteTextures[map.spriteTextures.length - 1] = player.characterTextures[player.sprite.texture];
 
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
@@ -296,7 +298,8 @@ public class Renderer extends JPanel implements KeyListener{
                         int texY = (int)((((long) d * Texture.DefaultSize) / spriteHeight) / 256);
                         if (texY < 0) texY = 0;
                         int color;
-                        color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
+                        if (map.sprites[spriteOrder[i]] == player.sprite) color = map.spriteTextures[map.spriteTextures.length - 1].texture[texX][texY];
+                        else color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
                         
                         if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
                         
@@ -499,16 +502,16 @@ public class Renderer extends JPanel implements KeyListener{
      * @param character
      */
     public void setPlayerCharacter(String character) {
-        int textureIndex = 0;
-        if (character.equals("Jeff")) {
-            textureIndex = 3;
+        int textureIndex = 3;
+        if (character.equals("Blonde Guy")) {
+            textureIndex = 0;
+        } else if (character.equals("Jeff")) {
+            textureIndex = 1;
         } else if (character.equals("Po")) {
             textureIndex = 2;
-        } else if (character.equals("Blonde Guy")) {
-            textureIndex = 1;
         }
 
-        map.sprites[4].texture = textureIndex;
+        player.sprite.texture = textureIndex;
         System.out.println("Player texture set to index: " + textureIndex);
     }
 

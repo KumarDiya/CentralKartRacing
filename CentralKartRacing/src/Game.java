@@ -17,7 +17,6 @@ public class Game{
         r = new Renderer(testMap, testPlayer);
         loadMap(testPlayer, testMap, r);
         
-        
     }
 
     public void start(){
@@ -39,14 +38,19 @@ public class Game{
                 long previousTime = System.currentTimeMillis();
                 int timeElapsedSecond;
 
+                boolean wonBefore = false;
+
                 int frameCounter = 0;
+                long timeStarted = System.currentTimeMillis();
+                long timeElapsed = 0;
 
                 while (isRunning && r.isDisplayable()) {
                     
                     //System.out.println("rendering");
                     timeElapsedSecond = getTimeElapsed(previousTime);
 
-                    double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
+                    long timeElapsedFrameMillis = System.currentTimeMillis() - previousFrameTime;
+                    double timeElapsedFrame = (double)timeElapsedFrameMillis/1000;
 
                     long startTime = System.nanoTime();
                     
@@ -57,10 +61,19 @@ public class Game{
                         testPlayer.movePlayer(timeElapsedFrame);
                         testPlayer.turnPlayer(timeElapsedFrame);
                         testPlayer.checkCheckpoints();
+                    } else {
+                        timeStarted += timeElapsedFrameMillis;
                     }
+
+                    timeElapsed = System.currentTimeMillis() - timeStarted;
+                    r.HUD.timeElapsed = timeElapsed;
                     previousFrameTime = System.currentTimeMillis();
                     //testPlayer.printPos();
                     //testPlayer.printDirection();
+                    if (testPlayer.win && !wonBefore) {
+                        wonBefore = true;
+                        testMap.logLeaderboard("Justin", timeElapsed);
+                    }
 
                     if (timeElapsedSecond > 1000) {
                         timeElapsedSecond -= 1000;
@@ -68,6 +81,7 @@ public class Game{
                         previousTime = System.currentTimeMillis();
                         frameCounter = 0;
                     }
+
                     frameCounter++;
                     
                     r.render();
@@ -118,6 +132,10 @@ public class Game{
             player.teleportPlayer(player.StartPos.x + (i - loadingChunks)/loadingChunks, player.StartPos.y + (i - loadingChunks)/loadingChunks);
             r.render();
         }
+    }
+
+    public static void loadCharacters() {
+        
     }
 
     public static int getTimeElapsed(long startTime) {

@@ -1,4 +1,8 @@
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import javax.swing.Timer;
 
@@ -44,6 +48,13 @@ public class Player {
 	//Checkpoint and lap vars
 	int currentCheckpoint;
 	private int lap;
+	boolean win;
+
+	//Texture and sprite variables
+	Sprite sprite;
+	Texture[] characterTextures;
+	final String[] characterFolderNames = {"blondeGuy", "jeff", "po", "test"};
+	final String characterFolder = "CentralKartRacing\\Characters\\";
 
 	//Player Collision vars
 	final double playerWidth = 0.6;
@@ -69,16 +80,19 @@ public class Player {
 
 	Player(Map map){
 		this.map = map;
-		this.pos = new Vector(12, 12);
 		this.StartPos = new Vector(12, 12);
+		this.pos = new Vector(12, 12);
+		this.sprite = new Sprite(pos, 0);
 		this.direction = new Vector(-1, 0);
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.rotationSpeedNoDrifting = 0;
 		this.speed = 0;
 		this.currentCheckpoint = 0;
-		this.lap = 1;
+		this.lap = 3;
+		this.win = false;
 		driftTimer.setRepeats(false);
+		loadCharacterTextures();
 	}
 	
 	//use this one when we have more characters
@@ -285,6 +299,9 @@ public class Player {
 			if (map.checkpoints[0].contains(pos)) {
 				currentCheckpoint = 0;
 				lap++;
+				if (lap > 3) {
+					win = true;
+				}
 				System.out.printf("Lap %d\n", lap);
 			}
 		} else {
@@ -298,18 +315,6 @@ public class Player {
 		//System.out.println(lap);
 		return lap;
 	}
-
-		/*
-		 * Moves the player’s position and direction based on the player’s speed and rotational speed.
-Accounts for drifting, applying additional movement constraints.
-Checks for collisions using the collisions methods.
-	
-
-	/*
-	 * Checks collisions with walls and obstacles (physical barriers)
-Used in movePlayer(). 
-
-	 */
 
 	//helper method
 	private CollisionBox[] getSurroundingCollisionBoxes(int[][] wallMap) {
@@ -339,17 +344,12 @@ Used in movePlayer().
 		
 	}
 
-	
-// 	/*
-// 	 * Checks collisions with ground (road vs grass vs sand etc.)
-// Returns an integer corresponding to the type of ground currently being collided with.
-// 0 for road, 1 for grass, 2 for sand/gravel, 3 for a boost pad, etc.
-
-// 	 */
-// 	public int checkGroundCollisions(int[][] groundMap) {
-		
-// 		int x = 0;
-		
-// 		return x;
-// 	}
+	private void loadCharacterTextures() {
+		characterTextures = new Texture[characterFolderNames.length];
+		for (int i = 0; i < characterFolderNames.length; i++) {
+			//Gets the full filepath for the characterTextures.
+			String characterTexture = characterFolder + characterFolderNames[i] + "\\" + "inGameTexture.png";
+			characterTextures[i] = new Texture(characterTexture);
+		}
+	}
 }
