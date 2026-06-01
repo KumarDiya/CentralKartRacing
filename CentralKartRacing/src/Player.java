@@ -26,18 +26,17 @@ public class Player {
 	boolean isTurning = false; //True if player is turning, false otherwise
 
 	//Drifting var
-	long driftStartTime = 0, driftingTime = 0;
-	boolean driftingBoost = false;
-	boolean canDriftBoost = false;
-	boolean isDrifting = false, isDriftingPrevious = false;
-	boolean playerDriftStopped = false;
+	
+	double currentFuel = 0;
+	final double MAXFUEL = 100;
+
+
+	boolean isDrifting;
+	boolean isDriftingPrevious;
+	long driftStartTime;
+	
 	boolean initiallyTurningRight = false;
-	double turboSpeed = 2; //The speed that a boost sets you to.
-	Timer driftTimer = new Timer(1000, new ActionListener() {
-		public void actionPerformed(java.awt.event.ActionEvent e) {
-			driftingBoost = false;
-		};
-	});
+	double turboSpeed = 1.5; //The speed that a boost sets you to.
 
 	Map map; //map used for wall collisions
 
@@ -84,7 +83,6 @@ public class Player {
 		this.currentCheckpoint = 0;
 		this.lap = 1;
 		this.win = false;
-		driftTimer.setRepeats(false);
 	}
 	
 	//use this one when we have more characters
@@ -98,40 +96,63 @@ public class Player {
 		this(map);
 	}
 	
-	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown) {
+	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, double frameTime) {
 		isDriftingPrevious = isDrifting;
-		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7) {
+		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1) { //only drift on road
 			isDrifting = true;
 		} else if (!uDown){
 			isDrifting = false;
-			playerDriftStopped = true;
-			driftingTime = System.currentTimeMillis() - driftStartTime;
 		} else if (speed < MAX_SPEED * 0.7) {
 			isDrifting = false;
-			playerDriftStopped = false;
-			driftingTime = System.currentTimeMillis() - driftStartTime;
 		}
 
-		if (isDriftingPrevious && !isDrifting && !uDown && playerDriftStopped && driftingTime > 750) {
-			driftingBoost = true;
-			driftTimer.restart();
-		} else if (!isDriftingPrevious && isDrifting) {
+		if (!isDriftingPrevious && isDrifting) {
 			if (aDown) initiallyTurningRight = true;
 			else initiallyTurningRight = false;
 			driftStartTime = System.currentTimeMillis();
 		}
+		System.out.println(speed);
+		if (isDrifting) {
+        	double chargeRate = 25; //tune
+       		
+			if (isDrifting && sampleGroundMap(pos.x, pos.y) == 1) {//redundant kind of with the map detection
+    			currentFuel += chargeRate*frameTime; //maybe charge rate grows??
+			}
+
+			//limit amount of fuel
+        	if (currentFuel > MAXFUEL) {
+        		currentFuel = MAXFUEL;
+        	}
+    	}
 	}
 	
  //Movement
 	//accelerates player
-	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, double frameTime){
+	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, boolean iDown, double frameTime){
 		double currentCarFriction = getCarFriction();
-		currentMaxSpeed = MAX_SPEED * currentCarFriction;
+		currentMaxSpeed = MAX_SPEED * currentCarFriction; //changes to account for boosts
+		
+		if (iDown && currentFuel > 0) {
+			if (speed < currentMaxSpeed) {
+    			speed += ACCELERATION * 2 * frameTime * 4; //accelerates 4x as fast
+		} //note: gotta make decelleration slower
+			currentMaxSpeed = MAX_SPEED * turboSpeed; 
 
-		if (driftingBoost) {
-			speed = MAX_SPEED * 1.5;
-			currentMaxSpeed = MAX_SPEED * 1.5;
-		} else if (wDown && !sDown) {
+			System.out.println("!!!");
+
+			double drainRate = 50; //tune
+			currentFuel -= drainRate*frameTime;
+
+			if (currentFuel < 0) {
+				currentFuel = 0;
+			}
+		}
+
+		if (isDrifting){
+			currentMaxSpeed *= 0.9; //slows player when drifting
+		}
+
+		if (wDown && !sDown) {
 			if (Math.abs(speed + ACCELERATION * frameTime) <= currentMaxSpeed) speed += ACCELERATION * frameTime; //limits max speed
 		} else if (sDown && !wDown) {
 			if (speed > 0){
@@ -292,7 +313,8 @@ public class Player {
 				currentCheckpoint = 0;
 				lap++;
 				System.out.printf("Lap %d\n", lap);
-			}
+			} 
+			
 		} else {
 			if (map.checkpoints[currentCheckpoint + 1].contains(pos)) {
 				currentCheckpoint++;

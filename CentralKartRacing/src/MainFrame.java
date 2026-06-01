@@ -50,7 +50,7 @@ public class MainFrame extends JFrame{
     MainFrame(){
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         this.add(mainPanel);
@@ -76,7 +76,7 @@ public class MainFrame extends JFrame{
         mainPanel.add(pausedScreen, "pause");
 
         this.pack();
-
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
 
     }

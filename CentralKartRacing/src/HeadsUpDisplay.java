@@ -3,19 +3,15 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
-
-//gotta fix the timer starting at the wrong time, also rather than using rendering panel, use seperate panel
 
 public class HeadsUpDisplay extends JPanel{
     //everything will be drawn on a jpanel that is on top of the main game 
         
 		long timeStarted;
 		long timeElapsed;
-		BoostBar bb = new BoostBar();
+		
 		int panH;
 		Color transparentRed = new Color(255, 0, 0, 150); //used for the player dot 
 
@@ -57,9 +53,9 @@ public class HeadsUpDisplay extends JPanel{
 	*@param posX 			x-position of player on the map
 	*@param posY 			y-position of player on the map 
 	*/
-    public void drawHUD(int lap, double posX, double posY){
+    public void drawHUD(int lap, double posX, double posY, double currentF, double maxF){
         drawTimer();
-        drawBoostBar();
+        drawBoostBar(currentF, maxF);
 		drawLap(lap);
 		drawMap(posX, posY);
     }
@@ -70,13 +66,19 @@ public class HeadsUpDisplay extends JPanel{
 		g2.drawString("Lap " + String.valueOf(l), 50, 50); //positioned near the top left
 	}
     
-    private void drawBoostBar(){
-		
-		//g2.fillRect();
-		g2.setPaint(Color.orange);
-		g2.setStroke(new BasicStroke(10));
-		g2.fillRect(bb.x, bb.y, bb.width, bb.height); //
-		g2.drawRect(bb.x, bb.y, bb.maxFill, bb.height); //outline for the boostbar
+    private void drawBoostBar(double currentF, double maxF){
+
+		int x = 300; //positioned near the top middle
+		int y = 30;
+		final int height = 30;
+		final int maxFill = 100; //width of the boost rectangle when full
+
+		int width = (int)(maxFill * (currentF/maxF));
+
+		g2.setPaint(Color.cyan);
+		g2.setStroke(new BasicStroke(5));
+		g2.fillRect(x, y, width, height); //
+		g2.drawRect(x, y, maxFill, height); //outline for the boostbar
 
     }
     private void drawTimer() {
@@ -123,7 +125,6 @@ public class HeadsUpDisplay extends JPanel{
 		g2.drawImage(minimap, mapX, mapY, newMapImgWidth, newMapImgHeight, null);
 
 		//draw player dot
-	
 		//ground map is 8x the player pos. so ex: 1,1 in player position is 8,8 position in pixels
 
 		int newPosX = (int)((pX*8) * scaleFactor) + mapX; 
@@ -134,16 +135,5 @@ public class HeadsUpDisplay extends JPanel{
 		g2.fillOval(newPosX - (dotDiameter/2 + 1), newPosY - (dotDiameter/2 + 1), dotDiameter, dotDiameter);	//red dot with center at position relative to minimap
 	}
 
-
-}
-class BoostBar extends Rectangle{
-	BoostBar(){
-	}
-	double boostFill;
-	int x = 300; //positioned near the top middle
-	int y = 30;
-	final int height = 30;
-	int maxFill = 100; //width of the boost rectangle when full
-	int width = (int)boostFill;
 
 }
