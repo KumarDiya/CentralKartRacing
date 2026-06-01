@@ -25,6 +25,8 @@ public class Map {
 
     private int numSprites; //The number of sprites.
     public Sprite[] sprites; //The sprites used in the level.
+    private int numSpriteCollisions;
+    public CollisionBox[] spriteCollisions;
 
     public Texture groundTexture; //The texture used for the ground.
     final int groundTextureScale = 8;
@@ -94,6 +96,10 @@ public class Map {
 
     public int getNumSprites() {
         return sprites.length;
+    }
+
+    public int getNumSpriteCollisions() {
+        return spriteCollisions.length;
     }
 
     public int getNumCheckpoints() {
@@ -189,18 +195,30 @@ public class Map {
             FileReader r = new FileReader(spriteMapPath);
             BufferedReader reader = new BufferedReader(r);
             numSprites = 0;
-            while (reader.readLine() != null){
+            String temp = reader.readLine();
+            while (temp != null){
                 numSprites++;
+                if (temp.split(" ").length == 5) {
+                    numSpriteCollisions++;
+                }
+                temp = reader.readLine();
             }
             reader.close();
             r.close();
             r = new FileReader(spriteMapPath);
             reader = new BufferedReader(r);
             sprites = new Sprite[numSprites + 1]; //+ 1 for the player
+            spriteCollisions = new CollisionBox[numSpriteCollisions];
+            int spriteCollisionsCounter = 0;
             for (int i = 0; i < numSprites; i++) {
                 String currentSprite = reader.readLine();
                 String[] spriteInfo = currentSprite.split(" ");
                 sprites[i] = new Sprite(Double.parseDouble(spriteInfo[1]), Double.parseDouble(spriteInfo[0]), Integer.parseInt(spriteInfo[2]));
+                if (spriteInfo.length == 5) {
+                    double width = Double.parseDouble(spriteInfo[3]), height = Double.parseDouble(spriteInfo[4]);
+                    spriteCollisions[spriteCollisionsCounter] = new CollisionBox(sprites[i].position.x - width/2, sprites[i].position.y - height/2, width, height);
+                    spriteCollisionsCounter++;
+                }
             }
             reader.close();
             r.close();

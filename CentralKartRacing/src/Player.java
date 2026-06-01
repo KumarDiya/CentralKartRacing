@@ -1,8 +1,4 @@
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 import javax.swing.Timer;
 
@@ -223,6 +219,12 @@ public class Player {
 					break;
 				}
 			}
+			for (CollisionBox box : map.spriteCollisions) {
+				if (box.contains(corners[i])){
+					colliding = true;
+					break;
+				}
+			}
 			if (colliding) break;
 		}
 
@@ -239,6 +241,12 @@ public class Player {
 		for (int i = 0; i < 4; i++) {
 			for (CollisionBox box : adjacentBoxes) {
 				if (box != null && box.contains(corners[i])){
+					colliding = true;
+					break;
+				}
+			}
+			for (CollisionBox box : map.spriteCollisions) {
+				if (box.contains(corners[i])){
 					colliding = true;
 					break;
 				}
