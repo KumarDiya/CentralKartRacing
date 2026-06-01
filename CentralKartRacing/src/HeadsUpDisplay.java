@@ -126,9 +126,9 @@ public class HeadsUpDisplay extends JPanel{
 
 		//draw player dot
 		//ground map is 8x the player pos. so ex: 1,1 in player position is 8,8 position in pixels
-
-		int newPosX = (int)((pX*8) * scaleFactor) + mapX; 
-		int newPosY = (int)((pY*8) * scaleFactor) + mapY;
+		//coordinates are swapped here as something goofy with the position object
+		int newPosX = (int)((pY*8) * scaleFactor) + mapX; 
+		int newPosY = (int)((pX*8) * scaleFactor) + mapY; 
 		int dotDiameter = 11;
 
 		g2.setColor(transparentRed);

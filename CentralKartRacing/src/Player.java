@@ -11,7 +11,8 @@ public class Player {
 	final double MAX_SPEED = 8; //The maximum speed for the character.
 	double currentMaxSpeed;
 	double speed; //The current speed for the character.
-	final double ACCELERATION = 5; //The acceleration of the character.
+	final double ACCELERATION = 4; //The acceleration of the character.
+	final double BOOSTACCELERATION = 20; //5x the normal accel
 	
 	//Rotational movement vars
 	Vector direction; //The direction the player is facing.
@@ -109,11 +110,11 @@ public class Player {
 		if (!isDriftingPrevious && isDrifting) {
 			if (aDown) initiallyTurningRight = true;
 			else initiallyTurningRight = false;
-			driftStartTime = System.currentTimeMillis();
+			driftStartTime = System.currentTimeMillis(); //timer used for drift length
 		}
 		System.out.println(speed);
 		if (isDrifting) {
-        	double chargeRate = 25; //tune
+        	double chargeRate = 20; //tune
        		
 			if (isDrifting && sampleGroundMap(pos.x, pos.y) == 1) {//redundant kind of with the map detection
     			currentFuel += chargeRate*frameTime; //maybe charge rate grows??
@@ -134,7 +135,7 @@ public class Player {
 		
 		if (iDown && currentFuel > 0) {
 			if (speed < currentMaxSpeed) {
-    			speed += ACCELERATION * 2 * frameTime * 4; //accelerates 4x as fast
+    			speed += BOOSTACCELERATION * 2 * frameTime;
 		} //note: gotta make decelleration slower
 			currentMaxSpeed = MAX_SPEED * turboSpeed; 
 
@@ -149,7 +150,7 @@ public class Player {
 		}
 
 		if (isDrifting){
-			currentMaxSpeed *= 0.9; //slows player when drifting
+			currentMaxSpeed *= 0.85; //slows player when drifting
 		}
 
 		if (wDown && !sDown) {
@@ -198,13 +199,13 @@ public class Player {
 				rotationSpeedNoDrifting = 0;
 			}
 		}
-		if (rotationSpeedNoDrifting < 0 && rotationSpeedNoDrifting < -currentMaxRotationSpeed) {
-			rotationSpeedNoDrifting = -currentMaxRotationSpeed;
+		if (rotationSpeedNoDrifting < 0 && rotationSpeedNoDrifting < - currentMaxRotationSpeed) {
+			rotationSpeedNoDrifting = - currentMaxRotationSpeed;
 		} else if (rotationSpeedNoDrifting > 0 && rotationSpeedNoDrifting > currentMaxRotationSpeed){
 			rotationSpeedNoDrifting = currentMaxRotationSpeed;
 		}
 
-		if (isDrifting)	rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75;
+		if (isDrifting)	rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
 		else rotationSpeed = rotationSpeedNoDrifting;
 		
 	}
