@@ -11,12 +11,11 @@ public class Game{
     /**
      * constructor
      */
-    public Game(){
-        testMap = new Map("Test", "testMap");
+    public Game(String mapName, String mapFolder){
+        testMap = new Map(mapName, mapFolder);
         testPlayer = new Player(testMap);
         r = new Renderer(testMap, testPlayer);
         loadMap(testPlayer, testMap, r);
-        
     }
 
     public void start(){
@@ -129,7 +128,7 @@ public class Game{
     public static void loadMap(Player player, Map map, Renderer r) {
         for (int i = 0; i < loadingChunks*2; i++) {
             player.turnPlayerInstant(i*2*Math.PI/loadingChunks);
-            player.teleportPlayer(player.StartPos.x + (i - loadingChunks)/loadingChunks, player.StartPos.y + (i - loadingChunks)/loadingChunks);
+            player.teleportPlayer(map.getStartingPos().x + (i - loadingChunks)/loadingChunks, map.getStartingPos().y + (i - loadingChunks)/loadingChunks);
             r.render();
         }
     }

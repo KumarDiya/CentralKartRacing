@@ -19,6 +19,9 @@ public class Map {
     private int mapWidth;
     private int mapHeight;
 
+    private Vector startPosition;
+    private Vector startDirection;
+
     public int[][] wallMap; //The map determining the location of walls.
     public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
     final int groundMapScale = 8; //The upscale factor of groundMap to wallMap.
@@ -50,6 +53,7 @@ public class Map {
     private final String spriteTexturesFile = "spriteTextures.txt";
     private final String checkpointsFile = "checkpoints.txt";
     private final String leaderboardFile = "leaderboard.txt";
+    private final String startInfoFile = "startingInfo.txt";
 
     private final String wallTextureFolder = "wallTextures";
     private final String spriteTextureFolder = "spriteTextures";
@@ -76,6 +80,7 @@ public class Map {
         loadSkyTexture();
         loadSpriteTextures();
         loadCheckpoints();
+        loadStartingInfo();
     }
 
     /**
@@ -92,6 +97,14 @@ public class Map {
      */
     public int getHeight() {
         return mapHeight;
+    }
+
+    public Vector getStartingPos() {
+        return startPosition;
+    }
+
+    public Vector getStartingDir() {
+        return startDirection;
     }
 
     public int getNumSprites() {
@@ -395,7 +408,25 @@ public class Map {
         }
     }
 
-    
+    public void loadStartingInfo() {
+        File startingInfoPath = new File(mapFolder + startInfoFile);
+        try {
+            FileReader r = new FileReader(startingInfoPath);
+            BufferedReader reader = new BufferedReader(r);
+            
+            String[] line = reader.readLine().split(" ");
+            startPosition = new Vector(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+            line = reader.readLine().split(" ");
+            startDirection = new Vector(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+             System.out.printf("An error loading the starting information for the map \"%s\" occurred.\n", name);
+        } 
+
+    }
 
     class WrongSizeException extends Exception {
         public WrongSizeException() {}
