@@ -96,10 +96,10 @@ public class RaceFinishScreen extends Screen{
 
     @Override
     void confirmSelection() {
-        System.out.println("Choice: " + choice[selectedIndex]);
+        System.out.println("Choice: " + choice[selectedIndexX][selectedIndexY]);
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
 
-        if (choice[selectedIndex].equals("ENTER")){
+        if (choice[selectedIndexX][selectedIndexY].equals("ENTER")){
             Game game = mainFrame.getGame();
             game.stop();
             game.getRenderer().paused = false;
