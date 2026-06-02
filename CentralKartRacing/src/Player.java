@@ -139,8 +139,6 @@ public class Player {
 		} //note: gotta make decelleration slower
 			currentMaxSpeed = MAX_SPEED * turboSpeed; 
 
-			System.out.println("!!!");
-
 			double drainRate = 50; //tune
 			currentFuel -= drainRate*frameTime;
 
