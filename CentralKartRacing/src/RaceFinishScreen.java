@@ -21,8 +21,6 @@ public class RaceFinishScreen extends Screen{
     {"O", "P", "Q", "R", "S", "T", "U"},
     {"V", "W", "X", "Y", "Z", "ENTER", "ENTER"}
     };
-
-     int panW, panH;
     
     /**
      * constructor
@@ -31,10 +29,10 @@ public class RaceFinishScreen extends Screen{
         super("");
         totalOptionsX = 7;
         totalOptionsY = 4;
-        boxX = 375;
+        boxX = 375; //the box location
         boxY = 220;
-        boxWidth = 100;
-        boxHeight = 100;
+        boxWidth = 50;
+        boxHeight = 50;
         spacing = 40;
         selectedIndexX = selectedIndexY = 0;
     }
@@ -103,7 +101,6 @@ public class RaceFinishScreen extends Screen{
             Game game = mainFrame.getGame();
             game.stop();
             game.getRenderer().paused = false;
-            //need to restart the game (add code later)
             switchScreen("main menu");
             
         }
