@@ -49,7 +49,7 @@ public class Renderer extends JPanel implements KeyListener{
     public static double CameraDistance = 2;  //The distance the camera will follow the player at.
 
     //Key Pressed Booleans
-    public boolean wPressed, sPressed, aPressed, dPressed, uPressed;
+    public boolean wPressed, sPressed, aPressed, dPressed, uPressed, iPressed;
 
     public static final int TargetFrameRate = 60;
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
@@ -73,9 +73,11 @@ public class Renderer extends JPanel implements KeyListener{
 
         zBuffer = new double[ResolutionWidth];
 
-        wPressed = sPressed = aPressed = dPressed = false;
         timeStart= System.currentTimeMillis();
         HUD = new HeadsUpDisplay(848, 477, timeStart);
+
+        wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
+
         //set up panel
         this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
         this.setFocusable(true);
@@ -319,6 +321,7 @@ public class Renderer extends JPanel implements KeyListener{
      */
     private Vector getCameraPos() {
 
+        //Potential future FOV effects
         // if (player.speed > player.MAX_SPEED) {
         //     CameraDistance = 2 + (player.speed - player.MAX_SPEED)/player.MAX_SPEED;
         // } else {
@@ -410,7 +413,7 @@ public class Renderer extends JPanel implements KeyListener{
         g.drawImage(framePin, 0, 0, null);
         Graphics2D g2 = (Graphics2D)g;
         HUD.setG2(g2);
-        HUD.drawHUD(player.getLap(), 1, 1);
+        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MAXFUEL);
         
 
         /*if (paused){
@@ -443,6 +446,10 @@ public class Renderer extends JPanel implements KeyListener{
         return uPressed;
     }
 
+    public boolean iDown(){
+        return iPressed;
+    }
+
     public boolean[] getControlsDown() {
         boolean[] controls = {wPressed, sPressed, aPressed, dPressed};
         return controls;
@@ -465,6 +472,9 @@ public class Renderer extends JPanel implements KeyListener{
         }
         if (e.getKeyCode() == KeyEvent.VK_U) {
             uPressed = true;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            iPressed = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_K) {
             MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
@@ -491,6 +501,9 @@ public class Renderer extends JPanel implements KeyListener{
         }
         if (e.getKeyCode() == KeyEvent.VK_U) {
             uPressed = false;
+        }
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            iPressed = false;
         }
     }
 

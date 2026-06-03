@@ -28,6 +28,9 @@ public class MainFrame extends JFrame{
     //card layout object
     CardLayout cardLayout;
 
+    //finish screen object
+    RaceFinishScreen raceFinishScreen;
+
     //keep track of current screen
     String currentScreen;
 
@@ -52,7 +55,7 @@ public class MainFrame extends JFrame{
     MainFrame(){
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         this.add(mainPanel);
@@ -77,8 +80,11 @@ public class MainFrame extends JFrame{
         pausedScreen = new PausedScreen();
         mainPanel.add(pausedScreen, "pause");
 
-        this.pack();
+        raceFinishScreen = new RaceFinishScreen();
+        mainPanel.add(raceFinishScreen);
 
+        this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
 
     }
@@ -164,6 +170,13 @@ public class MainFrame extends JFrame{
                 pausedScreen.setFocusable(true);
                 pausedScreen.requestFocus();
                 pausedScreen.requestFocusInWindow();
+                game.getRenderer().setFocusable(false);
+            }
+            case "finish game" -> {
+                System.out.println("Switching to finish screen");
+                raceFinishScreen.setFocusable(true);
+                raceFinishScreen.requestFocus();
+                raceFinishScreen.requestFocusInWindow();
                 game.getRenderer().setFocusable(false);
             }
 

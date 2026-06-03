@@ -7,7 +7,6 @@ public class Game{
     private boolean isRunning = false;
     private Thread gameLoopThread;
     
-
     /**
      * constructor
      */
@@ -19,7 +18,7 @@ public class Game{
     }
 
     public void start(){
-
+        
         r.setFocusable(true);
         r.requestFocusInWindow();
 
@@ -54,8 +53,8 @@ public class Game{
                     long startTime = System.nanoTime();
                     
                     if (!r.paused) {
-                        testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown());
-                        testPlayer.acceleratePlayer(r.wDown(), r.sDown(), timeElapsedFrame);
+                        testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown(), timeElapsedFrame);
+                        testPlayer.acceleratePlayer(r.wDown(), r.sDown(), r.iDown(), timeElapsedFrame);
                         testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
                         testPlayer.movePlayer(timeElapsedFrame);
                         testPlayer.turnPlayer(timeElapsedFrame);
