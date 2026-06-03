@@ -82,8 +82,7 @@ public class HeadsUpDisplay extends JPanel{
 
     }
     private void drawTimer() {
-        //update time elapsed since start of race
-		timeElapsed = System.currentTimeMillis() -  timeStarted; 
+		
 		int timeMilli = (int)(timeElapsed % 1000)/10;//time shown in milliseconds; divides by 10 to show the first 2 digits rather than all 3
 		int timeSec = (int)(timeElapsed/1000 % 60);//time shown in seconds
 		int timeMin = (int)(timeElapsed/60000 % 60);

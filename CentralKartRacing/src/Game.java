@@ -10,8 +10,8 @@ public class Game{
     /**
      * constructor
      */
-    public Game(){
-        testMap = new Map("Test", "testMap");
+    public Game(String mapName, String mapFolder){
+        testMap = new Map(mapName, mapFolder);
         testPlayer = new Player(testMap);
         r = new Renderer(testMap, testPlayer);
         loadMap(testPlayer, testMap, r);
@@ -36,14 +36,19 @@ public class Game{
                 long previousTime = System.currentTimeMillis();
                 int timeElapsedSecond;
 
+                boolean wonBefore = false;
+
                 int frameCounter = 0;
+                long timeStarted = System.currentTimeMillis();
+                long timeElapsed = 0;
 
                 while (isRunning && r.isDisplayable()) {
                     
                     //System.out.println("rendering");
                     timeElapsedSecond = getTimeElapsed(previousTime);
 
-                    double timeElapsedFrame = (double)(System.currentTimeMillis() - previousFrameTime)/1000;
+                    long timeElapsedFrameMillis = System.currentTimeMillis() - previousFrameTime;
+                    double timeElapsedFrame = (double)timeElapsedFrameMillis/1000;
 
                     long startTime = System.nanoTime();
                     
@@ -54,10 +59,19 @@ public class Game{
                         testPlayer.movePlayer(timeElapsedFrame);
                         testPlayer.turnPlayer(timeElapsedFrame);
                         testPlayer.checkCheckpoints();
+                    } else {
+                        timeStarted += timeElapsedFrameMillis;
                     }
+
+                    timeElapsed = System.currentTimeMillis() - timeStarted;
+                    r.HUD.timeElapsed = timeElapsed;
                     previousFrameTime = System.currentTimeMillis();
                     //testPlayer.printPos();
                     //testPlayer.printDirection();
+                    if (testPlayer.win && !wonBefore) {
+                        wonBefore = true;
+                        testMap.logLeaderboard("Justin", timeElapsed);
+                    }
 
                     if (timeElapsedSecond > 1000) {
                         timeElapsedSecond -= 1000;
@@ -65,6 +79,7 @@ public class Game{
                         previousTime = System.currentTimeMillis();
                         frameCounter = 0;
                     }
+
                     frameCounter++;
                     
                     r.render();
@@ -112,9 +127,13 @@ public class Game{
     public static void loadMap(Player player, Map map, Renderer r) {
         for (int i = 0; i < loadingChunks*2; i++) {
             player.turnPlayerInstant(i*2*Math.PI/loadingChunks);
-            player.teleportPlayer(player.StartPos.x + (i - loadingChunks)/loadingChunks, player.StartPos.y + (i - loadingChunks)/loadingChunks);
+            player.teleportPlayer(map.getStartingPos().x + (i - loadingChunks)/loadingChunks, map.getStartingPos().y + (i - loadingChunks)/loadingChunks);
             r.render();
         }
+    }
+
+    public static void loadCharacters() {
+        
     }
 
     public static int getTimeElapsed(long startTime) {

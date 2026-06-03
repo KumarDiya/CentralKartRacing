@@ -12,6 +12,10 @@ public class Vector {
         this.y = y;
     }
 
+    public Vector duplicate() {
+        return new Vector(x, y);
+    }
+
     public Vector addVec(Vector v){
         return new Vector(x + v.x, y + v.y);
     }
