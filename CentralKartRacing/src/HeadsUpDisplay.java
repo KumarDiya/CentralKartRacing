@@ -61,8 +61,8 @@ public class HeadsUpDisplay extends JPanel{
     }
 
 	private void drawLap(int l){
-		g2.setFont(new Font("Arial", Font.BOLD, 30));
-        g2.setPaint(Color.red);
+		g2.setFont(new Font("Bahnschrift", Font.BOLD, 30));
+        g2.setPaint(Color.white);
 		g2.drawString("Lap " + String.valueOf(l), 50, 50); //positioned near the top left
 	}
     
@@ -75,7 +75,7 @@ public class HeadsUpDisplay extends JPanel{
 
 		int width = (int)(maxFill * (currentF/maxF));
 
-		g2.setPaint(Color.cyan);
+		g2.setPaint(Color.white);
 		g2.setStroke(new BasicStroke(5));
 		g2.fillRect(x, y, width, height); //
 		g2.drawRect(x, y, maxFill, height); //outline for the boostbar
@@ -88,8 +88,8 @@ public class HeadsUpDisplay extends JPanel{
 		int timeSec = (int)(timeElapsed/1000 % 60);//time shown in seconds
 		int timeMin = (int)(timeElapsed/60000 % 60);
 
-        g2.setFont(new Font("Arial", Font.BOLD, 30));
-        g2.setPaint(Color.blue);
+        g2.setFont(new Font("Bahnschrift", Font.BOLD, 30));
+        g2.setPaint(Color.white);
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		

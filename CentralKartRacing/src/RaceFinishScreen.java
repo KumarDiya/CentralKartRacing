@@ -5,7 +5,8 @@ import javax.swing.SwingUtilities;
 
 
 public class RaceFinishScreen extends Screen{
-    String userName;
+
+    String userName = "";
 
     //selection variables
     int boxX, boxY, boxWidth, boxHeight, spacing;
@@ -19,14 +20,14 @@ public class RaceFinishScreen extends Screen{
     {"A", "B", "C", "D", "E", "F", "G"},
     {"H", "I", "J", "K", "L", "M", "N"},
     {"O", "P", "Q", "R", "S", "T", "U"},
-    {"V", "W", "X", "Y", "Z", "ENTER", "ENTER"}
-    };
+    {"V", "W", "X", "Y", "Z", "BACKSPACE", "ENTER"}
+    };   
     
     /**
      * constructor
      */
     RaceFinishScreen(){
-        super("");
+        super("finishScreen.png");
         totalOptionsX = 7;
         totalOptionsY = 4;
         boxX = 375; //the box location
@@ -102,7 +103,15 @@ public class RaceFinishScreen extends Screen{
             game.stop();
             game.getRenderer().paused = false;
             switchScreen("main menu");
+            //store name and time...
             
+        }else if(choice[selectedIndexX][selectedIndexY].equals("BACKSPACE")){
+            if (userName.length() > 0){
+                userName = userName.substring(0, userName.length() - 2); //subtract last letter
+            }
+        }
+        else{
+            userName += choice[selectedIndexX][selectedIndexY]; //add the letter to the name
         }
         
     }

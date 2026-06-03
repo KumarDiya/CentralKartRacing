@@ -31,10 +31,11 @@ public class Player {
 	double currentFuel = 0;
 	final double MAXFUEL = 100;
 
-
 	boolean isDrifting;
 	boolean isDriftingPrevious;
 	long driftStartTime;
+	long driftLength;
+	int driftLevel = 0;
 	
 	boolean initiallyTurningRight = false;
 	double turboSpeed = 1.5; //The speed that a boost sets you to.
@@ -97,7 +98,7 @@ public class Player {
 		this(map);
 	}
 	
-	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, double frameTime) {
+	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, boolean iDown, double frameTime) {
 		isDriftingPrevious = isDrifting;
 		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1) { //only drift on road
 			isDrifting = true;
@@ -112,9 +113,33 @@ public class Player {
 			else initiallyTurningRight = false;
 			driftStartTime = System.currentTimeMillis(); //timer used for drift length
 		}
-		System.out.println(speed);
-		if (isDrifting) {
-        	double chargeRate = 20; //tune
+		if (isDriftingPrevious && !isDrifting){
+			
+			driftLevel = 0;
+
+		}
+		
+		//System.out.println(speed);
+
+		if (isDrifting && !iDown) {
+        	double chargeRate = 20;
+
+			driftLength = System.currentTimeMillis() - driftStartTime;
+
+			if (driftLength >= 3000) driftLevel = 3;
+			else if (driftLength >= 1500) driftLevel = 2;
+			else if (driftLength >= 500) driftLevel = 1;
+			else driftLevel = 0;
+
+			switch (driftLevel) {
+				case 3 -> chargeRate = 40;
+				case 2 -> chargeRate = 25;
+				case 1 -> chargeRate = 15;
+				default -> chargeRate = 5; // level 0
+			}
+			
+			System.out.println("Drift level: " + driftLevel);
+
        		
 			if (isDrifting && sampleGroundMap(pos.x, pos.y) == 1) {//redundant kind of with the map detection
     			currentFuel += chargeRate*frameTime; //maybe charge rate grows??
