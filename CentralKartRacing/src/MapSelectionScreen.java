@@ -1,10 +1,13 @@
 import java.awt.*;
+
+import javax.swing.SwingUtilities;
 public class MapSelectionScreen extends Screen{
 
      //selection variables
     int boxX, boxY, boxWidth, boxHeight, spacing;
 
-    String[] mapNames = {"Test Map"};
+    String[] mapNames = {"Test"};
+    String[] mapFolders = {"testMap"};
     
     MapSelectionScreen(){
         super("testMapSelect.png");
@@ -53,6 +56,16 @@ public class MapSelectionScreen extends Screen{
     @Override
     void confirmSelection() {
         System.out.println("Selected Map: " + mapNames[selectedIndex]);
+        MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+        mainFrame.setSelectedMapName(mapNames[selectedIndex]);
+        mainFrame.setSelectedMapFolder(mapFolders[selectedIndex]);
+
+        mainFrame.game.stop();
+        mainFrame.mainPanel.remove(mainFrame.game.getRenderer());
+        mainFrame.game = new Game(mapNames[selectedIndex], mapFolders[selectedIndex]);
+        mainFrame.mainPanel.add(mainFrame.game.getRenderer(), "game");
+
         switchScreen("game");
+        
     }
 }

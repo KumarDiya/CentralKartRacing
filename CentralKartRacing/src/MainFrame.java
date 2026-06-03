@@ -36,6 +36,8 @@ public class MainFrame extends JFrame{
 
     //keep track of selected player
     private String selectedPlayer;
+    private String selectedMapName;
+    private String selectedMapFolder;
 
 
     public static void main (String[]args){
@@ -72,7 +74,7 @@ public class MainFrame extends JFrame{
         mainPanel.add(mapSelectionScreen, "map selection");
 
         //create instance of and add renderer screen
-        game = new Game();
+        game = new Game("Test", "testMap");
         mainPanel.add(game.getRenderer(), "game");
 
         pausedScreen = new PausedScreen();
@@ -101,6 +103,22 @@ public class MainFrame extends JFrame{
      */
     public String getSelectedPlayer(){
         return this.selectedPlayer;
+    }
+
+    public void setSelectedMapName(String map) {
+        this.selectedMapName = map;
+    }
+
+    public String getSelectedMapName() {
+        return this.selectedMapName;
+    }
+
+    public void setSelectedMapFolder(String map) {
+        this.selectedMapFolder = map;
+    }
+
+    public String getSelectedMapFolder() {
+        return this.selectedMapFolder;
     }
 
     /**
