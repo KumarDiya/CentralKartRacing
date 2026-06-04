@@ -90,7 +90,7 @@ public class Player {
 		this.currentCheckpoint = 0;
 		this.lap = 1;
 		this.win = false;
-		driftTimer.setRepeats(false);
+		//driftTimer.setRepeats(false);
 		loadCharacterTextures();
 	}
 	
@@ -145,9 +145,8 @@ public class Player {
 				default -> chargeRate = 5; // level 0
 			}
 			
-			System.out.println("Drift level: " + driftLevel);
+			//System.out.println("Drift level: " + driftLevel);
 
-       		
 			if (isDrifting && sampleGroundMap(pos.x, pos.y) == 1) {//redundant kind of with the map detection
     			currentFuel += chargeRate*frameTime; //maybe charge rate grows??
 			}

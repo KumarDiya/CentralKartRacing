@@ -54,7 +54,8 @@ public class HeadsUpDisplay extends JPanel{
 	*@param posY 			y-position of player on the map 
 	*/
     public void drawHUD(int lap, double posX, double posY, double currentF, double maxF){
-        drawTimer();
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f)); //make everything translucent
+		drawTimer();
         drawBoostBar(currentF, maxF);
 		drawLap(lap);
 		drawMap(posX, posY);
@@ -92,7 +93,7 @@ public class HeadsUpDisplay extends JPanel{
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		
-        g2.drawString(timeShown, 550, 50); // positioned near the top right
+        g2.drawString(timeShown, 600, 50); // positioned near the top right
     }	
 
 	private void drawMap(double pX, double pY){
