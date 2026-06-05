@@ -14,6 +14,7 @@ public class HeadsUpDisplay extends JPanel{
 		
 		int panH;
 		Color transparentRed = new Color(255, 0, 0, 150); //used for the player dot 
+		Font HUDfont = new Font("Bahnschrift", Font.BOLD, 50);
 
 		BufferedImage minimap;
 
@@ -54,7 +55,7 @@ public class HeadsUpDisplay extends JPanel{
 	*@param posY 			y-position of player on the map 
 	*/
     public void drawHUD(int lap, double posX, double posY, double currentF, double maxF){
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f)); //make everything translucent
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.8f)); //make everything translucent
 		drawTimer();
         drawBoostBar(currentF, maxF);
 		drawLap(lap);
@@ -62,7 +63,7 @@ public class HeadsUpDisplay extends JPanel{
     }
 
 	private void drawLap(int l){
-		g2.setFont(new Font("Bahnschrift", Font.BOLD, 30));
+		g2.setFont(HUDfont);
         g2.setPaint(Color.white);
 		g2.drawString("Lap " + String.valueOf(l), 50, 50); //positioned near the top left
 	}
@@ -70,9 +71,9 @@ public class HeadsUpDisplay extends JPanel{
     private void drawBoostBar(double currentF, double maxF){
 
 		int x = 300; //positioned near the top middle
-		int y = 30;
-		final int height = 30;
-		final int maxFill = 100; //width of the boost rectangle when full
+		int y = 20;
+		final int height = 50;
+		final int maxFill = 200; //width of the boost rectangle when full
 
 		int width = (int)(maxFill * (currentF/maxF));
 
@@ -88,7 +89,7 @@ public class HeadsUpDisplay extends JPanel{
 		int timeSec = (int)(timeElapsed/1000 % 60);//time shown in seconds
 		int timeMin = (int)(timeElapsed/60000 % 60);
 
-        g2.setFont(new Font("Bahnschrift", Font.BOLD, 30));
+        g2.setFont(HUDfont);
         g2.setPaint(Color.white);
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
@@ -100,7 +101,7 @@ public class HeadsUpDisplay extends JPanel{
 		
 		// circle player tracker / dot
 
-		int MAX_SIZE = 150; //constrain minimap to 150x150 square
+		int MAX_SIZE = 170; //constrain minimap to 150x150 square
 
 		int mapImgWidth = minimap.getWidth(); 
  		int mapImgHeight = minimap.getHeight(); 

@@ -7,7 +7,7 @@ public class Player {
 	
 	//Linear movement vars
 	Vector pos; //The position of the player.
-	final double MAX_SPEED = 8; //The maximum speed for the character.
+	final double MAX_SPEED = 10; //The maximum speed for the character.
 	double currentMaxSpeed;
 	double speed; //The current speed for the character.
 	final double ACCELERATION = 4; //The acceleration of the character.

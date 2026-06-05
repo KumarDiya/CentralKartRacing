@@ -455,6 +455,12 @@ public class Renderer extends JPanel implements KeyListener{
         return controls;
     }
 
+    public void checkGameFinish(){
+            MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.switchToScreen("finish");
+        
+    }
+
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -477,8 +483,9 @@ public class Renderer extends JPanel implements KeyListener{
             iPressed = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_K) {
-            MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+            
             if(!paused){
+                MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
                 paused = true;
                 mainFrame.switchToScreen("pause");
             }
