@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -9,23 +11,24 @@ import javax.swing.*;
 public class HeadsUpDisplay extends JPanel{
     //everything will be drawn on a jpanel that is on top of the main game 
         
-		long timeStarted;
-		long timeElapsed;
+	long timeElapsed;
+	
+	int panH;
+	Color transparentRed = new Color(255, 0, 0, 150); //used for the player dot 
+	Font guiFont = new Font("Bahnschrift", Font.BOLD, 30);
+	Font startingFont = new Font("Bahnschrift", Font.BOLD, 60);
+
+	BufferedImage minimap;
+
+	Graphics2D g2;
+	HeadsUpDisplay(int panW, int panH) {
+		minimap = loadImage("groundTexture.png");
+		this.setPreferredSize(new Dimension(panW, panH));
+		this.panH = panH;
 		
-		int panH;
-		Color transparentRed = new Color(255, 0, 0, 150); //used for the player dot 
+		this.setOpaque(false);//enable transparency
+	}
 
-		BufferedImage minimap;
-
-		Graphics2D g2;
-        HeadsUpDisplay(int panW, int panH, long timeStarted) {
-			minimap = loadImage("groundTexture.png");
-			this.setPreferredSize(new Dimension(panW, panH));
-			this.panH = panH;
-			
-			this.setOpaque(false);//enable transparency
-			this.timeStarted = timeStarted;
-		}
 	private BufferedImage loadImage(String filename) {
         BufferedImage image = null;
         try {
@@ -55,10 +58,14 @@ public class HeadsUpDisplay extends JPanel{
 	*/
     public void drawHUD(int lap, double posX, double posY, double currentF, double maxF){
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f)); //make everything translucent
-		drawTimer();
-        drawBoostBar(currentF, maxF);
-		drawLap(lap);
-		drawMap(posX, posY);
+		if (timeElapsed < 0) {
+			drawStartingTimer();
+		} else {
+			drawTimer();
+			drawBoostBar(currentF, maxF);
+			drawLap(lap);
+			drawMap(posX, posY);
+		}
     }
 
 	private void drawLap(int l){
@@ -88,7 +95,7 @@ public class HeadsUpDisplay extends JPanel{
 		int timeSec = (int)(timeElapsed/1000 % 60);//time shown in seconds
 		int timeMin = (int)(timeElapsed/60000 % 60);
 
-        g2.setFont(new Font("Bahnschrift", Font.BOLD, 30));
+        g2.setFont(guiFont);
         g2.setPaint(Color.white);
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
@@ -135,5 +142,20 @@ public class HeadsUpDisplay extends JPanel{
 		g2.fillOval(newPosX - (dotDiameter/2 + 1), newPosY - (dotDiameter/2 + 1), dotDiameter, dotDiameter);	//red dot with center at position relative to minimap
 	}
 
+	private void drawStartingTimer() {
+		int timeSec = (int)(-timeElapsed/1000 % 60) + 1;//time shown in seconds
+
+        g2.setFont(startingFont);
+        
+
+		String timeShown = String.format("%d", timeSec);
+		g2.setColor(Color.BLACK);
+		g2.fillRect(0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight);
+		g2.setPaint(Color.WHITE);
+		Rectangle2D timeBounds = startingFont.getStringBounds(timeShown, g2.getFontRenderContext());
+        g2.drawString(timeShown, (Renderer.ResolutionWidth - (int)timeBounds.getWidth())/2, (Renderer.ResolutionHeight - (int)timeBounds.getHeight())/2); // positioned near the top right
+	
+		
+	}
 
 }
