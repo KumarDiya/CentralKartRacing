@@ -17,6 +17,13 @@ public class Game{
         loadMap(testPlayer, testMap, r);
     }
 
+    public Game(String mapName, String mapFolder, int character){
+        testMap = new Map(mapName, mapFolder);
+        testPlayer = new Player(testMap, character);
+        r = new Renderer(testMap, testPlayer);
+        loadMap(testPlayer, testMap, r);
+    }
+
     public void start(){
         
         r.setFocusable(true);

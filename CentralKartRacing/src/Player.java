@@ -1,34 +1,35 @@
-import java.awt.event.ActionListener;
-
-import javax.swing.Timer;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
 	//Linear movement vars
 	Vector pos; //The position of the player.
-	final double MAX_SPEED = 8; //The maximum speed for the character.
+	final double MAX_SPEED; //The maximum speed for the character.
 	double currentMaxSpeed;
 	double speed; //The current speed for the character.
-	final double ACCELERATION = 4; //The acceleration of the character.
-	final double BOOSTACCELERATION = 20; //5x the normal accel
+	final double ACCELERATION; //The acceleration of the character.
+	final double BOOSTACCELERATION; //5x the normal accel
 	
 	//Rotational movement vars
 	Vector direction; //The direction the player is facing.
-	final double MAX_ROTATION_SPEED = 1.5; //The maximum rotational speed of the character.
+	final double MAX_ROTATION_SPEED; //The maximum rotational speed of the character.
 	double currentMaxRotationSpeed;
 	Vector unRotatedPlane;
 	Vector plane; //A vector perpendicular to the direction, representing the camera plane.
 	double rotationSpeedNoDrifting;
 	double rotationSpeed; //The current rotational speed of the character.
-	final double HANDLING = 10; //The rotational acceleration of the character.
+	final double HANDLING; //The rotational acceleration of the character.
 	
 	boolean isTurning = false; //True if player is turning, false otherwise
 
 	//Drifting var
 	
 	double currentFuel = 0;
-	final double MAXFUEL = 100;
+	final double MAXFUEL;
 
 	boolean isDrifting;
 	boolean isDriftingPrevious;
@@ -90,19 +91,64 @@ public class Player {
 		this.currentCheckpoint = 0;
 		this.lap = 1;
 		this.win = false;
-		//driftTimer.setRepeats(false);
+		MAX_SPEED = 8;
+		ACCELERATION = 4;
+		BOOSTACCELERATION = 20;
+		MAX_ROTATION_SPEED = 1.5;
+		HANDLING = 10;
+		MAXFUEL = 100;
 		loadCharacterTextures();
 	}
 	
 	//use this one when we have more characters
-	Player(Map map, String character){
-		//Creates a new character using a specified character, where char is the selected character.
-		//Loads all stats of the character either directly in code, or from a stats.txt file for the character.
-		
-		//NOTE: some variables can not be constants then!!
-		//if (character.equals("Ghost")) {}
+	Player(Map map, int character){
+		this.map = map;
+		this.pos = map.getStartingPos().duplicate();
+		this.sprite = new Sprite(pos, 0);
+		this.direction = map.getStartingDir().duplicate();
+		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.rotationSpeedNoDrifting = 0;
+		this.speed = 0;
+		this.currentCheckpoint = 0;
+		this.lap = 1;
+		this.win = false;
+
+		//Character stats loading
+		//Temporary variables for constant setting
+		double tempMaxSpeed = 8, tempAcceleration = 4, tempBoostAcceleration = 20, tempMaxRotationSpeed = 1.5, tempHandling = 10, tempMaxFuel = 100;
+        File characterStatsPath = new File(characterFolder + characterFolderNames[character] + "\\stats.txt");
+        try {
+            FileReader r = new FileReader(characterStatsPath);
+            BufferedReader reader = new BufferedReader(r);
+            tempMaxSpeed 			= Double.parseDouble(reader.readLine());
+			tempAcceleration 		= Double.parseDouble(reader.readLine());
+			tempBoostAcceleration 	= Double.parseDouble(reader.readLine());
+			tempMaxRotationSpeed 	= Double.parseDouble(reader.readLine());
+			tempHandling 			= Double.parseDouble(reader.readLine());
+			tempMaxFuel 			= Double.parseDouble(reader.readLine());
+            reader.close();
+            r.close();
 			
-		this(map);
+		} catch (IOException e) {
+			System.out.printf("An error loading the player stats for the player \"%s\" occurred.\n", characterFolderNames[character]);
+			tempMaxSpeed = 8;
+			tempAcceleration = 4;
+			tempBoostAcceleration = 20;
+			tempMaxRotationSpeed = 1.5;
+			tempHandling = 10;
+			tempMaxFuel = 100;
+			System.out.println(e);
+		}
+
+		MAX_SPEED = tempMaxSpeed;
+		ACCELERATION = tempAcceleration;
+		BOOSTACCELERATION = tempBoostAcceleration;
+		MAX_ROTATION_SPEED = tempMaxRotationSpeed;
+		HANDLING = tempHandling;
+		MAXFUEL = tempMaxFuel;
+
+		loadCharacterTextures();
 	}
 	
 	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, boolean iDown, double frameTime) {
