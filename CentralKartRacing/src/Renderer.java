@@ -36,6 +36,7 @@ public class Renderer extends JPanel implements KeyListener{
     Map map;
     Player player;
     
+    
     //Skybox variables
     private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
     private double angBetweenRays;             //The angle between two rays casted by the raycaster.

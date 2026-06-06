@@ -51,12 +51,14 @@ public class Player {
 	Texture[] characterTextures;
 	final String[] characterFolderNames = {"blondeGuy", "jeff", "po", "test"};
 	final String characterFolder = "CentralKartRacing\\Characters\\";
+	int playerFrame = 2; 
 
 	//Player Collision vars
 	final double playerWidth = 0.6;
 	final double playerHeight = 0.6;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
+	
 
 	//Constants
 	final double[] groundMoveSpeeds = {0.1, 1.0, 0.6, 0.4}; //Wall speed, road speed, grass speed, sand speed.
@@ -109,9 +111,9 @@ public class Player {
 		isDriftingPrevious = isDrifting;
 		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1) { //only drift on road
 			isDrifting = true;
-		} else if (!uDown){
+		} else if (!uDown || sampleGroundMap(pos.x, pos.y) == 1){ //redundancy cause some bug
 			isDrifting = false;
-		} else if (speed < MAX_SPEED * 0.7) {
+		} else if (speed < MAX_SPEED * 0.7) {//need certain speed to drift
 			isDrifting = false;
 		}
 
@@ -217,9 +219,13 @@ public class Player {
 			if (initiallyTurningRight) driftingRotationLock = currentMaxRotationSpeed;
 			else driftingRotationLock = -currentMaxRotationSpeed;
 		}
-		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {
+		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {//turn left
+			
 			if (Math.abs(rotationSpeedNoDrifting + HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting += HANDLING * frameTime; //limits max speed
-		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {
+
+		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {//turn right
+			
+			
 			if (Math.abs(rotationSpeedNoDrifting - HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting -= HANDLING * frameTime;
 		} else {
 			//rotationSpeedNoDrifting -= (rotationSpeedNoDrifting * 0.03) * (frameTime/Renderer.TargetFrameTime);
@@ -234,8 +240,26 @@ public class Player {
 			rotationSpeedNoDrifting = currentMaxRotationSpeed;
 		}
 
-		if (isDrifting)	rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
+
+		//turn sprites
+		if (rotationSpeedNoDrifting > currentMaxRotationSpeed * 0.75) playerFrame = 1;
+		else if (rotationSpeedNoDrifting < currentMaxRotationSpeed * -0.75) playerFrame = 3;
+		else playerFrame = 2;
+
+
+		if (isDrifting)	{
+			rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
+			if (rotationSpeed > 0){
+				playerFrame = 0;
+			}else if (rotationSpeed < 0){
+				playerFrame = 4;
+			}
+		}
 		else rotationSpeed = rotationSpeedNoDrifting;
+
+		
+
+		sprite.texture = playerFrame;
 		
 	}
 
@@ -398,11 +422,12 @@ public class Player {
 	}
 
 	private void loadCharacterTextures() {
-		characterTextures = new Texture[characterFolderNames.length];
-		for (int i = 0; i < characterFolderNames.length; i++) {
-			//Gets the full filepath for the characterTextures.
-			String characterTexture = characterFolder + characterFolderNames[i] + "\\" + "inGameTexture.png";
-			characterTextures[i] = new Texture(characterTexture);
-		}
+		characterTextures = new Texture[5];
+		String folderPath = characterFolder + "blondeGuy" + "\\"; 
+		characterTextures[0] = new Texture(folderPath + "leftDrift.png");
+		characterTextures[1] = new Texture(folderPath + "leftTurn.png");
+		characterTextures[2] = new Texture(folderPath + "straight.png");
+		characterTextures[3] = new Texture(folderPath + "rightTurn.png");
+		characterTextures[4] = new Texture(folderPath + "rightDrift.png");
 	}
 }
