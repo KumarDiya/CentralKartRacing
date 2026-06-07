@@ -60,9 +60,10 @@ public class MapSelectionScreen extends Screen{
         mainFrame.setSelectedMapName(mapNames[selectedIndex]);
         mainFrame.setSelectedMapFolder(mapFolders[selectedIndex]);
 
+        //create instance of and add renderer screen
         mainFrame.game.stop();
         mainFrame.mainPanel.remove(mainFrame.game.getRenderer());
-        mainFrame.game = new Game(mapNames[selectedIndex], mapFolders[selectedIndex]);
+        mainFrame.game = new Game(mapNames[selectedIndex], mapFolders[selectedIndex], MainFrame.getSelectedPlayerIndex());
         mainFrame.mainPanel.add(mainFrame.game.getRenderer(), "game");
 
         switchScreen("game");
