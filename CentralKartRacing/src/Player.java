@@ -115,6 +115,7 @@ public class Player {
 		this.map = map;
 		this.pos = map.getStartingPos().duplicate();
 		this.sprite = new Sprite(pos, 0);
+		this.DBsprite = new Sprite(pos, 0); //REMINDER: MAYBE USE DIFFERENT POS
 		this.direction = map.getStartingDir().duplicate();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
@@ -159,6 +160,7 @@ public class Player {
 		MAXFUEL = tempMaxFuel;
 
 		loadCharacterTextures();
+		loadDriftAndBoostTextures();
 	}
 	
 	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, boolean iDown, double frameTime) {

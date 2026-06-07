@@ -1,6 +1,4 @@
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,26 +19,14 @@ public class HeadsUpDisplay extends JPanel{
 	BufferedImage minimap;
 
 	Graphics2D g2;
+
 	HeadsUpDisplay(int panW, int panH) {
 		minimap = loadImage("groundTexture.png");
 		this.setPreferredSize(new Dimension(panW, panH));
 		this.panH = panH;
-		
-		int panH;
-		Color transparentRed = new Color(255, 0, 0, 150); //used for the player dot 
-		Font HUDfont = new Font("Bahnschrift", Font.BOLD, 50);
+		this.setOpaque(false);//enable transparency
+	}
 
-		BufferedImage minimap;
-
-		Graphics2D g2;
-        HeadsUpDisplay(int panW, int panH, long timeStarted) {
-			minimap = loadImage("groundTexture.png");
-			this.setPreferredSize(new Dimension(panW, panH));
-			this.panH = panH;
-			
-			this.setOpaque(false);//enable transparency
-			this.timeStarted = timeStarted;
-		}
 	private BufferedImage loadImage(String filename) {
         BufferedImage image = null;
         try {
@@ -81,7 +67,7 @@ public class HeadsUpDisplay extends JPanel{
     }
 
 	private void drawLap(int l){
-		g2.setFont(HUDfont);
+		g2.setFont(guiFont);
         g2.setPaint(Color.white);
 		g2.drawString("Lap " + String.valueOf(l), 50, 50); //positioned near the top left
 	}
