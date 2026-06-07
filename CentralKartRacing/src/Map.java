@@ -31,7 +31,10 @@ public class Map {
     private int numSpriteCollisions;
     public CollisionBox[] spriteCollisions;
 
-    public Texture groundTexture; //The texture used for the ground.
+    public Texture groundTexture; //The original texture used for the ground.
+    public Texture groundTextureInUse; //The texture after being modified by drifting.
+    public HashMap<Vector, Integer> darkeningValues = new HashMap<Vector, Integer>(); //The groundTexture positions to modify, and by how much.
+
     final int groundTextureScale = 8;
     final int groundTextureWidth = 192, groundTextureHeight = 192;
     public Texture skyTexture; //The texture used for the skybox. The theoretical ideal texture size should be 3447px by resolutionWidth/2.
@@ -39,7 +42,6 @@ public class Map {
 
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
-
     private int numCheckpoints;
     public CollisionBox[] checkpoints; //The checkpoints of the map, used for lap determination.
 
@@ -117,6 +119,24 @@ public class Map {
 
     public int getNumCheckpoints() {
         return numCheckpoints;
+    }
+
+    public void modifyGroundTexture(int timeElapsed) {
+        ArrayList<Vector> toBeRemoved = new ArrayList<Vector>();
+        for (Vector darkenedDriftPosition : darkeningValues.keySet()) {
+            int lifetime = darkeningValues.get(darkenedDriftPosition);
+            VectorInt groundTexturePositions = new VectorInt((int)(darkenedDriftPosition.y * groundTextureScale), (int)(darkenedDriftPosition.x * groundTextureScale));
+            if (lifetime == 0) {
+                groundTextureInUse.texture[groundTexturePositions.x][groundTexturePositions.y] = (groundTexture.texture[groundTexturePositions.x][groundTexturePositions.y] >> 1) & Renderer.DarkerNumber;
+            } else if (lifetime + timeElapsed > 5000) {
+                groundTextureInUse.texture[groundTexturePositions.x][groundTexturePositions.y] = groundTexture.texture[groundTexturePositions.x][groundTexturePositions.y];
+                toBeRemoved.add(darkenedDriftPosition);
+            }
+            darkeningValues.replace(darkenedDriftPosition, lifetime + timeElapsed);
+        }
+        for (Vector toRemove : toBeRemoved) {
+            darkeningValues.remove(toRemove);
+        }
     }
 
     /**
@@ -288,6 +308,7 @@ public class Map {
                 throw new WrongSizeException();
             }
             groundTexture = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
+            groundTextureInUse = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
         } catch (WrongSizeException e) {
             System.out.printf("The groundTexture is the wrong size for the map \"%s\".\n", name);
         }

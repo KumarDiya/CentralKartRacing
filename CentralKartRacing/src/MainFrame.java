@@ -38,9 +38,9 @@ public class MainFrame extends JFrame{
     String currentScreen;
 
     //keep track of selected player
-    private String selectedPlayer;
-    private String selectedMapName;
-    private String selectedMapFolder;
+    private static String selectedPlayer;
+    private static String selectedMapName;
+    private static String selectedMapFolder;
 
 
     public static void main (String[]args){
@@ -76,7 +76,7 @@ public class MainFrame extends JFrame{
         mapSelectionScreen = new MapSelectionScreen();
         mainPanel.add(mapSelectionScreen, "map selection");
 
-        //create instance of and add renderer screen
+        //Adding a new render screen is handled in MapSelectionScreen.java, but for now we need to add a temporary one.
         game = new Game("Test", "testMap");
         mainPanel.add(game.getRenderer(), "game");
 
@@ -100,7 +100,7 @@ public class MainFrame extends JFrame{
      * @param player   the player that is selected by the user
      */
     public void setSelectedPlayer(String player){
-        this.selectedPlayer = player;
+        selectedPlayer = player;
     }
 
     /**
@@ -108,23 +108,36 @@ public class MainFrame extends JFrame{
      * @return   the player that is selected by the user
      */
     public String getSelectedPlayer(){
-        return this.selectedPlayer;
+        return selectedPlayer;
+    }
+
+    public static int getSelectedPlayerIndex() {
+        int textureIndex = 3;
+        if (selectedPlayer.equals("Blonde Guy")) {
+            textureIndex = 0;
+        } else if (selectedPlayer.equals("Jeff")) {
+            textureIndex = 1;
+        } else if (selectedPlayer.equals("Po")) {
+            textureIndex = 2;
+        }
+
+        return textureIndex;
     }
 
     public void setSelectedMapName(String map) {
-        this.selectedMapName = map;
+        selectedMapName = map;
     }
 
     public String getSelectedMapName() {
-        return this.selectedMapName;
+        return selectedMapName;
     }
 
     public void setSelectedMapFolder(String map) {
-        this.selectedMapFolder = map;
+        selectedMapFolder = map;
     }
 
     public String getSelectedMapFolder() {
-        return this.selectedMapFolder;
+        return selectedMapFolder;
     }
 
     /**

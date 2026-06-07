@@ -19,6 +19,13 @@ public class Game{
         loadMap(testPlayer, testMap, r);
     }
 
+    public Game(String mapName, String mapFolder, int character){
+        testMap = new Map(mapName, mapFolder);
+        testPlayer = new Player(testMap, character);
+        r = new Renderer(testMap, testPlayer);
+        loadMap(testPlayer, testMap, r);
+    }
+
     public void start(){
         
         r.setFocusable(true);
@@ -39,55 +46,59 @@ public class Game{
                 int timeElapsedSecond;
 
                 boolean wonBefore = false;
-
                 int frameCounter = 0;
-                long timeStarted = System.currentTimeMillis();
+                long timeStarted = System.currentTimeMillis() + 5000;
                 long timeElapsed = 0;
 
                 while (isRunning && r.isDisplayable()) {
-                    
-                    //System.out.println("rendering");
-                    timeElapsedSecond = getTimeElapsed(previousTime);
-
-                    long timeElapsedFrameMillis = System.currentTimeMillis() - previousFrameTime;
-                    double timeElapsedFrame = (double)timeElapsedFrameMillis/1000;
-
-                    long startTime = System.nanoTime();
-                    
-                    if (!r.paused) {
-                        testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
-                        testPlayer.acceleratePlayer(r.wDown(), r.sDown(), r.iDown(), timeElapsedFrame);
-                        testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
-                        testPlayer.movePlayer(timeElapsedFrame);
-                        testPlayer.turnPlayer(timeElapsedFrame);
-                        testPlayer.checkCheckpoints();
-                    } else {
-                        timeStarted += timeElapsedFrameMillis;
-                    }
 
                     timeElapsed = System.currentTimeMillis() - timeStarted;
                     r.HUD.timeElapsed = timeElapsed;
-                    previousFrameTime = System.currentTimeMillis();
-                    //testPlayer.printPos();
-                    //testPlayer.printDirection();
-                    if (testPlayer.win && !wonBefore) {
-                        stop();
-                        finishTime = timeElapsed;
-                        r.checkGameFinish();
-                        wonBefore = true;
-                    }
 
-                    if (timeElapsedSecond > 1000) {
-                        timeElapsedSecond -= 1000;
-                        System.out.printf("%d\n", frameCounter);
-                        previousTime = System.currentTimeMillis();
-                        frameCounter = 0;
-                    }
-
-                    frameCounter++;
+                    long startTime = System.nanoTime();
                     
-                    r.render();
-                    r.requestRepaint();
+                    if (timeElapsed < 0) {
+                        r.render();
+                        r.requestRepaint();
+                    } else {
+                        timeElapsedSecond = getTimeElapsed(previousTime);
+
+                        long timeElapsedFrameMillis = System.currentTimeMillis() - previousFrameTime;
+                        double timeElapsedFrame = (double)timeElapsedFrameMillis/1000;
+                        
+                        if (!r.paused) {
+                            testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
+                            testPlayer.acceleratePlayer(r.wDown(), r.sDown(), r.iDown(), timeElapsedFrame);
+                            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
+                            testPlayer.movePlayer(timeElapsedFrame);
+                            testPlayer.turnPlayer(timeElapsedFrame);
+                            testPlayer.checkCheckpoints();
+                            testMap.modifyGroundTexture((int)(timeElapsedFrameMillis));
+                        } else {
+                            timeStarted += timeElapsedFrameMillis;
+                        }
+
+                        previousFrameTime = System.currentTimeMillis();
+                        //testPlayer.printPos();
+                        //testPlayer.printDirection();
+                        if (testPlayer.win && !wonBefore) {
+                            wonBefore = true;
+                            testMap.logLeaderboard("Justin", timeElapsed);
+                        }
+
+                        if (timeElapsedSecond > 1000) {
+                            timeElapsedSecond -= 1000;
+                            System.out.printf("%d\n", frameCounter);
+                            previousTime = System.currentTimeMillis();
+                            frameCounter = 0;
+                        }
+
+                        frameCounter++;
+                        
+                        r.render();
+                        r.requestRepaint();
+                    }
+
                     long imSleepy = startTime + (long)(1e9 * Renderer.TargetFrameTime);
 
                     while (System.nanoTime() < imSleepy) {

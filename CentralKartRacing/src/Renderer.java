@@ -17,8 +17,8 @@ public class Renderer extends JPanel implements KeyListener{
     //General screen variables
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
-    public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
-    public int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
+    public static int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
+    public static int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
 
     final static double StandardFOV = 82.7;
     static double FOV = StandardFOV;
@@ -56,7 +56,6 @@ public class Renderer extends JPanel implements KeyListener{
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
 
     public HeadsUpDisplay HUD;
-    private long timeStart;
 
     /**
      * Renderer constructor. extra param added: selectedPlayer
@@ -74,8 +73,7 @@ public class Renderer extends JPanel implements KeyListener{
 
         zBuffer = new double[ResolutionWidth];
 
-        timeStart= System.currentTimeMillis();
-        HUD = new HeadsUpDisplay(848, 477, timeStart);
+        HUD = new HeadsUpDisplay(848, 477);
 
         wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
 
@@ -129,7 +127,7 @@ public class Renderer extends JPanel implements KeyListener{
                 floor.y += floorStep.y;
 
                 int color;
-                color = map.groundTexture.texture[fcTexture.x][fcTexture.y];
+                color = map.groundTextureInUse.texture[fcTexture.x][fcTexture.y];
                 frameBuffer[y * ResolutionWidth + x] = color;
             }
         }
@@ -248,6 +246,8 @@ public class Renderer extends JPanel implements KeyListener{
         }
 
         //Sprite Rendering
+        player.DBsprite.setXY(player.pos.addVec(player.direction.scalMult(-0.5)));
+        player.sprite.setXY(player.pos);
         
         player.sprite.setXY(player.pos);
         player.DBsprite.setXY(player.pos);
@@ -255,8 +255,6 @@ public class Renderer extends JPanel implements KeyListener{
         map.sprites[map.sprites.length - 1] = player.DBsprite;
         map.sprites[map.sprites.length - 2] = player.sprite;
         
-
-
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
 
