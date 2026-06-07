@@ -105,7 +105,7 @@ public class HeadsUpDisplay extends JPanel{
 		
 		// circle player tracker / dot
 
-		int MAX_SIZE = 170; //constrain minimap to 150x150 square
+		int MAX_SIZE = 170; //constrain minimap to 170x170 square
 
 		int mapImgWidth = minimap.getWidth(); 
  		int mapImgHeight = minimap.getHeight(); 

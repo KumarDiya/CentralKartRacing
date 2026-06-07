@@ -69,7 +69,7 @@ public class Game{
                         if (!r.paused) {
                             testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
                             testPlayer.acceleratePlayer(r.wDown(), r.sDown(), r.iDown(), timeElapsedFrame);
-                            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), timeElapsedFrame);
+                            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
                             testPlayer.movePlayer(timeElapsedFrame);
                             testPlayer.turnPlayer(timeElapsedFrame);
                             testPlayer.checkCheckpoints();

@@ -165,7 +165,7 @@ public class Player {
 	
 	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, boolean iDown, double frameTime) {
 		isDriftingPrevious = isDrifting;
-		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1) { //only drift on road
+		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1 && !iDown) { //only drift on road
 			isDrifting = true;
 		} else if (!uDown){ //redundancy cause some bug
 			isDrifting = false;
@@ -278,7 +278,7 @@ public class Player {
 		}
 	}
 
-	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, double frameTime) {
+	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, boolean iDown, double frameTime) {
 		if (Math.abs(speed) < MAX_SPEED * 0.6) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / (MAX_SPEED * 0.6));
 		else currentMaxRotationSpeed = MAX_ROTATION_SPEED;
 
@@ -314,8 +314,7 @@ public class Player {
 		else if (rotationSpeedNoDrifting < currentMaxRotationSpeed * -0.75) playerFrame = 3;
 		else playerFrame = 2;
 
-
-		if (isDrifting)	{
+		if (isDrifting && !iDown) {	
 			rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
 			if (rotationSpeed > 0){
 				playerFrame = 0;
@@ -324,14 +323,13 @@ public class Player {
 				playerFrame = 4;
 			
 			}
-		} else {
+		}else {
 			rotationSpeed = rotationSpeedNoDrifting;
 			DBFrame = 0;
 		} 
 
-		if (speed < 0){
+		if (speed < 0){ //if reversing
 			playerFrame = 2;
-				
 		}
 
 		sprite.texture = playerFrame;
