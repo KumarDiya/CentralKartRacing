@@ -6,6 +6,8 @@ public class Game{
     private Renderer r;
     private boolean isRunning = false;
     private Thread gameLoopThread;
+    private String playerName = "";
+    private long finishTime = 0L; //long cause of timer
     
     /**
      * constructor
@@ -71,6 +73,7 @@ public class Game{
                             testPlayer.movePlayer(timeElapsedFrame);
                             testPlayer.turnPlayer(timeElapsedFrame);
                             testPlayer.checkCheckpoints();
+                            testMap.modifyGroundTexture((int)(timeElapsedFrameMillis));
                         } else {
                             timeStarted += timeElapsedFrameMillis;
                         }
@@ -134,6 +137,18 @@ public class Game{
      */
     public Renderer getRenderer(){
         return r;
+    }
+
+    public void setPlayerName(String name) { //setter method
+        this.playerName = name;
+    }
+    
+    public long getFinishTime(){
+        return finishTime;
+    }
+
+    public void logFinish(String name) {
+        testMap.logLeaderboard(name, finishTime);
     }
 
     public static void loadMap(Player player, Map map, Renderer r) {

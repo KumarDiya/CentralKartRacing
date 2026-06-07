@@ -6,14 +6,16 @@ import javax.swing.SwingUtilities;
 
 public class RaceFinishScreen extends Screen{
 
-    String userName = "";
+    String userName;
 
     //selection variables
-    int boxX, boxY, boxWidth, boxHeight, spacing;
+    int boxX, boxY, boxWidth, boxHeight, spacingX, spacingY;
 
     int totalOptionsX, totalOptionsY;
 
     int selectedIndexX, selectedIndexY;
+
+    Font font = new Font("Bahnschrift", Font.BOLD, 60);
 
     //the keyboard
     String[][] choice = {
@@ -30,12 +32,14 @@ public class RaceFinishScreen extends Screen{
         super("finishScreen.png");
         totalOptionsX = 7;
         totalOptionsY = 4;
-        boxX = 375; //the box location
-        boxY = 220;
-        boxWidth = 50;
-        boxHeight = 50;
-        spacing = 40;
+        boxX = 161; //the box location
+        boxY = 240;
+        boxWidth = 60;
+        boxHeight = 60;
+        spacingY = 57;
+        spacingX = 75;
         selectedIndexX = selectedIndexY = 0;
+        userName = "";
     }
 
     @Override
@@ -46,14 +50,32 @@ public class RaceFinishScreen extends Screen{
     @Override
     void drawContent(Graphics2D g2) { //draws selection box
         //draw selection box outline
-        int currentBoxY = boxY + (selectedIndexY * spacing);
+        int currentBoxY = boxY + (selectedIndexY * spacingY);
+        int currentBoxX = boxX + (selectedIndexX * spacingX);
         g2.setColor(new Color(255, 255, 0, 150));
         g2.setStroke(new BasicStroke(3));
-        g2.drawRect(boxX, currentBoxY, boxWidth, boxHeight);
+        g2.drawRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
 
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
-        g2.fillRect(boxX, currentBoxY, boxWidth, boxHeight);
+        g2.fillRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
+
+        //draw the player's input
+        g2.setColor(Color.WHITE);
+        g2.setFont(font);
+        g2.drawString("Name: " + userName, 50, 200);
+
+        MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+        Game game = mainFrame.getGame();
+        
+        long timeElapsed = game.getFinishTime();
+        int timeMilli = (int)(timeElapsed % 1000)/10;//time shown in milliseconds; divides by 10 to show the first 2 digits rather than all 3
+		int timeSec = (int)(timeElapsed/1000 % 60);//time shown in seconds
+		int timeMin = (int)(timeElapsed/60000 % 60);
+
+		String timeShown = String.format("Time: " + "%02d:%02d:%02d", timeMin, timeSec, timeMilli);
+		
+        g2.drawString(timeShown, 50, 75);
     }
 
     @Override
@@ -73,19 +95,17 @@ public class RaceFinishScreen extends Screen{
                 }
                 this.repaint();
             }
-
-
             case java.awt.event.KeyEvent.VK_A -> {
                 selectedIndexX --;
-                if (selectedIndexX > totalOptionsX - 1){
-                    selectedIndexX = 0;
+                if (selectedIndexX < 0){
+                    selectedIndexX = totalOptionsX - 1; //loop around
                 }
                 this.repaint();
             }
             case java.awt.event.KeyEvent.VK_D -> {
-                selectedIndexX --;
-                if (selectedIndexX < 0){
-                    selectedIndexX = totalOptionsX - 1;
+                selectedIndexX ++;
+                if (selectedIndexX > totalOptionsX - 1){
+                    selectedIndexX = 0;
                 }
                 this.repaint();
             }
@@ -95,23 +115,29 @@ public class RaceFinishScreen extends Screen{
 
     @Override
     void confirmSelection() {
-        System.out.println("Choice: " + choice[selectedIndexX][selectedIndexY]);
+        System.out.println("Choice: " + choice[selectedIndexY][selectedIndexX]);
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
 
-        if (choice[selectedIndexX][selectedIndexY].equals("ENTER")){
+        if (choice[selectedIndexY][selectedIndexX].equals("ENTER")){
             Game game = mainFrame.getGame();
             game.stop();
+            if (userName.equals("")) userName = "DefaultPlayer";
+            game.setPlayerName(userName);
+            game.logFinish(userName);
             game.getRenderer().paused = false;
-            switchScreen("main menu");
-            //store name and time...
+            switchScreen("main menu"); //go back to main menu
+            userName = "";
+            boxX = 161; 
+            boxY = 240;
             
-        }else if(choice[selectedIndexX][selectedIndexY].equals("BACKSPACE")){
+        }else if(choice[selectedIndexY][selectedIndexX].equals("BACKSPACE")){
             if (userName.length() > 0){
-                userName = userName.substring(0, userName.length() - 2); //subtract last letter
+                userName = userName.substring(0, userName.length() - 1); //subtract last letter
             }
-        }
-        else{
-            userName += choice[selectedIndexX][selectedIndexY]; //add the letter to the name
+        }else if(userName.length() >= 12){
+            return; //keeps max length at 12
+        }else{
+            userName += choice[selectedIndexY][selectedIndexX]; //add the letter to the name
         }
         
     }

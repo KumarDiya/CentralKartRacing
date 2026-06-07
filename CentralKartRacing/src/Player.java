@@ -49,15 +49,23 @@ public class Player {
 
 	//Texture and sprite variables
 	Sprite sprite;
+	Sprite DBsprite; //drift boost sprite
+
 	Texture[] characterTextures;
+	Texture[] DBTextures;
+
 	final String[] characterFolderNames = {"blondeGuy", "jeff", "po", "test"};
 	final String characterFolder = "CentralKartRacing\\Characters\\";
 
+	int playerFrame = 2; 
+	int DBFrame = 0;
+
 	//Player Collision vars
-	final double playerWidth = 0.6;
-	final double playerHeight = 0.6;
+	final double playerWidth = 0.5;
+	final double playerHeight = 0.5;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
+	
 
 	//Constants
 	final double[] groundMoveSpeeds = {0.1, 1.0, 0.6, 0.4}; //Wall speed, road speed, grass speed, sand speed.
@@ -83,6 +91,7 @@ public class Player {
 		this.map = map;
 		this.pos = map.getStartingPos().duplicate();
 		this.sprite = new Sprite(pos, 0);
+		this.DBsprite = new Sprite(pos, 0); //REMINDER: MAYBE USE DIFFERENT POS
 		this.direction = map.getStartingDir().duplicate();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
@@ -98,6 +107,7 @@ public class Player {
 		HANDLING = 10;
 		MAXFUEL = 100;
 		loadCharacterTextures();
+		loadDriftAndBoostTextures();
 	}
 	
 	//use this one when we have more characters
@@ -155,9 +165,9 @@ public class Player {
 		isDriftingPrevious = isDrifting;
 		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1) { //only drift on road
 			isDrifting = true;
-		} else if (!uDown){
+		} else if (!uDown){ //redundancy cause some bug
 			isDrifting = false;
-		} else if (speed < MAX_SPEED * 0.7) {
+		} else if (speed < MAX_SPEED * 0.7) {//need certain speed to drift
 			isDrifting = false;
 		}
 
@@ -201,6 +211,11 @@ public class Player {
         	if (currentFuel > MAXFUEL) {
         		currentFuel = MAXFUEL;
         	}
+
+			Vector[] wheelLocations = getWheelLocations();
+			for (Vector wheel : wheelLocations) {
+				map.darkeningValues.put(wheel, 0);
+			}
     	}
 	}
 	
@@ -211,9 +226,11 @@ public class Player {
 		currentMaxSpeed = MAX_SPEED * currentCarFriction; //changes to account for boosts
 		
 		if (iDown && currentFuel > 0) {
+			DBFrame = 3;
+
 			if (speed < currentMaxSpeed) {
     			speed += BOOSTACCELERATION * 2 * frameTime;
-		} //note: gotta make decelleration slower
+			} //note: gotta make decelleration slower
 			currentMaxSpeed = MAX_SPEED * turboSpeed; 
 
 			double drainRate = 50; //tune
@@ -222,6 +239,9 @@ public class Player {
 			if (currentFuel < 0) {
 				currentFuel = 0;
 			}
+
+		} else {
+			DBFrame = 0;
 		}
 
 		if (isDrifting){
@@ -263,9 +283,13 @@ public class Player {
 			if (initiallyTurningRight) driftingRotationLock = currentMaxRotationSpeed;
 			else driftingRotationLock = -currentMaxRotationSpeed;
 		}
-		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {
+		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {//turn left
+			
 			if (Math.abs(rotationSpeedNoDrifting + HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting += HANDLING * frameTime; //limits max speed
-		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {
+
+		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {//turn right
+			
+			
 			if (Math.abs(rotationSpeedNoDrifting - HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting -= HANDLING * frameTime;
 		} else {
 			//rotationSpeedNoDrifting -= (rotationSpeedNoDrifting * 0.03) * (frameTime/Renderer.TargetFrameTime);
@@ -280,8 +304,34 @@ public class Player {
 			rotationSpeedNoDrifting = currentMaxRotationSpeed;
 		}
 
-		if (isDrifting)	rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
-		else rotationSpeed = rotationSpeedNoDrifting;
+
+		//turn sprites
+		if (rotationSpeedNoDrifting > currentMaxRotationSpeed * 0.75) playerFrame = 1;
+		else if (rotationSpeedNoDrifting < currentMaxRotationSpeed * -0.75) playerFrame = 3;
+		else playerFrame = 2;
+
+
+		if (isDrifting)	{
+			rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
+			if (rotationSpeed > 0){
+				playerFrame = 0;
+				DBFrame = 1;
+			} else if (rotationSpeed < 0){
+				playerFrame = 4;
+				DBFrame = 2;
+			}
+		} else {
+			rotationSpeed = rotationSpeedNoDrifting;
+			if (DBFrame != 3) DBFrame = 0;
+		} 
+
+		if (speed < 0){
+			playerFrame = 2;
+			DBFrame = 0;	
+		}
+
+		sprite.texture = playerFrame;
+		DBsprite.texture = DBFrame;
 		
 	}
 
@@ -372,6 +422,15 @@ public class Player {
 		return sampleGroundMap(v.x, v.y);
 	}
 
+	private Vector[] getWheelLocations() {
+		Vector[] wheelLocations = new Vector[4];
+		wheelLocations[0] = new Vector(pos.x + halfPlayerWidth, pos.y + halfPlayerHeight);
+		wheelLocations[1] = new Vector(pos.x + halfPlayerWidth, pos.y - halfPlayerHeight);
+		wheelLocations[2] = new Vector(pos.x - halfPlayerWidth, pos.y + halfPlayerHeight);
+		wheelLocations[3] = new Vector(pos.x - halfPlayerWidth, pos.y - halfPlayerHeight);
+		return wheelLocations;
+	}
+
 	public synchronized void teleportPlayer(double x, double y) {
 		pos.addVec(new Vector(x, y));
 	}
@@ -444,11 +503,21 @@ public class Player {
 	}
 
 	private void loadCharacterTextures() {
-		characterTextures = new Texture[characterFolderNames.length];
-		for (int i = 0; i < characterFolderNames.length; i++) {
-			//Gets the full filepath for the characterTextures.
-			String characterTexture = characterFolder + characterFolderNames[i] + "\\" + "inGameTexture.png";
-			characterTextures[i] = new Texture(characterTexture);
-		}
+		characterTextures = new Texture[5];
+		String folderPath = characterFolder + "blondeGuy" + "\\"; 
+		characterTextures[0] = new Texture(folderPath + "leftDrift.png");
+		characterTextures[1] = new Texture(folderPath + "leftTurn.png");
+		characterTextures[2] = new Texture(folderPath + "straight.png");
+		characterTextures[3] = new Texture(folderPath + "rightTurn.png");
+		characterTextures[4] = new Texture(folderPath + "rightDrift.png");
+	}
+
+	private void loadDriftAndBoostTextures(){
+		DBTextures = new Texture[4];
+		String folderPath = characterFolder + "blondeGuy" + "\\";
+		DBTextures[0] = null; //blank texture for no boost
+		DBTextures[1] = new Texture(folderPath + "trailLeft.png");
+		DBTextures[2] = new Texture(folderPath + "trailRight.png");
+		DBTextures[3] = new Texture(folderPath + "boost.png");
 	}
 }

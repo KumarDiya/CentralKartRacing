@@ -81,7 +81,7 @@ public class MainFrame extends JFrame{
         mainPanel.add(pausedScreen, "pause");
 
         raceFinishScreen = new RaceFinishScreen();
-        mainPanel.add(raceFinishScreen);
+        mainPanel.add(raceFinishScreen, "finish");
 
         this.pack();
         this.setLocationRelativeTo(null);
@@ -185,11 +185,11 @@ public class MainFrame extends JFrame{
                 pausedScreen.requestFocusInWindow();
                 game.getRenderer().setFocusable(false);
             }
-            case "finish game" -> {
+            case "finish" -> {
                 System.out.println("Switching to finish screen");
                 raceFinishScreen.setFocusable(true);
-                raceFinishScreen.requestFocus();
                 raceFinishScreen.requestFocusInWindow();
+                raceFinishScreen.requestFocus();
                 game.getRenderer().setFocusable(false);
             }
 
