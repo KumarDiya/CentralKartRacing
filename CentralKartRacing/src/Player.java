@@ -8,7 +8,7 @@ public class Player {
 	//Linear movement vars
 	final Vector StartPos;
 	Vector pos; //The position of the player.
-	final double MAX_SPEED = 8; //The maximum speed for the character.
+	final double MAX_SPEED = 12; //The maximum speed for the character.
 	double currentMaxSpeed;
 	double speed; //The current speed for the character.
 	final double ACCELERATION = 5; //The acceleration of the character.
@@ -69,9 +69,9 @@ public class Player {
 
 	Player(Map map){
 		this.map = map;
-		this.pos = new Vector(12, 12);
-		this.StartPos = new Vector(12, 12);
-		this.direction = new Vector(-1, 0);
+		this.pos = new Vector(88, 67);
+		this.StartPos = new Vector(88, 67);
+		this.direction = new Vector(0, 1);
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.rotationSpeedNoDrifting = 0;

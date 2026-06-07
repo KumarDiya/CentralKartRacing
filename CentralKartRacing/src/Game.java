@@ -11,7 +11,7 @@ public class Game{
      * constructor
      */
     public Game(){
-        testMap = new Map("Test", "testMap");
+        testMap = new Map("Test", "sunsetMap");
         testPlayer = new Player(testMap);
         r = new Renderer(testMap, testPlayer);
         loadMap(testPlayer, testMap, r);

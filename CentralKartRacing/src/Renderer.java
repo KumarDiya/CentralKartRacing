@@ -183,6 +183,11 @@ public class Renderer extends JPanel implements KeyListener{
                     mapSquare.y += step.y;
                     side = true;
                 }
+                if (mapSquare.x < 0 || mapSquare.x >= map.getWidth() || 
+                    mapSquare.y < 0 || mapSquare.y >= map.getHeight()) {
+                    hit = 1; 
+                    break;
+                }
                 if (map.wallMap[mapSquare.x][mapSquare.y] > 0) hit = 1;
             }
 
@@ -199,6 +204,11 @@ public class Renderer extends JPanel implements KeyListener{
             if (drawEnd >= ResolutionHeight) drawEnd = ResolutionHeight - 1;
             
             //Wall Texture Calculations
+            if (mapSquare.x < 0 || mapSquare.x >= map.getWidth() || 
+                mapSquare.y < 0 || mapSquare.y >= map.getHeight()) {
+                hit = 1;  
+                break;
+            }
             int texNum = map.wallMap[mapSquare.x][mapSquare.y] - 1;
 
             double wallX;
@@ -293,7 +303,6 @@ public class Renderer extends JPanel implements KeyListener{
                         if (texY < 0) texY = 0;
                         int color;
                         color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
-                        
                         if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
                         
                     }
@@ -367,7 +376,11 @@ public class Renderer extends JPanel implements KeyListener{
                 mapSquare.y += step.y;
                 side = false;
             }
-            
+            if (mapSquare.x < 0 || mapSquare.x >= map.getWidth() || 
+                mapSquare.y < 0 || mapSquare.y >= map.getHeight()) {
+                hit = 1;
+                break;
+            }
             if (map.wallMap[mapSquare.x][mapSquare.y] > 0) {
                 hit = 1;
                 //System.out.print(map.wallMap[mapSquare.x][mapSquare.y] + ", ");

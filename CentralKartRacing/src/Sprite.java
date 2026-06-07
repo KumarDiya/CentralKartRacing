@@ -49,10 +49,11 @@ class OrderDistancePair {
 
 class SortByDist implements Comparator<OrderDistancePair> {
     public int compare(OrderDistancePair p1, OrderDistancePair p2){
-        if (p1.y > p2.y) {
+        /*if (p1.y > p2.y) {
             return 1;
         } else {
             return -1;
-        }
+        }*/
+       return Double.compare(p2.y, p1.y);
     }
 }

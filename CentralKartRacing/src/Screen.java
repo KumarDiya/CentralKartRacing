@@ -16,6 +16,7 @@ public abstract class Screen extends JPanel implements KeyListener{
 
     //the image to store background image and its corresponding filename
     BufferedImage bgImg;
+    
     int panW, panH;
 
     //each screen will have a selected index in the array of options, and the total number of options
