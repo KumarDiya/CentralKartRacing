@@ -31,6 +31,9 @@ public class MainFrame extends JFrame{
     //finish screen object
     RaceFinishScreen raceFinishScreen;
 
+    //loading screen object
+    LoadingScreen loadingScreen;
+
     //keep track of current screen
     String currentScreen;
 
@@ -82,6 +85,9 @@ public class MainFrame extends JFrame{
 
         raceFinishScreen = new RaceFinishScreen();
         mainPanel.add(raceFinishScreen, "finish");
+
+        loadingScreen = new LoadingScreen();
+        mainPanel.add(loadingScreen, "loading");
 
         this.pack();
         this.setLocationRelativeTo(null);
@@ -179,8 +185,13 @@ public class MainFrame extends JFrame{
                 raceFinishScreen.requestFocus();
                 game.getRenderer().setFocusable(false);
             }
-
-            
+            case "loading" -> {
+                System.out.println("Switching to loading screen");
+                loadingScreen.setFocusable(true);
+                loadingScreen.requestFocusInWindow();
+                loadingScreen.requestFocus();
+                game.getRenderer().setFocusable(false);
+            }
         }
         
         
@@ -189,3 +200,4 @@ public class MainFrame extends JFrame{
 
 
 }
+

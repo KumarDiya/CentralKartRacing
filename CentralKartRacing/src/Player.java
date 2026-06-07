@@ -177,6 +177,7 @@ public class Player {
 		if (iDown && currentFuel > 0) {
 
 			DBFrame = 3;
+			
 
 			if (speed < currentMaxSpeed) {
     			speed += BOOSTACCELERATION * 2 * frameTime;
@@ -192,6 +193,7 @@ public class Player {
 		}else{
 			DBFrame = 0;
 		}
+		DBsprite.texture = DBFrame;
 
 		if (isDrifting){
 			currentMaxSpeed *= 0.85; //slows player when drifting
@@ -264,26 +266,26 @@ public class Player {
 			rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
 			if (rotationSpeed > 0){
 				playerFrame = 0;
-				DBFrame = 1;
+				
 			}else if (rotationSpeed < 0){
 				playerFrame = 4;
-				DBFrame = 2;
+			
 			}
 		}
 		else{
 			rotationSpeed = rotationSpeedNoDrifting;
-			DBFrame = 0;
+			
 		} 
 
 		if (speed < 0){
 			playerFrame = 2;
-			DBFrame = 0;	
+				
 		}
 
 		
 
 		sprite.texture = playerFrame;
-		DBsprite.texture = DBFrame;
+		
 		
 	}
 

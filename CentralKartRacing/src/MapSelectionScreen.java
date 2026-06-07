@@ -55,17 +55,28 @@ public class MapSelectionScreen extends Screen{
 
     @Override
     void confirmSelection() {
+        
+        
         System.out.println("Selected Map: " + mapNames[selectedIndex]);
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
         mainFrame.setSelectedMapName(mapNames[selectedIndex]);
         mainFrame.setSelectedMapFolder(mapFolders[selectedIndex]);
 
-        mainFrame.game.stop();
-        mainFrame.mainPanel.remove(mainFrame.game.getRenderer());
-        mainFrame.game = new Game(mapNames[selectedIndex], mapFolders[selectedIndex]);
-        mainFrame.mainPanel.add(mainFrame.game.getRenderer(), "game");
+        switchScreen("loading");
 
-        switchScreen("game");
+        new Thread(() -> {
+            mainFrame.game.stop();
+            mainFrame.mainPanel.remove(mainFrame.game.getRenderer());
+            Game newGame = new Game(mapNames[selectedIndex], mapFolders[selectedIndex]);
+
+            SwingUtilities.invokeLater(() -> {
+                mainFrame.game = newGame;
+                mainFrame.mainPanel.add(mainFrame.game.getRenderer(), "game");
+                mainFrame.mainPanel.revalidate();
+                mainFrame.mainPanel.repaint();
+                mainFrame.switchToScreen("game");
+            });
+        }).start();
         
     }
 }

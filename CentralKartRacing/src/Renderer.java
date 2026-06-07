@@ -248,11 +248,12 @@ public class Renderer extends JPanel implements KeyListener{
         }
 
         //Sprite Rendering
-        player.DBsprite.setXY(player.pos);
-        player.sprite.setXY(player.pos);
         
-        map.sprites[map.sprites.length - 2] = player.DBsprite;
-        map.sprites[map.sprites.length - 1] = player.sprite;
+        player.sprite.setXY(player.pos);
+        player.DBsprite.setXY(player.pos);
+        
+        map.sprites[map.sprites.length - 1] = player.DBsprite;
+        map.sprites[map.sprites.length - 2] = player.sprite;
         
 
 
@@ -284,6 +285,8 @@ public class Renderer extends JPanel implements KeyListener{
             if(drawStartY < 0) drawStartY = 0;
             int drawEndY = spriteHeight / 2 + ResolutionHeight / 2;
             if(drawEndY >= ResolutionHeight) drawEndY = ResolutionHeight - 1;
+
+           
 
             //calculate width of the sprite
             int spriteWidth = Math.abs((int)(ResolutionHeight / transform.y));
