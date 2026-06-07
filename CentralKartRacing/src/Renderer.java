@@ -248,9 +248,13 @@ public class Renderer extends JPanel implements KeyListener{
         }
 
         //Sprite Rendering
+        player.DBsprite.setXY(player.pos);
         player.sprite.setXY(player.pos);
+        
+        map.sprites[map.sprites.length - 2] = player.DBsprite;
         map.sprites[map.sprites.length - 1] = player.sprite;
-        map.spriteTextures[map.spriteTextures.length - 1] = player.characterTextures[player.sprite.texture];
+        
+
 
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
@@ -276,6 +280,7 @@ public class Renderer extends JPanel implements KeyListener{
             int spriteHeight = Math.abs((int)(ResolutionHeight / transform.y)); //using 'transformY' instead of the real distance prevents fisheye
             //calculate lowest and highest pixel to fill in current stripe
             int drawStartY = -spriteHeight / 2 + ResolutionHeight / 2;
+           
             if(drawStartY < 0) drawStartY = 0;
             int drawEndY = spriteHeight / 2 + ResolutionHeight / 2;
             if(drawEndY >= ResolutionHeight) drawEndY = ResolutionHeight - 1;
@@ -301,10 +306,32 @@ public class Renderer extends JPanel implements KeyListener{
                         int texY = (int)((((long) d * Texture.DefaultSize) / spriteHeight) / 256);
                         if (texY < 0) texY = 0;
                         int color;
-                        if (map.sprites[spriteOrder[i]] == player.sprite) color = map.spriteTextures[map.spriteTextures.length - 1].texture[texX][texY];
-                        else color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
-                        
-                        if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
+                        Texture spriteTexture = null;
+                        Sprite sprite = map.sprites[spriteOrder[i]];
+
+                        if (sprite == player.sprite) {
+                            spriteTexture = player.characterTextures[player.sprite.texture];
+                        } else if (sprite == player.DBsprite) {
+                            spriteTexture = player.DBTextures[player.DBsprite.texture];
+                        } else if (map.spriteTextures != null && map.spriteTextures.length > 0) {
+                            spriteTexture = map.spriteTextures[0];
+                        }
+
+                        if (spriteTexture != null) {
+                            color = spriteTexture.texture[texX][texY];
+                            if ((color & 0x00FFFFFF) != 0) {
+                                frameBuffer[y * ResolutionWidth + stripe] = color;
+                            }
+                        }
+                        /**
+                         * Texture spriteTexture = map.spriteTextures[spriteOrder[i]];
+                        if (spriteTexture != null) {
+                            color = spriteTexture.texture[texX][texY];
+                            if ((color & 0x00FFFFFF) != 0) {
+                                frameBuffer[y * ResolutionWidth + stripe] = color;
+                            }
+                        }
+                         */
                         
                     }
                 }

@@ -220,7 +220,7 @@ public class Map {
             r.close();
             r = new FileReader(spriteMapPath);
             reader = new BufferedReader(r);
-            sprites = new Sprite[numSprites + 1]; //+ 1 for the player
+            sprites = new Sprite[numSprites + 2]; // +2 for the player and db sprites
             spriteCollisions = new CollisionBox[numSpriteCollisions];
             int spriteCollisionsCounter = 0;
             for (int i = 0; i < numSprites; i++) {

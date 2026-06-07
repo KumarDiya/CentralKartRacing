@@ -78,7 +78,7 @@ public class HeadsUpDisplay extends JPanel{
 		int width = (int)(maxFill * (currentF/maxF));
 
 		g2.setPaint(Color.white);
-		g2.setStroke(new BasicStroke(5));
+		g2.setStroke(new BasicStroke(3));
 		g2.fillRect(x, y, width, height); //
 		g2.drawRect(x, y, maxFill, height); //outline for the boostbar
 
@@ -135,6 +135,17 @@ public class HeadsUpDisplay extends JPanel{
 		g2.setColor(transparentRed);
 		g2.fillOval(newPosX - (dotDiameter/2 + 1), newPosY - (dotDiameter/2 + 1), dotDiameter, dotDiameter);	//red dot with center at position relative to minimap
 	}
+
+	// private void drawSpeedometer(double speed, int maxSpeedNoBoost){
+		
+	// 	final int width = 30;
+	// int height = (int)(speed * 100/)
+
+	// 	g2.setColor(Color.white);
+	// 	//maybe draw a line for where the player can initiate a drift (70% the max speed)
+	
+		
+	// }
 
 
 }
