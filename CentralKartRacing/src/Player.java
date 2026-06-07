@@ -1,7 +1,3 @@
-import java.awt.event.ActionListener;
-
-import javax.swing.Timer;
-
 public class Player {
 	//ALL VALUES ARBITRARY RIGHT NOW
 	
@@ -60,8 +56,8 @@ public class Player {
 	int DBFrame = 0;
 
 	//Player Collision vars
-	final double playerWidth = 0.6;
-	final double playerHeight = 0.6;
+	final double playerWidth = 0.5;
+	final double playerHeight = 0.5;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
 	
@@ -165,6 +161,11 @@ public class Player {
         	if (currentFuel > MAXFUEL) {
         		currentFuel = MAXFUEL;
         	}
+
+			Vector[] wheelLocations = getWheelLocations();
+			for (Vector wheel : wheelLocations) {
+				map.darkeningValues.put(wheel, 0);
+			}
     	}
 	}
 	
@@ -175,7 +176,6 @@ public class Player {
 		currentMaxSpeed = MAX_SPEED * currentCarFriction; //changes to account for boosts
 		
 		if (iDown && currentFuel > 0) {
-
 			DBFrame = 3;
 
 			if (speed < currentMaxSpeed) {
@@ -189,7 +189,8 @@ public class Player {
 			if (currentFuel < 0) {
 				currentFuel = 0;
 			}
-		}else{
+
+		} else {
 			DBFrame = 0;
 		}
 
@@ -265,22 +266,19 @@ public class Player {
 			if (rotationSpeed > 0){
 				playerFrame = 0;
 				DBFrame = 1;
-			}else if (rotationSpeed < 0){
+			} else if (rotationSpeed < 0){
 				playerFrame = 4;
 				DBFrame = 2;
 			}
-		}
-		else{
+		} else {
 			rotationSpeed = rotationSpeedNoDrifting;
-			DBFrame = 0;
+			if (DBFrame != 3) DBFrame = 0;
 		} 
 
 		if (speed < 0){
 			playerFrame = 2;
 			DBFrame = 0;	
 		}
-
-		
 
 		sprite.texture = playerFrame;
 		DBsprite.texture = DBFrame;
@@ -374,6 +372,15 @@ public class Player {
 		return sampleGroundMap(v.x, v.y);
 	}
 
+	private Vector[] getWheelLocations() {
+		Vector[] wheelLocations = new Vector[4];
+		wheelLocations[0] = new Vector(pos.x + halfPlayerWidth, pos.y + halfPlayerHeight);
+		wheelLocations[1] = new Vector(pos.x + halfPlayerWidth, pos.y - halfPlayerHeight);
+		wheelLocations[2] = new Vector(pos.x - halfPlayerWidth, pos.y + halfPlayerHeight);
+		wheelLocations[3] = new Vector(pos.x - halfPlayerWidth, pos.y - halfPlayerHeight);
+		return wheelLocations;
+	}
+
 	public synchronized void teleportPlayer(double x, double y) {
 		pos.addVec(new Vector(x, y));
 	}
@@ -458,7 +465,7 @@ public class Player {
 	private void loadDriftAndBoostTextures(){
 		DBTextures = new Texture[4];
 		String folderPath = characterFolder + "blondeGuy" + "\\";
-		DBTextures[0] = new Texture(folderPath + ""); //blank texture for no boost
+		DBTextures[0] = null; //blank texture for no boost
 		DBTextures[1] = new Texture(folderPath + "trailLeft.png");
 		DBTextures[2] = new Texture(folderPath + "trailRight.png");
 		DBTextures[3] = new Texture(folderPath + "boost.png");

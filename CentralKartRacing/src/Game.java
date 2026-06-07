@@ -61,6 +61,7 @@ public class Game{
                         testPlayer.movePlayer(timeElapsedFrame);
                         testPlayer.turnPlayer(timeElapsedFrame);
                         testPlayer.checkCheckpoints();
+                        testMap.modifyGroundTexture((int)(timeElapsedFrameMillis));
                     } else {
                         timeStarted += timeElapsedFrameMillis;
                     }
