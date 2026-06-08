@@ -258,7 +258,7 @@ public class Player {
 			} //note: gotta make decelleration slower
 			currentMaxSpeed = MAX_SPEED * turboSpeed; 
 
-			double drainRate = 50; //tune
+			double drainRate = 35; //tune
 			currentFuel -= drainRate*frameTime;
 
 			if (currentFuel < 0) {
