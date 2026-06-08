@@ -13,9 +13,9 @@ public class Texture {
     public static final int DefaultSize = 64; 
 
     public Texture (String imageFilePath) {
-        TextureWidth = DefaultSize;
-        TextureHeight = DefaultSize;
-        loadTexture(imageFilePath, DefaultSize, DefaultSize);
+        loadTexture(imageFilePath);
+        TextureWidth = textureImage.getWidth();
+        TextureHeight = textureImage.getHeight();
     }
 
     public Texture (String imageFilePath, int width, int height) {
@@ -39,6 +39,21 @@ public class Texture {
             textureImage = ImageIO.read(new File(imageFilePath));
             for (int i = 0; i < TextureWidth; i++) {
                 for (int j = 0; j < TextureHeight; j++) {
+                    texture[i][j] = textureImage.getRGB(i, j);
+                }
+            }
+        } catch (IOException e) {
+            System.out.printf("The texture \"%s\" failed to load.\n", imageFilePath);
+        }
+        
+    }
+
+    private void loadTexture(String imageFilePath) {
+        try {
+            textureImage = ImageIO.read(new File(imageFilePath));
+            texture = new int[textureImage.getWidth()][textureImage.getHeight()];
+            for (int i = 0; i < textureImage.getWidth(); i++) {
+                for (int j = 0; j < textureImage.getHeight(); j++) {
                     texture[i][j] = textureImage.getRGB(i, j);
                 }
             }

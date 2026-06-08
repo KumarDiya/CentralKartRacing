@@ -1,8 +1,1 @@
-<<<<<<< HEAD
-dinersign.png
-blondeguydrive.png
-podrive.png
-jeffdrive.png
-=======
 tires.png
->>>>>>> main

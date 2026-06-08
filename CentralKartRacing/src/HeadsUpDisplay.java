@@ -22,19 +22,21 @@ public class HeadsUpDisplay extends JPanel{
 
 	Graphics2D g2;
 
-	HeadsUpDisplay(int panW, int panH) {
+	Map map;
+
+	HeadsUpDisplay(int panW, int panH, Map map) {
+		this.map = map;
 		minimap = loadImage("groundTexture.png");
 		this.setPreferredSize(new Dimension(panW, panH));
 		this.panH = panH;
 		this.setOpaque(false);//enable transparency
-		this.maxSpeedNormal = maxSpeedNormal; //graphical speedometer later
 	}
 
 	private BufferedImage loadImage(String filename) {
         BufferedImage image = null;
         try {
             
-            File file = new File("CentralKartRacing\\testMap\\" + filename);
+            File file = new File(map.getMapFolder() + filename);
             
             image = ImageIO.read(file);
             
