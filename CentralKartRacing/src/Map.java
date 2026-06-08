@@ -36,7 +36,6 @@ public class Map {
     public HashMap<Vector, Integer> darkeningValues = new HashMap<Vector, Integer>(); //The groundTexture positions to modify, and by how much.
 
     final int groundTextureScale = 8;
-    final int groundTextureWidth = 192, groundTextureHeight = 192;
     public Texture skyTexture; //The texture used for the skybox. The theoretical ideal texture size should be 3447px by resolutionWidth/2.
     final int skyTextureWidth = 3447, skyTextureHeight = 250;
 
@@ -83,6 +82,10 @@ public class Map {
         loadSpriteTextures();
         loadCheckpoints();
         loadStartingInfo();
+    }
+
+    public String getMapFolder() {
+        return mapFolder;
     }
 
     /**
@@ -304,11 +307,12 @@ public class Map {
     private void loadGroundTexture(){
         try {
             String groundTexturePath =  mapFolder + groundTextureFile;
-            if (groundTextureWidth != mapWidth * groundTextureScale || groundTextureHeight != mapHeight * groundTextureScale){
+            groundTexture = new Texture(groundTexturePath);
+            groundTextureInUse = new Texture(groundTexturePath);
+            if (groundTexture.getWidth() != mapWidth * groundTextureScale || groundTexture.getHeight() != mapHeight * groundTextureScale){
                 throw new WrongSizeException();
             }
-            groundTexture = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
-            groundTextureInUse = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
+            
         } catch (WrongSizeException e) {
             System.out.printf("The groundTexture is the wrong size for the map \"%s\".\n", name);
         }

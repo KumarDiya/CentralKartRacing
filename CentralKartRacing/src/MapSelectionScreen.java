@@ -6,8 +6,8 @@ public class MapSelectionScreen extends Screen{
      //selection variables
     int boxX, boxY, boxWidth, boxHeight, spacing;
 
-    String[] mapNames = {"Test"};
-    String[] mapFolders = {"testMap"};
+    String[] mapNames = {"Sunset"};
+    String[] mapFolders = {"sunsetMap"};
     
     MapSelectionScreen(){
         super("testMapSelect.png");
@@ -55,8 +55,7 @@ public class MapSelectionScreen extends Screen{
 
     @Override
     void confirmSelection() {
-        
-        
+
         System.out.println("Selected Map: " + mapNames[selectedIndex]);
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
         mainFrame.setSelectedMapName(mapNames[selectedIndex]);
