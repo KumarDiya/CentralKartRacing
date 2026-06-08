@@ -210,8 +210,6 @@ public class MainFrame extends JFrame{
                 game.getRenderer().setFocusable(false);
             }
         }
-        
-        
     }
 
     private void playMusic() {

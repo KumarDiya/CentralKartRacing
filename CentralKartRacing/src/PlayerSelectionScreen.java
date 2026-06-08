@@ -14,7 +14,6 @@ public class PlayerSelectionScreen extends Screen{
     int panW, panH;
     
     PlayerSelectionScreen(){
-
         super("testPlayerSelect.png");
         totalOptions = 3;
         boxX = 0;
@@ -22,7 +21,6 @@ public class PlayerSelectionScreen extends Screen{
         boxWidth = 110;
         boxHeight = 300;
         spacing = 250;
-
     }
 
 

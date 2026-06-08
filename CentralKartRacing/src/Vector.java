@@ -12,7 +12,7 @@ public class Vector {
         this.y = y;
     }
 
-    public Vector duplicate() {
+    public Vector clone() {
         return new Vector(x, y);
     }
 
@@ -26,6 +26,14 @@ public class Vector {
 
     public double getMagnitude() {
         return Math.sqrt(x*x + y*y);
+    }
+
+    public Vector getPerpendicularRight() {
+        return new Vector(y, -x);
+    }
+
+    public Vector getPerpendicularLeft() {
+        return new Vector(-y, x);
     }
 
     public Vector floor() {

@@ -321,9 +321,9 @@ public class Renderer extends JPanel implements KeyListener{
                         Sprite sprite = map.sprites[spriteOrder[i]];
 
                         if (sprite == player.sprite) {
-                            spriteTexture = player.characterTextures[player.sprite.texture];
+                            spriteTexture = player.characterTextures[player.sprite.texture][player.playerFrame];
                         } else if (sprite == player.DBsprite) {
-                            spriteTexture = player.DBTextures[player.DBsprite.texture];
+                            spriteTexture = player.DBTextures[player.sprite.texture][player.DBsprite.texture];
                         } else if (map.spriteTextures != null && map.spriteTextures.length > 0) {
                             spriteTexture = map.spriteTextures[sprite.texture];
                         }
