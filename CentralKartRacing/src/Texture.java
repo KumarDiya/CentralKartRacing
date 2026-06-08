@@ -21,7 +21,6 @@ public class Texture {
     public Texture (String imageFilePath, int width, int height) {
         TextureWidth = width;
         TextureHeight = height;
-        System.out.println(imageFilePath);
         loadTexture(imageFilePath, width, height);
     }
 

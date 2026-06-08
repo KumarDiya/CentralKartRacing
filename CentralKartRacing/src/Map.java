@@ -148,7 +148,7 @@ public class Map {
     }
 
     /**
-     * Loads the wallMap from wallMap.txt
+     * Loads the wallMap from wallMap.png
      */
     private void loadWallMap() {
         // //Gets the full filepath for the wallMap.

@@ -103,6 +103,7 @@ public class Player {
 		this.direction = map.getStartingDir().duplicate();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		
 		this.rotationSpeedNoDrifting = 0;
 		this.speed = 0;
 		this.currentCheckpoint = 0;
@@ -258,7 +259,7 @@ public class Player {
 			} //note: gotta make decelleration slower
 			currentMaxSpeed = MAX_SPEED * turboSpeed; 
 
-			double drainRate = 35; //tune
+			double drainRate = 50; //tune
 			currentFuel -= drainRate*frameTime;
 
 			if (currentFuel < 0) {
