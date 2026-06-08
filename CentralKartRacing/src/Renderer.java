@@ -68,12 +68,12 @@ public class Renderer extends JPanel implements KeyListener{
         paused = false;
 
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
-        angBetweenRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
+        angBetweenRays = Math.atan2(player.unRotatedPlane.y, -player.direction.x) * 2 / ResolutionWidth;
         skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
 
         zBuffer = new double[ResolutionWidth];
 
-        HUD = new HeadsUpDisplay(848, 477);
+        HUD = new HeadsUpDisplay(ResolutionWidth, ResolutionHeight, map);
 
         wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
 
@@ -188,6 +188,11 @@ public class Renderer extends JPanel implements KeyListener{
                     mapSquare.y += step.y;
                     side = true;
                 }
+                if (mapSquare.x < 0 || mapSquare.x >= map.getWidth() || 
+                    mapSquare.y < 0 || mapSquare.y >= map.getHeight()) {
+                    hit = 1; 
+                    break;
+                }
                 if (map.wallMap[mapSquare.x][mapSquare.y] > 0) hit = 1;
             }
 
@@ -204,6 +209,11 @@ public class Renderer extends JPanel implements KeyListener{
             if (drawEnd >= ResolutionHeight) drawEnd = ResolutionHeight - 1;
             
             //Wall Texture Calculations
+            if (mapSquare.x < 0 || mapSquare.x >= map.getWidth() || 
+                mapSquare.y < 0 || mapSquare.y >= map.getHeight()) {
+                hit = 1;  
+                break;
+            }
             int texNum = map.wallMap[mapSquare.x][mapSquare.y] - 1;
 
             double wallX;
@@ -315,7 +325,7 @@ public class Renderer extends JPanel implements KeyListener{
                         } else if (sprite == player.DBsprite) {
                             spriteTexture = player.DBTextures[player.sprite.texture][player.DBsprite.texture];
                         } else if (map.spriteTextures != null && map.spriteTextures.length > 0) {
-                            spriteTexture = map.spriteTextures[0];
+                            spriteTexture = map.spriteTextures[sprite.texture];
                         }
 
                         if (spriteTexture != null) {
@@ -406,7 +416,11 @@ public class Renderer extends JPanel implements KeyListener{
                 mapSquare.y += step.y;
                 side = false;
             }
-            
+            if (mapSquare.x < 0 || mapSquare.x >= map.getWidth() || 
+                mapSquare.y < 0 || mapSquare.y >= map.getHeight()) {
+                hit = 1;
+                break;
+            }
             if (map.wallMap[mapSquare.x][mapSquare.y] > 0) {
                 hit = 1;
                 //System.out.print(map.wallMap[mapSquare.x][mapSquare.y] + ", ");
@@ -442,7 +456,7 @@ public class Renderer extends JPanel implements KeyListener{
         g.drawImage(framePin, 0, 0, null);
         Graphics2D g2 = (Graphics2D)g;
         HUD.setG2(g2);
-        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MAXFUEL);
+        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MAXFUEL, player.speed);
         
 
         /*if (paused){

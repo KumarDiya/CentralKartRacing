@@ -134,8 +134,8 @@ public class RaceFinishScreen extends Screen{
             if (userName.length() > 0){
                 userName = userName.substring(0, userName.length() - 1); //subtract last letter
             }
-        }else if(userName.length() >= 12){
-            return; //keeps max length at 12
+        }else if(userName.length() >= 10){
+            return; //keeps max length at 10
         }else{
             userName += choice[selectedIndexY][selectedIndexX]; //add the letter to the name
         }

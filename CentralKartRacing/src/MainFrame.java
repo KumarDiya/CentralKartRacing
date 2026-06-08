@@ -42,6 +42,8 @@ public class MainFrame extends JFrame{
     private static String selectedMapName;
     private static String selectedMapFolder;
 
+    Sound sound = new Sound();
+
 
     public static void main (String[]args){
 
@@ -92,6 +94,8 @@ public class MainFrame extends JFrame{
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+
+        playMusic();
 
     }
 
@@ -207,5 +211,14 @@ public class MainFrame extends JFrame{
             }
         }
     }
+
+    private void playMusic() {
+        sound.setFile(0);
+        sound.play();
+        sound.loop();
+    }
+    
+
+
 }
 

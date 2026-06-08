@@ -36,7 +36,6 @@ public class Map {
     public HashMap<Vector, Integer> darkeningValues = new HashMap<Vector, Integer>(); //The groundTexture positions to modify, and by how much.
 
     final int groundTextureScale = 8;
-    final int groundTextureWidth = 192, groundTextureHeight = 192;
     public Texture skyTexture; //The texture used for the skybox. The theoretical ideal texture size should be 3447px by resolutionWidth/2.
     final int skyTextureWidth = 3447, skyTextureHeight = 250;
 
@@ -46,7 +45,7 @@ public class Map {
     public CollisionBox[] checkpoints; //The checkpoints of the map, used for lap determination.
 
     //Constants used for file access. 
-    private final String wallMapFile = "wallMap.txt";
+    private final String wallMapFile = "wallMap.png";
     private final String groundMapFile = "groundMap.png";
     private final String spriteMapFile = "spriteMap.txt";
     private final String wallTexturesFile = "wallTextures.txt";
@@ -66,6 +65,11 @@ public class Map {
     private final int GrassColor = new Color(86, 147, 64).getRGB();
     private final int SandColor = new Color(200, 196, 121).getRGB();
 
+    private final int emptyColor = new Color(255, 255, 255).getRGB();
+    private final int wall1 = new Color(0, 0, 0).getRGB();
+    private final int wall2 = new Color(148, 196, 255).getRGB();
+    private final int wall3 = new Color(118,78, 173).getRGB();
+
     /**
      * Map constructor.
      * @param name      The name of the map.
@@ -83,6 +87,10 @@ public class Map {
         loadSpriteTextures();
         loadCheckpoints();
         loadStartingInfo();
+    }
+
+    public String getMapFolder() {
+        return mapFolder;
     }
 
     /**
@@ -140,33 +148,61 @@ public class Map {
     }
 
     /**
-     * Loads the wallMap from wallMap.txt
+     * Loads the wallMap from wallMap.png
      */
     private void loadWallMap() {
+        // //Gets the full filepath for the wallMap.
+        // File wallMapPath = new File(mapFolder + wallMapFile);
+        // //Reads and loads the wallMap to the array, determining its width and height in the process.
+        // try {
+        //     FileReader r = new FileReader(wallMapPath);
+        //     BufferedReader reader = new BufferedReader(r);
+        //     mapWidth = reader.readLine().length();
+        //     mapHeight = 1;
+        //     while (reader.readLine() != null){
+        //         mapHeight++;
+        //     }
+        //     reader.close();
+        //     r.close();
+        //     r = new FileReader(wallMapPath);
+        //     reader = new BufferedReader(r);
+        //     wallMap = new int[mapWidth][mapHeight];
+        //     for (int x = 0; x < mapWidth; x++){
+        //         for (int y = 0; y < mapHeight; y++){
+        //             wallMap[x][y] = reader.read() - 48;
+        //         }
+        //         reader.readLine();
+        //     }
+        //     reader.close();
+        //     r.close();
+
         //Gets the full filepath for the wallMap.
         File wallMapPath = new File(mapFolder + wallMapFile);
-        //Reads and loads the wallMap to the array, determining its width and height in the process.
+        BufferedImage wallMapImage; //The image representing the wallMap.
+
+        //Reads and loads the wallMap from an image. We use an image because it's more visually intuitive to draw out a groundMap this way.
         try {
-            FileReader r = new FileReader(wallMapPath);
-            BufferedReader reader = new BufferedReader(r);
-            mapWidth = reader.readLine().length();
-            mapHeight = 1;
-            while (reader.readLine() != null){
-                mapHeight++;
-            }
-            reader.close();
-            r.close();
-            r = new FileReader(wallMapPath);
-            reader = new BufferedReader(r);
+            wallMapImage = ImageIO.read(wallMapPath);
+            mapWidth = wallMapImage.getWidth();
+            mapHeight = wallMapImage.getHeight();
             wallMap = new int[mapWidth][mapHeight];
-            for (int x = 0; x < mapWidth; x++){
-                for (int y = 0; y < mapHeight; y++){
-                    wallMap[x][y] = reader.read() - 48;
+            for (int x = 0; x < wallMap.length; x++) {
+                for (int y = 0; y < wallMap[0].length; y++) {
+                    int groundRGB = wallMapImage.getRGB(y, x);
+                    if (groundRGB == emptyColor){
+                        wallMap[x][y] = 0;
+                    } else if (groundRGB == wall1) {
+                        wallMap[x][y] = 1;
+                    } else if (groundRGB == wall2) {
+                        wallMap[x][y] = 2;
+                    } else if (groundRGB == wall3) {
+                        wallMap[x][y] = 3;
+                    } else {
+                        System.out.println("A color used in the wallMap is undefined.");
+                        System.out.println(groundRGB);
+                    }
                 }
-                reader.readLine();
             }
-            reader.close();
-            r.close();
 
         } catch (IOException e) {
             //Error handling, with specificity.
@@ -304,11 +340,12 @@ public class Map {
     private void loadGroundTexture(){
         try {
             String groundTexturePath =  mapFolder + groundTextureFile;
-            if (groundTextureWidth != mapWidth * groundTextureScale || groundTextureHeight != mapHeight * groundTextureScale){
+            groundTexture = new Texture(groundTexturePath);
+            groundTextureInUse = new Texture(groundTexturePath);
+            if (groundTexture.getWidth() != mapWidth * groundTextureScale || groundTexture.getHeight() != mapHeight * groundTextureScale){
                 throw new WrongSizeException();
             }
-            groundTexture = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
-            groundTextureInUse = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
+            
         } catch (WrongSizeException e) {
             System.out.printf("The groundTexture is the wrong size for the map \"%s\".\n", name);
         }
