@@ -1,9 +1,15 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+
 import javax.imageio.ImageIO;
 
 public class Map {
@@ -13,14 +19,22 @@ public class Map {
     private int mapWidth;
     private int mapHeight;
 
+    private Vector startPosition;
+    private Vector startDirection;
+
     public int[][] wallMap; //The map determining the location of walls.
     public int[][] groundMap; //The map determining the ground materials; this will be an integer multiple of wallMap, determined by groundMapScale.
     final int groundMapScale = 8; //The upscale factor of groundMap to wallMap.
 
     private int numSprites; //The number of sprites.
     public Sprite[] sprites; //The sprites used in the level.
+    private int numSpriteCollisions;
+    public CollisionBox[] spriteCollisions;
 
-    public Texture groundTexture; //The texture used for the ground.
+    public Texture groundTexture; //The original texture used for the ground.
+    public Texture groundTextureInUse; //The texture after being modified by drifting.
+    public HashMap<Vector, Integer> darkeningValues = new HashMap<Vector, Integer>(); //The groundTexture positions to modify, and by how much.
+
     final int groundTextureScale = 8;
     final int groundTextureWidth = 1200, groundTextureHeight = 1200;
     //final int groundTextureWidth = 192, groundTextureHeight = 192;
@@ -30,7 +44,6 @@ public class Map {
 
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
-
     private int numCheckpoints;
     public CollisionBox[] checkpoints; //The checkpoints of the map, used for lap determination.
 
@@ -43,6 +56,8 @@ public class Map {
     private final String skyTextureFile = "skyTexture.png";
     private final String spriteTexturesFile = "spriteTextures.txt";
     private final String checkpointsFile = "checkpoints.txt";
+    private final String leaderboardFile = "leaderboard.txt";
+    private final String startInfoFile = "startingInfo.txt";
 
     private final String wallTextureFolder = "wallTextures";
     private final String spriteTextureFolder = "spriteTextures";
@@ -74,6 +89,7 @@ public class Map {
         loadSkyTexture();
         loadSpriteTextures();
         loadCheckpoints();
+        loadStartingInfo();
     }
 
     /**
@@ -92,12 +108,42 @@ public class Map {
         return mapHeight;
     }
 
+    public Vector getStartingPos() {
+        return startPosition;
+    }
+
+    public Vector getStartingDir() {
+        return startDirection;
+    }
+
     public int getNumSprites() {
-        return numSprites;
+        return sprites.length;
+    }
+
+    public int getNumSpriteCollisions() {
+        return spriteCollisions.length;
     }
 
     public int getNumCheckpoints() {
         return numCheckpoints;
+    }
+
+    public void modifyGroundTexture(int timeElapsed) {
+        ArrayList<Vector> toBeRemoved = new ArrayList<Vector>();
+        for (Vector darkenedDriftPosition : darkeningValues.keySet()) {
+            int lifetime = darkeningValues.get(darkenedDriftPosition);
+            VectorInt groundTexturePositions = new VectorInt((int)(darkenedDriftPosition.y * groundTextureScale), (int)(darkenedDriftPosition.x * groundTextureScale));
+            if (lifetime == 0) {
+                groundTextureInUse.texture[groundTexturePositions.x][groundTexturePositions.y] = (groundTexture.texture[groundTexturePositions.x][groundTexturePositions.y] >> 1) & Renderer.DarkerNumber;
+            } else if (lifetime + timeElapsed > 5000) {
+                groundTextureInUse.texture[groundTexturePositions.x][groundTexturePositions.y] = groundTexture.texture[groundTexturePositions.x][groundTexturePositions.y];
+                toBeRemoved.add(darkenedDriftPosition);
+            }
+            darkeningValues.replace(darkenedDriftPosition, lifetime + timeElapsed);
+        }
+        for (Vector toRemove : toBeRemoved) {
+            darkeningValues.remove(toRemove);
+        }
     }
 
     /**
@@ -217,18 +263,30 @@ public class Map {
             FileReader r = new FileReader(spriteMapPath);
             BufferedReader reader = new BufferedReader(r);
             numSprites = 0;
-            while (reader.readLine() != null){
+            String temp = reader.readLine();
+            while (temp != null){
                 numSprites++;
+                if (temp.split(" ").length == 5) {
+                    numSpriteCollisions++;
+                }
+                temp = reader.readLine();
             }
             reader.close();
             r.close();
             r = new FileReader(spriteMapPath);
             reader = new BufferedReader(r);
-            sprites = new Sprite[numSprites];
+            sprites = new Sprite[numSprites + 2]; // +2 for the player and db sprites
+            spriteCollisions = new CollisionBox[numSpriteCollisions];
+            int spriteCollisionsCounter = 0;
             for (int i = 0; i < numSprites; i++) {
                 String currentSprite = reader.readLine();
                 String[] spriteInfo = currentSprite.split(" ");
                 sprites[i] = new Sprite(Double.parseDouble(spriteInfo[1]), Double.parseDouble(spriteInfo[0]), Integer.parseInt(spriteInfo[2]));
+                if (spriteInfo.length == 5) {
+                    double width = Double.parseDouble(spriteInfo[3]), height = Double.parseDouble(spriteInfo[4]);
+                    spriteCollisions[spriteCollisionsCounter] = new CollisionBox(sprites[i].position.x - width/2, sprites[i].position.y - height/2, width, height);
+                    spriteCollisionsCounter++;
+                }
             }
             reader.close();
             r.close();
@@ -285,6 +343,7 @@ public class Map {
                 throw new WrongSizeException();
             }
             groundTexture = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
+            groundTextureInUse = new Texture(groundTexturePath, groundTextureWidth, groundTextureHeight);
         } catch (WrongSizeException e) {
             System.out.printf("The groundTexture is the wrong size for the map \"%s\".\n", name);
         }
@@ -305,13 +364,13 @@ public class Map {
             BufferedReader reader = new BufferedReader(r);
             int numSpriteTextures = 0;
             while (reader.readLine() != null){
-                numSpriteTextures ++;
+                numSpriteTextures++;
             }
             reader.close();
             r.close();
             r = new FileReader(spriteTexturePath);
             reader = new BufferedReader(r);
-            spriteTextures = new Texture[numSpriteTextures];
+            spriteTextures = new Texture[numSpriteTextures + 1]; // + 1 for the player sprite
             for (int i = 0; i < numSpriteTextures; i++){
                 String spriteTextureFile = mapFolder + spriteTextureFolder + "\\" + reader.readLine();
                 spriteTextures[i] = new Texture(spriteTextureFile);
@@ -359,6 +418,71 @@ public class Map {
         }
     }
 
+    public void logLeaderboard(String name, long time) {
+        File leaderboardPath = new File(mapFolder + leaderboardFile);
+
+        try {
+            FileReader r = new FileReader(leaderboardPath);
+            BufferedReader reader = new BufferedReader(r);
+            String currentLeaderboardValue = reader.readLine();
+            HashMap<Long, String> leaderboard = new HashMap<Long, String>();
+            ArrayList<Long> times = new ArrayList<Long>();
+
+            for (int i = 0; i < 10 && currentLeaderboardValue != null; i++) {
+                String[] splitValues = currentLeaderboardValue.split(" ");
+                Long currentTime = Long.parseLong(splitValues[1]);
+                leaderboard.put(currentTime, splitValues[0]);
+                times.add(currentTime);
+                currentLeaderboardValue = reader.readLine();
+            }
+
+            leaderboard.put(time, name);
+            times.add(time);
+
+            reader.close();
+            r.close();
+
+            times.sort(new Comparator<Long>() {
+                public int compare(Long a, Long b) {
+                    return (int)(a - b);
+                }
+            });
+
+            FileWriter w = new FileWriter(leaderboardPath);
+            BufferedWriter writer = new BufferedWriter(w);
+
+            for (int i = 0; i < times.size() && i < 10; i++) {
+                writer.write(leaderboard.get(times.get(i))  + " " + times.get(i));
+                writer.newLine();
+            }
+
+            writer.close();
+            w.close();
+
+        } catch (IOException e) {
+            System.out.printf("An error occurred while logging the checkpoints for the map \"%s\".\n", name);
+        }
+    }
+
+    public void loadStartingInfo() {
+        File startingInfoPath = new File(mapFolder + startInfoFile);
+        try {
+            FileReader r = new FileReader(startingInfoPath);
+            BufferedReader reader = new BufferedReader(r);
+            
+            String[] line = reader.readLine().split(" ");
+            startPosition = new Vector(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+            line = reader.readLine().split(" ");
+            startDirection = new Vector(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+
+            reader.close();
+            r.close();
+
+        } catch (IOException e) {
+             System.out.printf("An error loading the starting information for the map \"%s\" occurred.\n", name);
+        } 
+
+    }
 
     class WrongSizeException extends Exception {
         public WrongSizeException() {}

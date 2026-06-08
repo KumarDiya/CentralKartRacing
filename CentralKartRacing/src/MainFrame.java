@@ -28,11 +28,21 @@ public class MainFrame extends JFrame{
     //card layout object
     CardLayout cardLayout;
 
+    //finish screen object
+    RaceFinishScreen raceFinishScreen;
+
+    //loading screen object
+    LoadingScreen loadingScreen;
+
     //keep track of current screen
     String currentScreen;
 
     //keep track of selected player
-    private String selectedPlayer;
+    private static String selectedPlayer;
+    private static String selectedMapName;
+    private static String selectedMapFolder;
+
+    Sound sound = new Sound();
 
 
     public static void main (String[]args){
@@ -50,7 +60,7 @@ public class MainFrame extends JFrame{
     MainFrame(){
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocationRelativeTo(null);
+        
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         this.add(mainPanel);
@@ -68,16 +78,24 @@ public class MainFrame extends JFrame{
         mapSelectionScreen = new MapSelectionScreen();
         mainPanel.add(mapSelectionScreen, "map selection");
 
-        //create instance of and add renderer screen
-        game = new Game();
+        //Adding a new render screen is handled in MapSelectionScreen.java, but for now we need to add a temporary one.
+        game = new Game("Test", "testMap");
         mainPanel.add(game.getRenderer(), "game");
 
         pausedScreen = new PausedScreen();
         mainPanel.add(pausedScreen, "pause");
 
-        this.pack();
+        raceFinishScreen = new RaceFinishScreen();
+        mainPanel.add(raceFinishScreen, "finish");
 
+        loadingScreen = new LoadingScreen();
+        mainPanel.add(loadingScreen, "loading");
+
+        this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
+
+        playMusic();
 
     }
 
@@ -86,7 +104,7 @@ public class MainFrame extends JFrame{
      * @param player   the player that is selected by the user
      */
     public void setSelectedPlayer(String player){
-        this.selectedPlayer = player;
+        selectedPlayer = player;
     }
 
     /**
@@ -94,7 +112,36 @@ public class MainFrame extends JFrame{
      * @return   the player that is selected by the user
      */
     public String getSelectedPlayer(){
-        return this.selectedPlayer;
+        return selectedPlayer;
+    }
+
+    public static int getSelectedPlayerIndex() {
+        int textureIndex = 3;
+        if (selectedPlayer.equals("Blonde Guy")) {
+            textureIndex = 0;
+        } else if (selectedPlayer.equals("Jeff")) {
+            textureIndex = 1;
+        } else if (selectedPlayer.equals("Po")) {
+            textureIndex = 2;
+        }
+
+        return textureIndex;
+    }
+
+    public void setSelectedMapName(String map) {
+        selectedMapName = map;
+    }
+
+    public String getSelectedMapName() {
+        return selectedMapName;
+    }
+
+    public void setSelectedMapFolder(String map) {
+        selectedMapFolder = map;
+    }
+
+    public String getSelectedMapFolder() {
+        return selectedMapFolder;
     }
 
     /**
@@ -148,13 +195,32 @@ public class MainFrame extends JFrame{
                 pausedScreen.requestFocusInWindow();
                 game.getRenderer().setFocusable(false);
             }
-
-            
+            case "finish" -> {
+                System.out.println("Switching to finish screen");
+                raceFinishScreen.setFocusable(true);
+                raceFinishScreen.requestFocusInWindow();
+                raceFinishScreen.requestFocus();
+                game.getRenderer().setFocusable(false);
+            }
+            case "loading" -> {
+                System.out.println("Switching to loading screen");
+                loadingScreen.setFocusable(true);
+                loadingScreen.requestFocusInWindow();
+                loadingScreen.requestFocus();
+                game.getRenderer().setFocusable(false);
+            }
         }
         
         
+    }
+
+    private void playMusic() {
+        sound.setFile(0);
+        sound.play();
+        sound.loop();
     }
     
 
 
 }
+

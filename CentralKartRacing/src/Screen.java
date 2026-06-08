@@ -11,8 +11,8 @@ import javax.swing.*;
 
 public abstract class Screen extends JPanel implements KeyListener{
 
-    //each screen will have its own keylistener
-    //each screen will utilize wasd as a "joystick" and u for confirmation/switch to next screen
+    //each screen will have its own KeyListener
+    //each screen will utilize WASD as a "joystick" and u for confirmation/switch to next screen
 
     //the image to store background image and its corresponding filename
     BufferedImage bgImg;
@@ -25,7 +25,7 @@ public abstract class Screen extends JPanel implements KeyListener{
 
     /**
      * constructor
-     * @param bgImgFileName   the file name of the bgimg
+     * @param bgImgFileName   the file name of the background image
      */
     public Screen(String bgImgFileName){
         bgImg = loadImage(bgImgFileName);
@@ -39,7 +39,7 @@ public abstract class Screen extends JPanel implements KeyListener{
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D)g;
         
-        //draw bgimg
+        //draw background image
         if (bgImg != null) {
             g2.drawImage(bgImg, 0, 0, getWidth(), getHeight(), null);
         }

@@ -17,8 +17,8 @@ public class Renderer extends JPanel implements KeyListener{
     //General screen variables
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
-    public int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
-    public int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
+    public static int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
+    public static int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
 
     final static double StandardFOV = 82.7;
     static double FOV = StandardFOV;
@@ -36,6 +36,7 @@ public class Renderer extends JPanel implements KeyListener{
     Map map;
     Player player;
     
+    
     //Skybox variables
     private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
     private double angBetweenRays;             //The angle between two rays casted by the raycaster.
@@ -49,10 +50,12 @@ public class Renderer extends JPanel implements KeyListener{
     public static double CameraDistance = 2;  //The distance the camera will follow the player at.
 
     //Key Pressed Booleans
-    public boolean wPressed, sPressed, aPressed, dPressed, uPressed;
+    public boolean wPressed, sPressed, aPressed, dPressed, uPressed, iPressed;
 
     public static final int TargetFrameRate = 60;
     public static final double TargetFrameTime = (double) 1 / TargetFrameRate; // 1/Target Frame Rate
+
+    public HeadsUpDisplay HUD;
 
     /**
      * Renderer constructor. extra param added: selectedPlayer
@@ -70,7 +73,9 @@ public class Renderer extends JPanel implements KeyListener{
 
         zBuffer = new double[ResolutionWidth];
 
-        wPressed = sPressed = aPressed = dPressed = false;
+        HUD = new HeadsUpDisplay(848, 477);
+
+        wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
 
         //set up panel
         this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
@@ -122,7 +127,7 @@ public class Renderer extends JPanel implements KeyListener{
                 floor.y += floorStep.y;
 
                 int color;
-                color = map.groundTexture.texture[fcTexture.x][fcTexture.y];
+                color = map.groundTextureInUse.texture[fcTexture.x][fcTexture.y];
                 frameBuffer[y * ResolutionWidth + x] = color;
             }
         }
@@ -251,8 +256,15 @@ public class Renderer extends JPanel implements KeyListener{
         }
 
         //Sprite Rendering
-        map.sprites[map.getNumSprites() - 1].setXY(player.pos);
-
+        player.DBsprite.setXY(player.pos.addVec(player.direction.scalMult(-0.5)));
+        player.sprite.setXY(player.pos);
+        
+        player.sprite.setXY(player.pos);
+        player.DBsprite.setXY(player.pos);
+        
+        map.sprites[map.sprites.length - 1] = player.DBsprite;
+        map.sprites[map.sprites.length - 2] = player.sprite;
+        
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
 
@@ -277,9 +289,12 @@ public class Renderer extends JPanel implements KeyListener{
             int spriteHeight = Math.abs((int)(ResolutionHeight / transform.y)); //using 'transformY' instead of the real distance prevents fisheye
             //calculate lowest and highest pixel to fill in current stripe
             int drawStartY = -spriteHeight / 2 + ResolutionHeight / 2;
+           
             if(drawStartY < 0) drawStartY = 0;
             int drawEndY = spriteHeight / 2 + ResolutionHeight / 2;
             if(drawEndY >= ResolutionHeight) drawEndY = ResolutionHeight - 1;
+
+           
 
             //calculate width of the sprite
             int spriteWidth = Math.abs((int)(ResolutionHeight / transform.y));
@@ -302,8 +317,32 @@ public class Renderer extends JPanel implements KeyListener{
                         int texY = (int)((((long) d * Texture.DefaultSize) / spriteHeight) / 256);
                         if (texY < 0) texY = 0;
                         int color;
-                        color = map.spriteTextures[map.sprites[spriteOrder[i]].texture].texture[texX][texY]; //get current color from the texture
-                        if((color & 0x00FFFFFF) != 0) frameBuffer[y * ResolutionWidth + stripe] = color; //paint pixel if it isn't black, black is the invisible color
+                        Texture spriteTexture = null;
+                        Sprite sprite = map.sprites[spriteOrder[i]];
+
+                        if (sprite == player.sprite) {
+                            spriteTexture = player.characterTextures[player.sprite.texture];
+                        } else if (sprite == player.DBsprite) {
+                            spriteTexture = player.DBTextures[player.DBsprite.texture];
+                        } else if (map.spriteTextures != null && map.spriteTextures.length > 0) {
+                            spriteTexture = map.spriteTextures[0];
+                        }
+
+                        if (spriteTexture != null) {
+                            color = spriteTexture.texture[texX][texY];
+                            if ((color & 0x00FFFFFF) != 0) {
+                                frameBuffer[y * ResolutionWidth + stripe] = color;
+                            }
+                        }
+                        /**
+                         * Texture spriteTexture = map.spriteTextures[spriteOrder[i]];
+                        if (spriteTexture != null) {
+                            color = spriteTexture.texture[texX][texY];
+                            if ((color & 0x00FFFFFF) != 0) {
+                                frameBuffer[y * ResolutionWidth + stripe] = color;
+                            }
+                        }
+                         */
                         
                     }
                 }
@@ -321,6 +360,7 @@ public class Renderer extends JPanel implements KeyListener{
      */
     private Vector getCameraPos() {
 
+        //Potential future FOV effects
         // if (player.speed > player.MAX_SPEED) {
         //     CameraDistance = 2 + (player.speed - player.MAX_SPEED)/player.MAX_SPEED;
         // } else {
@@ -414,8 +454,13 @@ public class Renderer extends JPanel implements KeyListener{
             framePin = activeFrame;
         }
         g.drawImage(framePin, 0, 0, null);
+        Graphics2D g2 = (Graphics2D)g;
+        HUD.setG2(g2);
+        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MAXFUEL, player.speed);
+        
+
         /*if (paused){
-            Graphics2D g2 = (Graphics2D)g;
+            
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2.setColor(new Color(0, 0, 0, 180));
             g2.fillRect(0, 0, getWidth(), getHeight());
@@ -444,9 +489,19 @@ public class Renderer extends JPanel implements KeyListener{
         return uPressed;
     }
 
+    public boolean iDown(){
+        return iPressed;
+    }
+
     public boolean[] getControlsDown() {
         boolean[] controls = {wPressed, sPressed, aPressed, dPressed};
         return controls;
+    }
+
+    public void checkGameFinish(){
+            MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+            mainFrame.switchToScreen("finish");
+        
     }
 
 
@@ -467,9 +522,13 @@ public class Renderer extends JPanel implements KeyListener{
         if (e.getKeyCode() == KeyEvent.VK_U) {
             uPressed = true;
         }
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            iPressed = true;
+        }
         if (e.getKeyCode() == KeyEvent.VK_K) {
-            MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
+            
             if(!paused){
+                MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
                 paused = true;
                 mainFrame.switchToScreen("pause");
             }
@@ -493,6 +552,9 @@ public class Renderer extends JPanel implements KeyListener{
         if (e.getKeyCode() == KeyEvent.VK_U) {
             uPressed = false;
         }
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            iPressed = false;
+        }
     }
 
     @Override
@@ -503,16 +565,16 @@ public class Renderer extends JPanel implements KeyListener{
      * @param character
      */
     public void setPlayerCharacter(String character) {
-        int textureIndex = 0;
-        if (character.equals("Jeff")) {
-            textureIndex = 3;
+        int textureIndex = 3;
+        if (character.equals("Blonde Guy")) {
+            textureIndex = 0;
+        } else if (character.equals("Jeff")) {
+            textureIndex = 1;
         } else if (character.equals("Po")) {
             textureIndex = 2;
-        } else if (character.equals("Blonde Guy")) {
-            textureIndex = 1;
         }
 
-        map.sprites[map.getNumSprites() - 1].texture = textureIndex;
+        player.sprite.texture = textureIndex;
         System.out.println("Player texture set to index: " + textureIndex);
     }
 

@@ -43,7 +43,7 @@ public class Texture {
                 }
             }
         } catch (IOException e) {
-            System.out.println("A texture failed to load.");
+            System.out.printf("The texture \"%s\" failed to load.\n", imageFilePath);
         }
         
     }
