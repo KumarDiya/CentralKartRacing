@@ -16,6 +16,8 @@ public class HeadsUpDisplay extends JPanel{
 	Font guiFont = new Font("Bahnschrift", Font.BOLD, 30);
 	Font startingFont = new Font("Bahnschrift", Font.BOLD, 60);
 
+	double maxSpeedNormal;
+
 	BufferedImage minimap;
 
 	Graphics2D g2;
@@ -25,6 +27,7 @@ public class HeadsUpDisplay extends JPanel{
 		this.setPreferredSize(new Dimension(panW, panH));
 		this.panH = panH;
 		this.setOpaque(false);//enable transparency
+		this.maxSpeedNormal = maxSpeedNormal; //graphical speedometer later
 	}
 
 	private BufferedImage loadImage(String filename) {
@@ -54,7 +57,7 @@ public class HeadsUpDisplay extends JPanel{
 	*@param posX 			x-position of player on the map
 	*@param posY 			y-position of player on the map 
 	*/
-    public void drawHUD(int lap, double posX, double posY, double currentF, double maxF){
+    public void drawHUD(int lap, double posX, double posY, double currentF, double maxF, double playerSpeed) {
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.8f)); //make everything translucent
 		if (timeElapsed < 0) {
 			drawStartingTimer();
@@ -63,6 +66,7 @@ public class HeadsUpDisplay extends JPanel{
 			drawBoostBar(currentF, maxF);
 			drawLap(lap);
 			drawMap(posX, posY);
+			drawSpeedometer(playerSpeed);
 		}
     }
 
@@ -100,6 +104,21 @@ public class HeadsUpDisplay extends JPanel{
 		
         g2.drawString(timeShown, 600, 50); // positioned near the top right
     }	
+
+	private void drawSpeedometer(double speed) { //simple speedometer 
+		// int x = 300; //positioned near the bottom right
+		// int y = panH - 100;
+		// final int MAXHEIGHT = 170;
+		// final int WIDTH = 50;
+
+		g2.setFont(guiFont);
+		g2.setPaint(Color.white);
+
+		// int height = (int)(MAXHEIGHT * (speed/maxSpeedNormal));
+
+		String speedShown = String.format("%d", (int)(speed*10));
+		g2.drawString("Speed: " + speedShown, 500, panH - 40); //positioned near the bottom right
+	}
 
 	private void drawMap(double pX, double pY){
 		

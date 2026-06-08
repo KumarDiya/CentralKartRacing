@@ -65,6 +65,14 @@ public class Player {
 	final double playerHeight = 0.5;
 	final double halfPlayerWidth = playerWidth/2;
 	final double halfPlayerHeight = playerHeight/2;
+
+	Sound driftSE = new Sound();
+	Sound boostSE = new Sound();
+	Sound engineSE = new Sound();
+
+	boolean driftSoundPlaying = false;
+	boolean boostSoundPlaying = false;
+	boolean engineSoundPlaying = false;
 	
 
 	//Constants
@@ -167,10 +175,20 @@ public class Player {
 		isDriftingPrevious = isDrifting;
 		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1 && !iDown) { //only drift on road
 			isDrifting = true;
-		} else if (!uDown){ //redundancy cause some bug
+			if (!driftSoundPlaying){
+				playSoundEffect(3, driftSE);
+				driftSoundPlaying = true;
+			}
+
+		} else if (!uDown || iDown){ //redundancy cause some bug
 			isDrifting = false;
+			stopSoundEffect(driftSE);
+			driftSoundPlaying = false;
+			
 		} else if (speed < MAX_SPEED * 0.7) {//need certain speed to drift
 			isDrifting = false;
+			stopSoundEffect(driftSE);
+			driftSoundPlaying = false;
 		}
 
 		if (!isDriftingPrevious && isDrifting) {
@@ -228,6 +246,10 @@ public class Player {
 		currentMaxSpeed = MAX_SPEED * currentCarFriction; //changes to account for boosts
 		
 		if (iDown && currentFuel > 0) {
+			if (!boostSoundPlaying){
+				boostSoundPlaying = true;
+				playSoundEffect(2, boostSE);
+			}
 			DBFrame = 3;
 			
 
@@ -245,6 +267,12 @@ public class Player {
 
 		} else {
 			DBFrame = 0;
+
+			if (boostSoundPlaying){
+				boostSoundPlaying = false;
+				stopSoundEffect(boostSE);
+			}
+
 		}
 		DBsprite.texture = DBFrame;
 
@@ -266,6 +294,27 @@ public class Player {
 				speed = 0;
 			}
 		}
+
+		// if (speed != 0 && !engineSoundPlaying){
+		// 	engineSoundPlaying = true;
+		// 	playSoundEffect(1);
+		// } else{
+		// 	engineSoundPlaying = false;
+		// 	stopSoundEffect();
+		// }
+		if (wDown || sDown) {
+    		if (!engineSoundPlaying) {
+        		engineSoundPlaying = true;
+        		playSoundEffect(1, engineSE);
+    		}
+		} else {
+    		if (engineSoundPlaying) {
+        		engineSoundPlaying = false;
+        			stopSoundEffect(engineSE);
+    	}
+}
+
+		
 
 		// Speed-based FOV Effects (polish for later)
 		// Renderer.FOV = Renderer.StandardFOV + Math.pow(1.7, speed);
@@ -316,14 +365,17 @@ public class Player {
 
 		if (isDrifting && !iDown) {	
 			rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
+			
+
 			if (rotationSpeed > 0){
 				playerFrame = 0;
 				
 			}else if (rotationSpeed < 0){
 				playerFrame = 4;
-			
 			}
 		}else {
+			
+
 			rotationSpeed = rotationSpeedNoDrifting;
 			DBFrame = 0;
 		} 
@@ -521,5 +573,17 @@ public class Player {
 		DBTextures[1] = new Texture(folderPath + "trailLeft.png");
 		DBTextures[2] = new Texture(folderPath + "trailRight.png");
 		DBTextures[3] = new Texture(folderPath + "boost.png");
+	}
+
+	private void playSoundEffect(int i, Sound sound) {
+		
+		sound.setFile(i);
+		sound.play();
+		sound.loop();
+	}
+
+	private void stopSoundEffect(Sound sound) {
+		
+		sound.stop();
 	}
 }
