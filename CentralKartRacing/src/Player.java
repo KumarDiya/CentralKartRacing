@@ -51,14 +51,14 @@ public class Player {
 	Sprite sprite;
 	Sprite DBsprite; //drift boost sprite
 
-	Texture[] characterTextures;
-	Texture[] DBTextures;
+	Texture[][] characterTextures;
+	Texture[][] DBTextures;
 
-	final String[] characterFolderNames = {"blondeGuy", "jeff", "po", "test"};
+	final String[] characterFolderNames = {"blondeGuy", "jeff", "po"};
 	final String characterFolder = "CentralKartRacing\\Characters\\";
 
-	int playerFrame = 2; 
-	int DBFrame = 0;
+	public int playerFrame = 2; 
+	public int DBFrame = 0;
 
 	//Player Collision vars
 	final double playerWidth = 0.5;
@@ -89,10 +89,10 @@ public class Player {
 
 	Player(Map map){
 		this.map = map;
-		this.pos = map.getStartingPos().duplicate();
+		this.pos = map.getStartingPos().clone();
 		this.sprite = new Sprite(pos, 0);
 		this.DBsprite = new Sprite(pos, 0); //REMINDER: MAYBE USE DIFFERENT POS
-		this.direction = map.getStartingDir().duplicate();
+		this.direction = map.getStartingDir().clone();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.rotationSpeedNoDrifting = 0;
@@ -113,10 +113,10 @@ public class Player {
 	//use this one when we have more characters
 	Player(Map map, int character){
 		this.map = map;
-		this.pos = map.getStartingPos().duplicate();
+		this.pos = map.getStartingPos().clone();
 		this.sprite = new Sprite(pos, 0);
 		this.DBsprite = new Sprite(pos, 0); //REMINDER: MAYBE USE DIFFERENT POS
-		this.direction = map.getStartingDir().duplicate();
+		this.direction = map.getStartingDir().clone();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
 		this.rotationSpeedNoDrifting = 0;
@@ -220,6 +220,15 @@ public class Player {
 			}
     	}
 	}
+
+public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vector moveY) {
+		double xMoved = pos.x - originalPos.x; 
+		double yMoved = pos.y - originalPos.y;
+		double distanceTraveledSquared = xMoved * xMoved + yMoved * yMoved;
+
+		if (distanceTraveledSquared < 1e-1 * (moveX.x * moveX.x + moveY.y * moveY.y)) return true;
+		return false;
+	}
 	
  //Movement
 	//accelerates player
@@ -229,7 +238,6 @@ public class Player {
 		
 		if (iDown && currentFuel > 0) {
 			DBFrame = 3;
-			
 
 			if (speed < currentMaxSpeed) {
     			speed += BOOSTACCELERATION * 2 * frameTime;
@@ -330,11 +338,7 @@ public class Player {
 
 		if (speed < 0){ //if reversing
 			playerFrame = 2;
-		}
-
-		sprite.texture = playerFrame;
-		
-		
+		}		
 	}
 
 	/**
@@ -344,6 +348,7 @@ public class Player {
 	public synchronized void movePlayer(double frameTime) {
 		double currentSpeed = speed * frameTime; //the constant value is in squares/second
 
+		Vector originalPos = pos.clone();
 		Vector moveX = new Vector(direction.x * currentSpeed, 0);
 		Vector moveY = new Vector(0, direction.y * currentSpeed);
 		CollisionBox playerBox;
@@ -402,6 +407,10 @@ public class Player {
 		if (!colliding) {
 			pos = newPos;
 		}
+
+		if (checkBonking(originalPos, moveX, moveY)) {
+			speed = 0.1;
+		}
 		
 		//WIP
 	}
@@ -426,10 +435,12 @@ public class Player {
 
 	private Vector[] getWheelLocations() {
 		Vector[] wheelLocations = new Vector[4];
-		wheelLocations[0] = new Vector(pos.x + halfPlayerWidth, pos.y + halfPlayerHeight);
-		wheelLocations[1] = new Vector(pos.x + halfPlayerWidth, pos.y - halfPlayerHeight);
-		wheelLocations[2] = new Vector(pos.x - halfPlayerWidth, pos.y + halfPlayerHeight);
-		wheelLocations[3] = new Vector(pos.x - halfPlayerWidth, pos.y - halfPlayerHeight);
+		Vector perpLeft = direction.getPerpendicularLeft();
+		Vector perpRight = direction.getPerpendicularRight();
+		wheelLocations[0] = pos.addVec(direction.scalMult(halfPlayerWidth).addVec(perpLeft.scalMult(halfPlayerHeight)));
+		wheelLocations[1] = pos.addVec(direction.scalMult(halfPlayerWidth).addVec(perpRight.scalMult(halfPlayerHeight)));
+		wheelLocations[2] = pos.addVec(direction.scalMult(-halfPlayerWidth).addVec(perpLeft.scalMult(halfPlayerHeight)).addVec(perpLeft.scalMult(0.1)));
+		wheelLocations[3] = pos.addVec(direction.scalMult(-halfPlayerWidth).addVec(perpRight.scalMult(halfPlayerHeight)).addVec(perpRight.scalMult(0.1)));
 		return wheelLocations;
 	}
 
@@ -505,21 +516,28 @@ public class Player {
 	}
 
 	private void loadCharacterTextures() {
-		characterTextures = new Texture[5];
-		String folderPath = characterFolder + "blondeGuy" + "\\"; 
-		characterTextures[0] = new Texture(folderPath + "leftDrift.png");
-		characterTextures[1] = new Texture(folderPath + "leftTurn.png");
-		characterTextures[2] = new Texture(folderPath + "straight.png");
-		characterTextures[3] = new Texture(folderPath + "rightTurn.png");
-		characterTextures[4] = new Texture(folderPath + "rightDrift.png");
+		characterTextures = new Texture[characterFolderNames.length][5];
+
+		for (int i = 0; i < characterFolderNames.length; i++) {
+			String folderPath = characterFolder + characterFolderNames[i] + "\\"; 
+			characterTextures[i][0] = new Texture(folderPath + "leftDrift.png");
+			characterTextures[i][1] = new Texture(folderPath + "leftTurn.png");
+			characterTextures[i][2] = new Texture(folderPath + "straight.png");
+			characterTextures[i][3] = new Texture(folderPath + "rightTurn.png");
+			characterTextures[i][4] = new Texture(folderPath + "rightDrift.png");
+		}
+		
 	}
 
 	private void loadDriftAndBoostTextures(){
-		DBTextures = new Texture[4];
-		String folderPath = characterFolder + "blondeGuy" + "\\";
-		DBTextures[0] = null; //blank texture for no boost
-		DBTextures[1] = new Texture(folderPath + "trailLeft.png");
-		DBTextures[2] = new Texture(folderPath + "trailRight.png");
-		DBTextures[3] = new Texture(folderPath + "boost.png");
+		DBTextures = new Texture[characterFolderNames.length][4];
+
+		for (int i = 0; i < characterFolderNames.length; i++) {
+			String folderPath = characterFolder + characterFolderNames[i] + "\\";
+			DBTextures[i][0] = null; //blank texture for no boost
+			DBTextures[i][1] = new Texture(folderPath + "trailLeft.png");
+			DBTextures[i][2] = new Texture(folderPath + "trailRight.png");
+			DBTextures[i][3] = new Texture(folderPath + "boost.png");
+		}
 	}
 }

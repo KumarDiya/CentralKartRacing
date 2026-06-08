@@ -47,7 +47,7 @@ public class Game{
 
                 boolean wonBefore = false;
                 int frameCounter = 0;
-                long timeStarted = System.currentTimeMillis() + 5000;
+                long timeStarted = System.currentTimeMillis() + 5500;
                 long timeElapsed = 0;
 
                 while (isRunning && r.isDisplayable()) {
@@ -82,8 +82,11 @@ public class Game{
                         //testPlayer.printPos();
                         //testPlayer.printDirection();
                         if (testPlayer.win && !wonBefore) {
+                            stop();
                             wonBefore = true;
                             testMap.logLeaderboard("Justin", timeElapsed);
+                            r.checkGameFinish();
+                            finishTime = timeElapsed;
                         }
 
                         if (timeElapsedSecond > 1000) {
