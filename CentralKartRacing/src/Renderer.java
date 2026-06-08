@@ -251,7 +251,7 @@ public class Renderer extends JPanel implements KeyListener{
         }
 
         //Sprite Rendering
-        map.sprites[4].setXY(player.pos);
+        map.sprites[map.getNumSprites() - 1].setXY(player.pos);
 
         int[] spriteOrder = new int[map.getNumSprites()];
         double[] spriteDistance = new double[map.getNumSprites()];
@@ -512,7 +512,7 @@ public class Renderer extends JPanel implements KeyListener{
             textureIndex = 1;
         }
 
-        map.sprites[4].texture = textureIndex;
+        map.sprites[map.getNumSprites() - 1].texture = textureIndex;
         System.out.println("Player texture set to index: " + textureIndex);
     }
 
