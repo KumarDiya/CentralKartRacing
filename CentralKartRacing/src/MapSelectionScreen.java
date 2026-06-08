@@ -65,8 +65,7 @@ public class MapSelectionScreen extends Screen{
 
     @Override
     void confirmSelection() {
-        
-        
+
         System.out.println("Selected Map: " + mapNames[selectedIndex]);
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
         mainFrame.setSelectedMapName(mapNames[selectedIndex]);

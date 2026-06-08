@@ -68,12 +68,12 @@ public class Renderer extends JPanel implements KeyListener{
         paused = false;
 
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
-        angBetweenRays = Math.atan2(player.plane.y, -player.direction.x) * 2 / ResolutionWidth;
+        angBetweenRays = Math.atan2(player.unRotatedPlane.y, player.direction.x) * 2 / ResolutionWidth;
         skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
 
         zBuffer = new double[ResolutionWidth];
 
-        HUD = new HeadsUpDisplay(848, 477);
+        HUD = new HeadsUpDisplay(ResolutionWidth, ResolutionHeight, map);
 
         wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
 
@@ -315,7 +315,7 @@ public class Renderer extends JPanel implements KeyListener{
                         } else if (sprite == player.DBsprite) {
                             spriteTexture = player.DBTextures[player.DBsprite.texture];
                         } else if (map.spriteTextures != null && map.spriteTextures.length > 0) {
-                            spriteTexture = map.spriteTextures[0];
+                            spriteTexture = map.spriteTextures[sprite.texture];
                         }
 
                         if (spriteTexture != null) {
