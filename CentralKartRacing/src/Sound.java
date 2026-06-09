@@ -5,12 +5,14 @@ import java.net.URL;
 
 public class Sound {
     Clip clip;
-    URL soundURL[] = new URL[4];
+    URL soundURL[] = new URL[10];
     public Sound() {
         soundURL[0] = getClass().getResource("sound/song.wav");
         soundURL[1] = getClass().getResource("sound/engineSound.wav");
         soundURL[2] = getClass().getResource("sound/boostSound.wav");
         soundURL[3] = getClass().getResource("sound/driftSound.wav");
+        soundURL[4] = getClass().getResource("sound/321go.wav");
+        soundURL[5] = getClass().getResource("sound/button.wav");
     }
 
     public void setFile(int i){
@@ -41,6 +43,11 @@ public class Sound {
         if (clip != null) {
             clip.start();
         }
+    }
+    public void playButton() {
+        clip.stop();
+        clip.setFramePosition(0); //rewinds audio sample
+        clip.start();
     }
 
     public void loop(){

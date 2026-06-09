@@ -20,7 +20,7 @@ public class PlayerSelectionScreen extends Screen{
         boxY = 140 * Renderer.scalingFactor;
         boxWidth = 110 * Renderer.scalingFactor;
         boxHeight = 300 * Renderer.scalingFactor;
-        spacing = 250 * Renderer.scalingFactor;
+        spacing = 350 * Renderer.scalingFactor;
     }
 
 
