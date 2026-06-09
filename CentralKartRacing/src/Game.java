@@ -1,8 +1,8 @@
 public class Game{
 
     static final int loadingChunks = 128;
-    private Map testMap;
-    private Player testPlayer;
+    private Map map;
+    private Player player;
     private Renderer r;
     private boolean isRunning = false;
     private Thread gameLoopThread;
@@ -13,17 +13,17 @@ public class Game{
      * constructor
      */
     public Game(String mapName, String mapFolder){
-        testMap = new Map(mapName, mapFolder);
-        testPlayer = new Player(testMap);
-        r = new Renderer(testMap, testPlayer);
-        loadMap(testPlayer, testMap, r);
+        map = new Map(mapName, mapFolder);
+        player = new Player(map);
+        r = new Renderer(map, player);
+        loadMap(player, map, r);
     }
 
     public Game(String mapName, String mapFolder, int character){
-        testMap = new Map(mapName, mapFolder);
-        testPlayer = new Player(testMap, character);
-        r = new Renderer(testMap, testPlayer);
-        loadMap(testPlayer, testMap, r);
+        map = new Map(mapName, mapFolder);
+        player = new Player(map, character);
+        r = new Renderer(map, player);
+        loadMap(player, map, r);
     }
 
     public void start(){
@@ -67,13 +67,13 @@ public class Game{
                         double timeElapsedFrame = (double)timeElapsedFrameMillis/1000;
                         
                         if (!r.paused) {
-                            testPlayer.checkDrifting(r.uDown(), r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
-                            testPlayer.acceleratePlayer(r.wDown(), r.sDown(), r.iDown(), timeElapsedFrame);
-                            testPlayer.angularlyAcceleratePlayer(r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
-                            testPlayer.movePlayer(timeElapsedFrame);
-                            testPlayer.turnPlayer(timeElapsedFrame);
-                            testPlayer.checkCheckpoints();
-                            testMap.modifyGroundTexture((int)(timeElapsedFrameMillis));
+                            player.checkDrifting(r.uDown(), r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
+                            player.acceleratePlayer(r.wDown(), r.sDown(), r.iDown(), timeElapsedFrame);
+                            player.angularlyAcceleratePlayer(r.aDown(), r.dDown(), r.iDown(), timeElapsedFrame);
+                            player.movePlayer(timeElapsedFrame);
+                            player.turnPlayer(timeElapsedFrame);
+                            player.checkCheckpoints();
+                            map.modifyGroundTexture((int)(timeElapsedFrameMillis));
                         } else {
                             timeStarted += timeElapsedFrameMillis;
                         }
@@ -81,10 +81,9 @@ public class Game{
                         previousFrameTime = System.currentTimeMillis();
                         //testPlayer.printPos();
                         //testPlayer.printDirection();
-                        if (testPlayer.win && !wonBefore) {
+                        if (player.win && !wonBefore) {
                             stop();
                             wonBefore = true;
-                            testMap.logLeaderboard("Justin", timeElapsed);
                             r.checkGameFinish();
                             finishTime = timeElapsed;
                         }
@@ -121,6 +120,7 @@ public class Game{
      */
     public void stop(){
         isRunning = false;
+        player.stopAllSounds();
         if (gameLoopThread != null){
             gameLoopThread.interrupt();
         }
@@ -151,7 +151,7 @@ public class Game{
     }
 
     public void logFinish(String name) {
-        testMap.logLeaderboard(name, finishTime);
+        map.logLeaderboard(name, finishTime);
     }
 
     public static void loadMap(Player player, Map map, Renderer r) {
@@ -160,10 +160,6 @@ public class Game{
             player.teleportPlayer(map.getStartingPos().x + (i - loadingChunks)/loadingChunks, map.getStartingPos().y + (i - loadingChunks)/loadingChunks);
             r.render();
         }
-    }
-
-    public static void loadCharacters() {
-        
     }
 
     public static int getTimeElapsed(long startTime) {

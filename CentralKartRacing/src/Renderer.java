@@ -17,8 +17,11 @@ public class Renderer extends JPanel implements KeyListener{
     //General screen variables
     public int Width;                   //The final width of the JPanel (screen).
     public int Height;                  //The final height of the JPanel (screen).
-    public static int ResolutionWidth = 848;   //The width of the resolution for the game to be rendered in.
-    public static int ResolutionHeight = 477;  //The height of the resolution for the game to be rendered in.
+    public static int ResolutionWidth = 960;   //The width of the resolution for the game to be rendered in.
+    public static int ResolutionHeight = 540;  //The height of the resolution for the game to be rendered in.
+    public static final int scalingFactor = 1;
+    public static int WindowWidth = ResolutionWidth * scalingFactor;
+    public static int WindowHeight = ResolutionHeight * scalingFactor;
 
     final static double StandardFOV = 82.7;
     static double FOV = StandardFOV;
@@ -35,7 +38,6 @@ public class Renderer extends JPanel implements KeyListener{
     //Map and Player
     Map map;
     Player player;
-    
     
     //Skybox variables
     private double skyPixelsPerRevolution;  //The number of pixels the skybox needs to stretch to to cover one revolution of the player's FOV.
@@ -68,17 +70,17 @@ public class Renderer extends JPanel implements KeyListener{
         paused = false;
 
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
-        angBetweenRays = Math.atan2(player.unRotatedPlane.y, -player.direction.x) * 2 / ResolutionWidth;
+        angBetweenRays = Math.atan2(player.unRotatedPlane.y, 1) * 2 / ResolutionWidth;
         skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
 
         zBuffer = new double[ResolutionWidth];
 
-        HUD = new HeadsUpDisplay(ResolutionWidth, ResolutionHeight, map);
+        HUD = new HeadsUpDisplay(WindowWidth, WindowHeight, map);
 
         wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
 
         //set up panel
-        this.setPreferredSize(new Dimension(ResolutionWidth, ResolutionHeight));
+        this.setPreferredSize(new Dimension(WindowWidth, WindowHeight));
         this.setFocusable(true);
         this.addKeyListener(this);
     }
@@ -258,9 +260,6 @@ public class Renderer extends JPanel implements KeyListener{
         //Sprite Rendering
         player.DBsprite.setXY(player.pos.addVec(player.direction.scalMult(-0.5)));
         player.sprite.setXY(player.pos);
-        
-        player.sprite.setXY(player.pos);
-        player.DBsprite.setXY(player.pos);
         
         map.sprites[map.sprites.length - 1] = player.DBsprite;
         map.sprites[map.sprites.length - 2] = player.sprite;
@@ -453,8 +452,12 @@ public class Renderer extends JPanel implements KeyListener{
         synchronized (this) {
             framePin = activeFrame;
         }
-        g.drawImage(framePin, 0, 0, null);
         Graphics2D g2 = (Graphics2D)g;
+        // Apply Bicubic interpolation for the best quality-to-performance ratio when scaling up
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2.drawImage(framePin, 0, 0, WindowWidth, WindowHeight, null);
         HUD.setG2(g2);
         HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MAXFUEL, player.speed);
         

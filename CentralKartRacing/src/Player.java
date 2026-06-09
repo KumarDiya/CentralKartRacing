@@ -99,15 +99,18 @@ public class Player {
 		this.map = map;
 		this.pos = map.getStartingPos().clone();
 		this.sprite = new Sprite(pos, 0);
-		this.DBsprite = new Sprite(pos, 0); //REMINDER: MAYBE USE DIFFERENT POS
+		this.DBsprite = new Sprite(pos, 0);
 		this.direction = map.getStartingDir().clone();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
-		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.plane = new Vector();
+		double rotation = Math.atan2(direction.y, direction.x);
+		plane.x = unRotatedPlane.y * Math.sin(rotation);
+		plane.y = -unRotatedPlane.y * Math.cos(rotation);
 		
 		this.rotationSpeedNoDrifting = 0;
 		this.speed = 0;
 		this.currentCheckpoint = 0;
-		this.lap = 1;
+		this.lap = 3;
 		this.win = false;
 		MAX_SPEED = 8;
 		ACCELERATION = 4;
@@ -127,7 +130,10 @@ public class Player {
 		this.DBsprite = new Sprite(pos, 0); //REMINDER: MAYBE USE DIFFERENT POS
 		this.direction = map.getStartingDir().clone();
 		this.unRotatedPlane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
-		this.plane = new Vector(0, Math.tan(Math.toRadians(Renderer.FOV/2)));
+		this.plane = new Vector();
+		double rotation = Math.atan2(direction.y, direction.x);
+		plane.x = unRotatedPlane.y * Math.sin(rotation);
+		plane.y = -unRotatedPlane.y * Math.cos(rotation);
 		this.rotationSpeedNoDrifting = 0;
 		this.speed = 0;
 		this.currentCheckpoint = 0;
@@ -174,7 +180,7 @@ public class Player {
 	
 	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, boolean iDown, double frameTime) {
 		isDriftingPrevious = isDrifting;
-		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.7 && sampleGroundMap(pos.x, pos.y) == 1 && !iDown) { //only drift on road
+		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.5 && sampleGroundMap(pos.x, pos.y) == 1 && !iDown) { //only drift on road
 			isDrifting = true;
 			if (!driftSoundPlaying){
 				playSoundEffect(3, driftSE);
@@ -198,9 +204,7 @@ public class Player {
 			driftStartTime = System.currentTimeMillis(); //timer used for drift length
 		}
 		if (isDriftingPrevious && !isDrifting){
-			
 			driftLevel = 0;
-
 		}
 		
 		//System.out.println(speed);
@@ -299,7 +303,7 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 			speed *= Math.pow(0.3 * currentCarFriction * currentCarFriction, frameTime);
 			//decayRate is % remaining after 1 second
 			//speed -= (speed * 0.02) * (frameTime/Renderer.TargetFrameTime);
-			if (Math.abs(speed) < 0.05){
+			if (Math.abs(speed) < 0.05) {
 				speed = 0;
 			}
 		}
@@ -318,10 +322,10 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
     		}
 		} else {
     		if (engineSoundPlaying) {
-        		engineSoundPlaying = false;
-        			stopSoundEffect(engineSE);
-    	}
-}
+				engineSoundPlaying = false;
+				stopSoundEffect(engineSE);
+    		}
+		}
 
 		
 
@@ -346,26 +350,23 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 			else driftingRotationLock = -currentMaxRotationSpeed;
 		}
 		if ((aDown && !dDown && speed > 0) || (dDown && !aDown && speed < 0)) {//turn left
-			
 			if (Math.abs(rotationSpeedNoDrifting + HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting += HANDLING * frameTime; //limits max speed
 
 		} else if ((dDown && !aDown && speed > 0) || (aDown && !dDown && speed < 0)) {//turn right
-			
-			
 			if (Math.abs(rotationSpeedNoDrifting - HANDLING * frameTime) <= currentMaxRotationSpeed) rotationSpeedNoDrifting -= HANDLING * frameTime;
+
 		} else {
-			//rotationSpeedNoDrifting -= (rotationSpeedNoDrifting * 0.03) * (frameTime/Renderer.TargetFrameTime);
 			rotationSpeedNoDrifting *= Math.pow(0.06, frameTime);
 			if (Math.abs(rotationSpeedNoDrifting) < 0.005) {
 				rotationSpeedNoDrifting = 0;
 			}
 		}
+
 		if (rotationSpeedNoDrifting < 0 && rotationSpeedNoDrifting < - currentMaxRotationSpeed) {
 			rotationSpeedNoDrifting = - currentMaxRotationSpeed;
 		} else if (rotationSpeedNoDrifting > 0 && rotationSpeedNoDrifting > currentMaxRotationSpeed){
 			rotationSpeedNoDrifting = currentMaxRotationSpeed;
 		}
-
 
 		//turn sprites
 		if (rotationSpeedNoDrifting > currentMaxRotationSpeed * 0.75) playerFrame = 1;
@@ -375,18 +376,13 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 		if (isDrifting && !iDown) {	
 			rotationSpeed = rotationSpeedNoDrifting/2 + driftingRotationLock*0.75; //make rotation lock more harsh
 			
-
 			if (rotationSpeed > 0){
 				playerFrame = 0;
-				
-			}else if (rotationSpeed < 0){
+			} else if (rotationSpeed < 0){
 				playerFrame = 4;
 			}
-		}else {
-			
-
+		} else {
 			rotationSpeed = rotationSpeedNoDrifting;
-			DBFrame = 0;
 		} 
 
 		if (speed < 0){ //if reversing
@@ -565,7 +561,13 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 		}
 
 		return adjacentTiles;
-		
+	}
+
+	public void stopAllSounds() {
+		boostSoundPlaying = driftSoundPlaying = engineSoundPlaying = false;
+		stopSoundEffect(boostSE);
+		stopSoundEffect(driftSE);
+		stopSoundEffect(engineSE);
 	}
 
 	private void loadCharacterTextures() {
@@ -595,14 +597,12 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 	}
 
 	private void playSoundEffect(int i, Sound sound) {
-		
 		sound.setFile(i);
 		sound.play();
 		sound.loop();
 	}
 
 	private void stopSoundEffect(Sound sound) {
-		
 		sound.stop();
 	}
 }

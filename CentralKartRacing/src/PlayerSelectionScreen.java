@@ -16,11 +16,11 @@ public class PlayerSelectionScreen extends Screen{
     PlayerSelectionScreen(){
         super("testPlayerSelect.png");
         totalOptions = 3;
-        boxX = 0;
-        boxY = 140;
-        boxWidth = 110;
-        boxHeight = 300;
-        spacing = 250;
+        boxX = 0 * Renderer.scalingFactor;
+        boxY = 140 * Renderer.scalingFactor;
+        boxWidth = 110 * Renderer.scalingFactor;
+        boxHeight = 300 * Renderer.scalingFactor;
+        spacing = 250 * Renderer.scalingFactor;
     }
 
 

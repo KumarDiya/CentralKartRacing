@@ -32,12 +32,12 @@ public class RaceFinishScreen extends Screen{
         super("finishScreen.png");
         totalOptionsX = 7;
         totalOptionsY = 4;
-        boxX = 161; //the box location
-        boxY = 240;
-        boxWidth = 60;
-        boxHeight = 60;
-        spacingY = 57;
-        spacingX = 75;
+        boxX = 161 * Renderer.scalingFactor; //the box location
+        boxY = 240 * Renderer.scalingFactor;
+        boxWidth = 60 * Renderer.scalingFactor;
+        boxHeight = 60 * Renderer.scalingFactor;
+        spacingY = 57 * Renderer.scalingFactor;
+        spacingX = 75 * Renderer.scalingFactor;
         selectedIndexX = selectedIndexY = 0;
         userName = "";
     }
@@ -121,24 +121,23 @@ public class RaceFinishScreen extends Screen{
         if (choice[selectedIndexY][selectedIndexX].equals("ENTER")){
             Game game = mainFrame.getGame();
             game.stop();
-            if (userName.equals("")) userName = "DefaultPlayer";
+            if (userName.equals("")) userName = "ANONYMOUS";
             game.setPlayerName(userName);
             game.logFinish(userName);
             game.getRenderer().paused = false;
             switchScreen("main menu"); //go back to main menu
             userName = "";
-            boxX = 161; 
-            boxY = 240;
+            boxX = 161 * Renderer.scalingFactor; 
+            boxY = 240 * Renderer.scalingFactor;
             
-        }else if(choice[selectedIndexY][selectedIndexX].equals("BACKSPACE")){
+        } else if (choice[selectedIndexY][selectedIndexX].equals("BACKSPACE")){
             if (userName.length() > 0){
                 userName = userName.substring(0, userName.length() - 1); //subtract last letter
             }
-        }else if(userName.length() >= 10){
+        } else if (userName.length() >= 10){
             return; //keeps max length at 10
-        }else{
+        } else {
             userName += choice[selectedIndexY][selectedIndexX]; //add the letter to the name
         }
-        
     }
 }

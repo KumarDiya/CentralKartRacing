@@ -18,13 +18,13 @@ public class MainMenuScreen extends Screen{
     String[] choice = {"Play", "Quit"};
     
     MainMenuScreen(){
-        super(  "testMainMenu.png");
+        super("testMainMenu.png");
         totalOptions = 2;
-        boxX = 625;
-        boxY = 18;
-        boxWidth = 215;
-        boxHeight = 105;
-        spacing = 122;
+        boxX = 625 * Renderer.scalingFactor;
+        boxY = 18 * Renderer.scalingFactor;
+        boxWidth = 215 * Renderer.scalingFactor;
+        boxHeight = 105 * Renderer.scalingFactor;
+        spacing = 122 * Renderer.scalingFactor;
     }
 
     @Override

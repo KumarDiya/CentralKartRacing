@@ -5,62 +5,92 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MapSelectionScreen extends Screen{
 
      //selection variables
-    int boxX, boxY, boxWidth, boxHeight, spacing;
+    int boxX, boxY, boxWidth, boxHeight, spacingX, spacingY;
 
-    String[] mapNames = {"Test"};
-    String[] mapFolders = {"testMap"};
+    //Leaderboard variables
+    int yStart = 70 * Renderer.scalingFactor;
+    int xStart = 580 * Renderer.scalingFactor;
+    int ySpacing = 30 * Renderer.scalingFactor;
+    int rankX = xStart;
+    int nameX = rankX + 25 * Renderer.scalingFactor;
+    int timeX = nameX + 155 * Renderer.scalingFactor; 
+
+    String[] mapNames = {"Test", "Sunset", "Windows95", "Mall"};
+    String[] mapFolders = {"testMap", "sunsetMap", "windows95Map", "mallMap"};
 
     Font font = new Font("Bahnschrift", Font.BOLD, 20);
+
+    int totalOptionsX, totalOptionsY;
+    int selectedIndexX, selectedIndexY;
     
     MapSelectionScreen(){
         super("testMapSelect.png");
-        totalOptions = 1;
-        boxX = 57;
-        boxY = 106;
-        boxWidth = 200;
-        boxHeight = 115;
-        spacing = 250;
+        totalOptionsX = 2;
+        totalOptionsY = 2;
+        selectedIndexX = 0;
+        selectedIndexY = 0;
+        boxX = 57 * Renderer.scalingFactor;
+        boxY = 106 * Renderer.scalingFactor;
+        boxWidth = 200 * Renderer.scalingFactor;
+        boxHeight = 115 * Renderer.scalingFactor;
+        spacingX = 250 * Renderer.scalingFactor;
+        spacingY = 150 * Renderer.scalingFactor;
     }
 
 
     @Override
     void drawContent(Graphics2D g2) {
-         //draw selection box outline
-        int currentBoxX = boxX + (selectedIndex * spacing);
+        //draw selection box outline
+        int currentBoxY = boxY + (selectedIndexY * spacingY);
+        int currentBoxX = boxX + (selectedIndexX * spacingX);
         g2.setColor(new Color(255, 255, 0, 150));
         g2.setStroke(new BasicStroke(3));
-        g2.drawRect(currentBoxX, boxY, boxWidth, boxHeight);
+        g2.drawRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
 
         drawLeaderBoard(g2, "CentralKartRacing" + "\\" + mapFolders[selectedIndex] + "\\" + "leaderboard.txt");
 
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
-        g2.fillRect(currentBoxX, boxY, boxWidth, boxHeight);
+        g2.fillRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
     }
 
     @Override
     void navigate(int keyCode) {
         switch(keyCode){
+            case java.awt.event.KeyEvent.VK_W -> {
+                selectedIndexY --;
+                if (selectedIndexY < 0){
+                    selectedIndexY = totalOptionsY - 1;
+                }
+                this.repaint();
+            }
+            case java.awt.event.KeyEvent.VK_S -> {
+                selectedIndexY ++;
+                if (selectedIndexY > totalOptionsY - 1){
+                    selectedIndexY = 0;
+                }
+                this.repaint();
+            }
             case java.awt.event.KeyEvent.VK_A -> {
-                selectedIndex --;
-                if (selectedIndex < 0){
-                    selectedIndex = totalOptions - 1;
+                selectedIndexX --;
+                if (selectedIndexX < 0){
+                    selectedIndexX = totalOptionsX - 1; //loop around
                 }
                 this.repaint();
             }
             case java.awt.event.KeyEvent.VK_D -> {
-                selectedIndex ++;
-                if (selectedIndex > totalOptions - 1){
-                    selectedIndex = 0;
+                selectedIndexX ++;
+                if (selectedIndexX > totalOptionsX - 1){
+                    selectedIndexX = 0;
                 }
                 this.repaint();
             }
         }
+        selectedIndex = selectedIndexY * totalOptionsY + selectedIndexX;
     }
 
     @Override
@@ -124,10 +154,6 @@ public class MapSelectionScreen extends Screen{
         g2.setFont(font);
         g2.setColor(Color.yellow);
 
-        int yStart = 70;
-        int xStart = 580;
-        int ySpacing = 30;
-
         g2.drawString(mapNames[selectedIndex] + " Leaderboard", xStart, yStart - ySpacing);
 
         g2.setColor(Color.white);
@@ -147,20 +173,11 @@ public class MapSelectionScreen extends Screen{
 
             String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 
-
-            int rankX = xStart;
-            int nameX = rankX + 25;
-            int timeX = nameX + 155; 
-
             g2.drawString((i + 1) + ".", rankX, yStart + (i * ySpacing));
             g2.drawString(name, nameX, yStart + (i * ySpacing));
             g2.setColor(Color.pink);
             g2.drawString(timeShown, timeX, yStart + (i * ySpacing));
             
         }
-        
-
-
-
     }
 }
