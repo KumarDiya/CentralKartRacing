@@ -8,11 +8,11 @@ public class Player {
 	
 	//Linear movement vars
 	Vector pos; //The position of the player.
-	final double MAX_SPEED; //The maximum speed for the character.
+	final double MaxSpeed; //The maximum speed for the character.
 	double currentMaxSpeed;
 	double speed; //The current speed for the character.
-	final double ACCELERATION; //The acceleration of the character.
-	final double BOOSTACCELERATION; //5x the normal accel
+	final double Acceleration; //The acceleration of the character.
+	final double BoostAcceleration; //5x the normal accel
 	
 	//Rotational movement vars
 	Vector direction; //The direction the player is facing.
@@ -27,9 +27,9 @@ public class Player {
 	boolean isTurning = false; //True if player is turning, false otherwise
 
 	//Drifting var
-	
 	double currentFuel = 0;
-	final double MAXFUEL;
+	final double MaxFuel;
+	final double[] DriftChargeRates;
 
 	boolean isDrifting;
 	boolean isDriftingPrevious;
@@ -112,12 +112,14 @@ public class Player {
 		this.currentCheckpoint = 0;
 		this.lap = 3;
 		this.win = false;
-		MAX_SPEED = 8;
-		ACCELERATION = 4;
-		BOOSTACCELERATION = 20;
+		MaxSpeed = 8;
+		Acceleration = 4;
+		BoostAcceleration = 20;
 		MAX_ROTATION_SPEED = 1.5;
 		HANDLING = 10;
-		MAXFUEL = 100;
+		MaxFuel = 100;
+		double[] driftChargeRatesTemp = {5, 15, 25, 40};
+		DriftChargeRates = driftChargeRatesTemp;
 		loadCharacterTextures();
 		loadDriftAndBoostTextures();
 	}
@@ -143,36 +145,38 @@ public class Player {
 		//Character stats loading
 		//Temporary variables for constant setting
 		double tempMaxSpeed = 8, tempAcceleration = 4, tempBoostAcceleration = 20, tempMaxRotationSpeed = 1.5, tempHandling = 10, tempMaxFuel = 100;
+		double[] driftChargeRatesTemp = new double[4];
         File characterStatsPath = new File(characterFolder + characterFolderNames[character] + "\\stats.txt");
         try {
             FileReader r = new FileReader(characterStatsPath);
             BufferedReader reader = new BufferedReader(r);
             tempMaxSpeed 			= Double.parseDouble(reader.readLine());
+			System.out.println(tempMaxSpeed);
 			tempAcceleration 		= Double.parseDouble(reader.readLine());
 			tempBoostAcceleration 	= Double.parseDouble(reader.readLine());
 			tempMaxRotationSpeed 	= Double.parseDouble(reader.readLine());
 			tempHandling 			= Double.parseDouble(reader.readLine());
 			tempMaxFuel 			= Double.parseDouble(reader.readLine());
+			String[] driftChargeRatesLine = reader.readLine().split(" ");
+			driftChargeRatesTemp[0] = Double.parseDouble(driftChargeRatesLine[0]);
+			driftChargeRatesTemp[1] = Double.parseDouble(driftChargeRatesLine[1]);
+			driftChargeRatesTemp[2] = Double.parseDouble(driftChargeRatesLine[2]);
+			driftChargeRatesTemp[3] = Double.parseDouble(driftChargeRatesLine[3]);
             reader.close();
             r.close();
 			
 		} catch (IOException e) {
 			System.out.printf("An error loading the player stats for the player \"%s\" occurred.\n", characterFolderNames[character]);
-			tempMaxSpeed = 8;
-			tempAcceleration = 4;
-			tempBoostAcceleration = 20;
-			tempMaxRotationSpeed = 1.5;
-			tempHandling = 10;
-			tempMaxFuel = 100;
 			System.out.println(e);
 		}
 
-		MAX_SPEED = tempMaxSpeed;
-		ACCELERATION = tempAcceleration;
-		BOOSTACCELERATION = tempBoostAcceleration;
+		MaxSpeed = tempMaxSpeed;
+		Acceleration = tempAcceleration;
+		BoostAcceleration = tempBoostAcceleration;
 		MAX_ROTATION_SPEED = tempMaxRotationSpeed;
 		HANDLING = tempHandling;
-		MAXFUEL = tempMaxFuel;
+		MaxFuel = tempMaxFuel;
+		DriftChargeRates = driftChargeRatesTemp;
 
 		loadCharacterTextures();
 		loadDriftAndBoostTextures();
@@ -180,7 +184,7 @@ public class Player {
 	
 	public synchronized void checkDrifting(boolean uDown, boolean aDown, boolean dDown, boolean iDown, double frameTime) {
 		isDriftingPrevious = isDrifting;
-		if (uDown && (aDown || dDown) && speed > MAX_SPEED * 0.5 && sampleGroundMap(pos.x, pos.y) == 1 && !iDown) { //only drift on road
+		if (uDown && (aDown || dDown) && speed > MaxSpeed * 0.5 && sampleGroundMap(pos.x, pos.y) == 1 && !iDown) { //only drift on road
 			isDrifting = true;
 			if (!driftSoundPlaying){
 				playSoundEffect(3, driftSE);
@@ -192,7 +196,7 @@ public class Player {
 			stopSoundEffect(driftSE);
 			driftSoundPlaying = false;
 			
-		} else if (speed < MAX_SPEED * 0.7) {//need certain speed to drift
+		} else if (speed < MaxSpeed * 0.7) {//need certain speed to drift
 			isDrifting = false;
 			stopSoundEffect(driftSE);
 			driftSoundPlaying = false;
@@ -220,10 +224,10 @@ public class Player {
 			else driftLevel = 0;
 
 			switch (driftLevel) {
-				case 3 -> chargeRate = 40;
-				case 2 -> chargeRate = 25;
-				case 1 -> chargeRate = 15;
-				default -> chargeRate = 5; // level 0
+				case 3 -> chargeRate = DriftChargeRates[3];
+				case 2 -> chargeRate = DriftChargeRates[2];
+				case 1 -> chargeRate = DriftChargeRates[1];
+				default -> chargeRate = DriftChargeRates[0]; // level 0
 			}
 			
 			//System.out.println("Drift level: " + driftLevel);
@@ -233,8 +237,8 @@ public class Player {
 			}
 
 			//limit amount of fuel
-        	if (currentFuel > MAXFUEL) {
-        		currentFuel = MAXFUEL;
+        	if (currentFuel > MaxFuel) {
+        		currentFuel = MaxFuel;
         	}
 
 			Vector[] wheelLocations = getWheelLocations();
@@ -257,7 +261,7 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 	//accelerates player
 	public synchronized void acceleratePlayer(boolean wDown, boolean sDown, boolean iDown, double frameTime){
 		double currentCarFriction = getCarFriction();
-		currentMaxSpeed = MAX_SPEED * currentCarFriction; //changes to account for boosts
+		currentMaxSpeed = MaxSpeed * currentCarFriction; //changes to account for boosts
 		
 		if (iDown && currentFuel > 0) {
 			if (!boostSoundPlaying){
@@ -267,9 +271,9 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 			DBFrame = 3;
 
 			if (speed < currentMaxSpeed) {
-    			speed += BOOSTACCELERATION * 2 * frameTime;
-			} //note: gotta make decelleration slower
-			currentMaxSpeed = MAX_SPEED * turboSpeed; 
+    			speed += BoostAcceleration * 2 * frameTime;
+			} //note: gotta make deceleration slower
+			currentMaxSpeed = MaxSpeed * turboSpeed; 
 
 			double drainRate = 50; //tune
 			currentFuel -= drainRate*frameTime;
@@ -294,11 +298,11 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 		}
 
 		if (wDown && !sDown) {
-			if (Math.abs(speed + ACCELERATION * frameTime) <= currentMaxSpeed) speed += ACCELERATION * frameTime; //limits max speed
+			if (Math.abs(speed + Acceleration * frameTime) <= currentMaxSpeed) speed += Acceleration * frameTime; //limits max speed
 		} else if (sDown && !wDown) {
 			if (speed > 0){
-				speed -= ACCELERATION * frameTime * 2;
-			} else if (Math.abs(speed - ACCELERATION * frameTime * 0.5) <= currentMaxSpeed * 0.5) speed -= ACCELERATION * frameTime * 0.5;
+				speed -= Acceleration * frameTime * 2;
+			} else if (Math.abs(speed - Acceleration * frameTime * 0.5) <= currentMaxSpeed * 0.5) speed -= Acceleration * frameTime * 0.5;
 		} else {
 			speed *= Math.pow(0.3 * currentCarFriction * currentCarFriction, frameTime);
 			//decayRate is % remaining after 1 second
@@ -341,7 +345,7 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 	}
 
 	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, boolean iDown, double frameTime) {
-		if (Math.abs(speed) < MAX_SPEED * 0.6) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / (MAX_SPEED * 0.6));
+		if (Math.abs(speed) < MaxSpeed * 0.6) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / (MaxSpeed * 0.6));
 		else currentMaxRotationSpeed = MAX_ROTATION_SPEED;
 
 		double driftingRotationLock = 0;

@@ -32,12 +32,12 @@ public class RaceFinishScreen extends Screen{
         super("finishScreen.png");
         totalOptionsX = 7;
         totalOptionsY = 4;
-        boxX = 161 * Renderer.scalingFactor; //the box location
-        boxY = 240 * Renderer.scalingFactor;
-        boxWidth = 60 * Renderer.scalingFactor;
-        boxHeight = 60 * Renderer.scalingFactor;
-        spacingY = 57 * Renderer.scalingFactor;
-        spacingX = 75 * Renderer.scalingFactor;
+        boxX = 182 * Renderer.scalingFactor; //the box location
+        boxY = 271 * Renderer.scalingFactor;
+        boxWidth = 68 * Renderer.scalingFactor;
+        boxHeight = 68 * Renderer.scalingFactor;
+        spacingY = 65 * Renderer.scalingFactor;
+        spacingX = 85 * Renderer.scalingFactor;
         selectedIndexX = selectedIndexY = 0;
         userName = "";
     }
@@ -63,7 +63,7 @@ public class RaceFinishScreen extends Screen{
         //draw the player's input
         g2.setColor(Color.WHITE);
         g2.setFont(font);
-        g2.drawString("Name: " + userName, 50, 200);
+        g2.drawString("Name: " + userName, 57, 226);
 
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
         Game game = mainFrame.getGame();
@@ -75,7 +75,7 @@ public class RaceFinishScreen extends Screen{
 
 		String timeShown = String.format("Time: " + "%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		
-        g2.drawString(timeShown, 50, 75);
+        g2.drawString(timeShown, 57, 85);
     }
 
     @Override
@@ -122,13 +122,12 @@ public class RaceFinishScreen extends Screen{
             Game game = mainFrame.getGame();
             game.stop();
             if (userName.equals("")) userName = "ANONYMOUS";
-            game.setPlayerName(userName);
             game.logFinish(userName);
             game.getRenderer().paused = false;
             switchScreen("main menu"); //go back to main menu
             userName = "";
-            boxX = 161 * Renderer.scalingFactor; 
-            boxY = 240 * Renderer.scalingFactor;
+            boxX = 182 * Renderer.scalingFactor; 
+            boxY = 272 * Renderer.scalingFactor;
             
         } else if (choice[selectedIndexY][selectedIndexX].equals("BACKSPACE")){
             if (userName.length() > 0){
