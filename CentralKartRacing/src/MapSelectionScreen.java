@@ -129,7 +129,7 @@ public class MapSelectionScreen extends Screen{
         ArrayList<String> names = new ArrayList<>();
         ArrayList<Integer> times = new ArrayList<>();
         
-        final int MaxEntries = 14;
+        final int MaxEntries = 10;
         
 		
 		try {
