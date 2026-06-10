@@ -21,10 +21,10 @@ public class PausedScreen extends Screen{
         super("testPaused.png");
         totalOptions = 2;
         boxX = 375 * Renderer.scalingFactor;
-        boxY = 220 * Renderer.scalingFactor;
-        boxWidth = 100 * Renderer.scalingFactor;
-        boxHeight = 30 * Renderer.scalingFactor;
-        spacing = 67 * Renderer.scalingFactor;
+        boxY = 195 * Renderer.scalingFactor;
+        boxWidth = 215 * Renderer.scalingFactor;
+        boxHeight = 60 * Renderer.scalingFactor;
+        spacing = 95 * Renderer.scalingFactor;
 
     }
 
@@ -79,7 +79,7 @@ public class PausedScreen extends Screen{
             //need to restart the game (add code later)
             switchScreen("main menu");
             
-        }else{
+        } else{
             Game game = mainFrame.getGame();
             game.getRenderer().paused = false;//change to unpaused state
             switchScreen("game");

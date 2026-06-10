@@ -77,7 +77,7 @@ public class Map {
      */
     public Map (String name, String mapFolder){
         this.name = name;
-        this.mapFolder = "CentralKartRacing\\" + mapFolder + "\\";
+        this.mapFolder = "CentralKartRacing\\Maps\\" + mapFolder + "\\";
         loadWallMap();
         loadGroundMap();
         loadSpriteMap();
@@ -87,6 +87,10 @@ public class Map {
         loadSpriteTextures();
         loadCheckpoints();
         loadStartingInfo();
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getMapFolder() {

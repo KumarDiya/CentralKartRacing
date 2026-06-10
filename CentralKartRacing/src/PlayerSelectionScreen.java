@@ -16,18 +16,18 @@ public class PlayerSelectionScreen extends Screen{
     PlayerSelectionScreen(){
         super("testPlayerSelect.png");
         totalOptions = 3;
-        boxX = 0 * Renderer.scalingFactor;
-        boxY = 140 * Renderer.scalingFactor;
-        boxWidth = 110 * Renderer.scalingFactor;
-        boxHeight = 300 * Renderer.scalingFactor;
-        spacing = 250 * Renderer.scalingFactor;
+        boxX = 60 * Renderer.scalingFactor;
+        boxY = 158 * Renderer.scalingFactor;
+        boxWidth = 160 * Renderer.scalingFactor;
+        boxHeight = 240 * Renderer.scalingFactor;
+        spacing = 177 * Renderer.scalingFactor;
     }
 
 
     @Override
     void drawContent(Graphics2D g2) {
         //draw selection box outline
-        int currentBoxX = boxX + boxWidth + (selectedIndex * spacing);
+        int currentBoxX = boxX + selectedIndex * (boxWidth + spacing);
         g2.setColor(new Color(255, 255, 0, 150));
         g2.setStroke(new BasicStroke(3));
         g2.drawRect(currentBoxX, boxY, boxWidth, boxHeight);
