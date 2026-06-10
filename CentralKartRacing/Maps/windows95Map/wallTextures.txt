@@ -1,1 +1,3 @@
 wall1.png
+checkerboard.png
+greystone.png
