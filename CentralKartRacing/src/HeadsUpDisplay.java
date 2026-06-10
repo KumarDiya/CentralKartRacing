@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class HeadsUpDisplay extends JPanel{
-    //everything will be drawn on a jpanel that is on top of the main game 
+    //everything will be drawn on a jPanel that is on top of the main game 
         
 	long timeElapsed;
 	
@@ -101,17 +101,17 @@ public class HeadsUpDisplay extends JPanel{
     
     private void drawBoostBar(double currentF, double maxF){
 
-		int x = 300; //positioned near the top middle
-		int y = 20;
-		final int height = 50;
-		final int maxFill = 200; //width of the boost rectangle when full
+		int x = 340; //positioned near the top middle
+		int y = 23;
+		final int height = 57;
+		final int maxFill = 226; //width of the boost rectangle when full
 
 		int width = (int)(maxFill * (currentF/maxF));
 
 		g2.setPaint(Color.white);
 		g2.setStroke(new BasicStroke(3));
 		g2.fillRect(x, y, width, height); //
-		g2.drawRect(x, y, maxFill, height); //outline for the boostbar
+		g2.drawRect(x, y, maxFill, height); //outline for the boostBar
 
     }
     private void drawTimer() {
@@ -125,7 +125,7 @@ public class HeadsUpDisplay extends JPanel{
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		
-        g2.drawString(timeShown, 600, 50); // positioned near the top right
+        g2.drawString(timeShown, 680, 57); // positioned near the top right
     }	
 
 	private void drawSpeedometer(double speed) { //simple speedometer 
@@ -140,14 +140,14 @@ public class HeadsUpDisplay extends JPanel{
 		// int height = (int)(MAXHEIGHT * (speed/maxSpeedNormal));
 
 		String speedShown = String.format("%d", (int)(speed*10));
-		g2.drawString("Speed: " + speedShown, 500, panH - 40); //positioned near the bottom right
+		g2.drawString("Speed: " + speedShown, 566, panH - 45); //positioned near the bottom right
 	}
 
 	private void drawMap(double pX, double pY){
 		
 		// circle player tracker / dot
 
-		int MAX_SIZE = 170; //constrain minimap to 170x170 square
+		int MAX_SIZE = 192; //constrain minimap to 170x170 square
 
 		int mapImgWidth = minimap.getWidth(); 
  		int mapImgHeight = minimap.getHeight(); 

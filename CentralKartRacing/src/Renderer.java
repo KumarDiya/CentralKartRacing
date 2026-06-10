@@ -72,6 +72,7 @@ public class Renderer extends JPanel implements KeyListener{
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
         angBetweenRays = Math.atan2(player.unRotatedPlane.y, 1) * 2 / ResolutionWidth;
         skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
+        //System.out.println(2*Math.PI/angBetweenRays); //For finding out how wide the skybox needs to be
 
         zBuffer = new double[ResolutionWidth];
 
@@ -453,13 +454,13 @@ public class Renderer extends JPanel implements KeyListener{
             framePin = activeFrame;
         }
         Graphics2D g2 = (Graphics2D)g;
-        // Apply Bicubic interpolation for the best quality-to-performance ratio when scaling up
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        g2.drawImage(framePin, 0, 0, WindowWidth, WindowHeight, null);
+        // g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        // g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        // g2.drawImage(framePin, 0, 0, WindowWidth, WindowHeight, null);
+        g2.drawImage(framePin, 0, 0, null);
         HUD.setG2(g2);
-        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MAXFUEL, player.speed);
+        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MaxFuel, player.speed);
         
 
         /*if (paused){
