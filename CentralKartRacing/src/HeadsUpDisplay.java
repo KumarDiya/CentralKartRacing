@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class HeadsUpDisplay extends JPanel{
-    //everything will be drawn on a jpanel that is on top of the main game 
+    //everything will be drawn on a jPanel that is on top of the main game 
         
 	long timeElapsed;
 	
@@ -90,7 +90,7 @@ public class HeadsUpDisplay extends JPanel{
 		g2.setPaint(Color.white);
 		g2.setStroke(new BasicStroke(3));
 		g2.fillRect(x, y, width, height); //
-		g2.drawRect(x, y, maxFill, height); //outline for the boostbar
+		g2.drawRect(x, y, maxFill, height); //outline for the boostBar
 
     }
     private void drawTimer() {

@@ -72,6 +72,7 @@ public class Renderer extends JPanel implements KeyListener{
         skyPixelsPerRevolution = map.skyTexture.getWidth() / (2 * Math.PI);
         angBetweenRays = Math.atan2(player.unRotatedPlane.y, 1) * 2 / ResolutionWidth;
         skyStepX = map.skyTexture.getWidth()/(2*Math.PI/angBetweenRays);
+        //System.out.println(2*Math.PI/angBetweenRays); //For finding out how wide the skybox needs to be
 
         zBuffer = new double[ResolutionWidth];
 

@@ -19,8 +19,8 @@ public class MapSelectionScreen extends Screen{
     int nameX = rankX + 28 * Renderer.scalingFactor;
     int timeX = nameX + 175 * Renderer.scalingFactor; 
 
-    String[] mapNames = {"Test", "Sunset", "Windows95", "Mall"};
-    String[] mapFolders = {"testMap", "sunsetMap", "windows95Map", "mallMap"};
+    String[] mapNames = {"Tutorial", "Sunset", "Windows95", "Mall"};
+    String[] mapFolders = {"tutorialMap", "sunsetMap", "windows95Map", "mallMap"};
 
     Font font = new Font("Bahnschrift", Font.BOLD, 20);
 
@@ -51,7 +51,7 @@ public class MapSelectionScreen extends Screen{
         g2.setStroke(new BasicStroke(3));
         g2.drawRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
 
-        drawLeaderBoard(g2, "CentralKartRacing" + "\\" + mapFolders[selectedIndex] + "\\" + "leaderboard.txt");
+        drawLeaderBoard(g2, "CentralKartRacing\\Maps\\" + mapFolders[selectedIndex] + "\\leaderboard.txt");
 
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
