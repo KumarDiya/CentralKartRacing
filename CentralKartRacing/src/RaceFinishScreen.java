@@ -32,12 +32,12 @@ public class RaceFinishScreen extends Screen{
         super("finishScreen.png");
         totalOptionsX = 7;
         totalOptionsY = 4;
-        boxX = 182 * Renderer.scalingFactor; //the box location
-        boxY = 271 * Renderer.scalingFactor;
-        boxWidth = 68 * Renderer.scalingFactor;
-        boxHeight = 68 * Renderer.scalingFactor;
-        spacingY = 65 * Renderer.scalingFactor;
-        spacingX = 85 * Renderer.scalingFactor;
+        boxX = 155 * Renderer.scalingFactor; //the box location
+        boxY = 230 * Renderer.scalingFactor;
+        boxWidth = 75 * Renderer.scalingFactor;
+        boxHeight = 75 * Renderer.scalingFactor;
+        spacingY = 75 * Renderer.scalingFactor;
+        spacingX = 97 * Renderer.scalingFactor;
         selectedIndexX = selectedIndexY = 0;
         userName = "";
     }
