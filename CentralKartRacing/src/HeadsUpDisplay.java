@@ -12,21 +12,32 @@ public class HeadsUpDisplay extends JPanel{
 	long timeElapsed;
 	
 	int panH;
-	Color transparentRed = new Color(255, 0, 0, 150); //used for the player dot 
+	Color transparentWhite = new Color(255, 255, 255, 200); //used for the player dot 
 	Font guiFont = new Font("Bahnschrift", Font.BOLD, 30);
 	Font startingFont = new Font("Bahnschrift", Font.BOLD, 60);
 
 	double maxSpeedNormal;
 
-	BufferedImage minimap;
+	BufferedImage minimap, tutorial1, tutorial2, tutorial3, tutorial4;
 
 	Graphics2D g2;
 
 	Map map;
 
+	Sound startSound = new Sound();
+	
+
 	HeadsUpDisplay(int panW, int panH, Map map) {
 		this.map = map;
 		minimap = loadImage("groundTexture.png");
+
+		tutorial1 = loadImage("\\tutorial\\" + "tutorial1");
+		tutorial2 = loadImage("\\tutorial\\" + "tutorial1");
+		tutorial3 = loadImage("\\tutorial\\" + "tutorial1");
+		tutorial4 = loadImage("\\tutorial\\" + "tutorial1");
+
+		startSound.setFile(4);
+
 		this.setPreferredSize(new Dimension(panW, panH));
 		this.panH = panH;
 		this.setOpaque(false);//enable transparency
@@ -49,6 +60,7 @@ public class HeadsUpDisplay extends JPanel{
         }
         return image;
     }
+	
 
 	//need a setter method here as the g2 is created after the hud constructor is created
 	public void setG2 (Graphics2D g2){
@@ -71,6 +83,15 @@ public class HeadsUpDisplay extends JPanel{
 			drawSpeedometer(playerSpeed);
 		}
     }
+
+	public void drawTutorial(int checkpoint){
+		switch(checkpoint){
+			case 0: g2.drawImage(tutorial1, 0, 0, getWidth(), getHeight(), null);
+			case 1: g2.drawImage(tutorial2, 0, 0, getWidth(), getHeight(), null);
+			case 2: g2.drawImage(tutorial3, 0, 0, getWidth(), getHeight(), null);
+			case 3: g2.drawImage(tutorial4, 0, 0, getWidth(), getHeight(), null);
+		}
+	}
 
 	private void drawLap(int l){
 		g2.setFont(guiFont);
@@ -155,9 +176,9 @@ public class HeadsUpDisplay extends JPanel{
 		//coordinates are swapped here as something goofy with the position object
 		int newPosX = (int)((pY*8) * scaleFactor) + mapX; 
 		int newPosY = (int)((pX*8) * scaleFactor) + mapY; 
-		int dotDiameter = 11;
+		int dotDiameter = 12;
 
-		g2.setColor(transparentRed);
+		g2.setColor(transparentWhite);
 		g2.fillOval(newPosX - (dotDiameter/2 + 1), newPosY - (dotDiameter/2 + 1), dotDiameter, dotDiameter);	//red dot with center at position relative to minimap
 	}
 
@@ -165,7 +186,9 @@ public class HeadsUpDisplay extends JPanel{
 		int timeSec = (int)(-timeElapsed/1000 % 60) + 1;//time shown in seconds
 
         g2.setFont(startingFont);
-        
+
+		//play 321 go sound
+        if (timeSec <= 3) startSound.play();
 
 		String timeShown = String.format("%d", timeSec);
 		g2.setColor(Color.BLACK);

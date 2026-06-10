@@ -22,6 +22,7 @@ public abstract class Screen extends JPanel implements KeyListener{
     //each screen will have a selected index in the array of options, and the total number of options
     int selectedIndex, totalOptions;
     
+    
 
     /**
      * constructor
@@ -32,6 +33,8 @@ public abstract class Screen extends JPanel implements KeyListener{
         this.setSize(new Dimension(panW, panH));
         this.setFocusable(true);
         this.addKeyListener(this);
+        
+        
     }
 
     @Override
@@ -77,7 +80,10 @@ public abstract class Screen extends JPanel implements KeyListener{
 
     @Override
     public void keyPressed(KeyEvent e) {
+        Sound buttonSound = new Sound();
+        buttonSound.setFile(5);
         int key = e.getKeyCode();
+        buttonSound.playButton();
         switch(key){
             case KeyEvent.VK_W, KeyEvent.VK_A, KeyEvent.VK_S, KeyEvent.VK_D -> {
                 //move whatever the screen desires, then repaint
