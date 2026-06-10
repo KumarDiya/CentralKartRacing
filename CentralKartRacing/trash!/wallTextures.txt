@@ -1,0 +1,2 @@
+wall1.png
+checkerboard.png
