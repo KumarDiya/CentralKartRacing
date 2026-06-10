@@ -20,11 +20,11 @@ public class PausedScreen extends Screen{
     PausedScreen(){
         super("testPaused.png");
         totalOptions = 2;
-        boxX = 425 * Renderer.scalingFactor;
-        boxY = 250 * Renderer.scalingFactor;
-        boxWidth = 113 * Renderer.scalingFactor;
-        boxHeight = 34 * Renderer.scalingFactor;
-        spacing = 76 * Renderer.scalingFactor;
+        boxX = 375 * Renderer.scalingFactor;
+        boxY = 195 * Renderer.scalingFactor;
+        boxWidth = 215 * Renderer.scalingFactor;
+        boxHeight = 60 * Renderer.scalingFactor;
+        spacing = 95 * Renderer.scalingFactor;
 
     }
 
