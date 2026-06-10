@@ -188,18 +188,17 @@ public class Map {
             wallMap = new int[mapWidth][mapHeight];
             for (int x = 0; x < wallMap.length; x++) {
                 for (int y = 0; y < wallMap[0].length; y++) {
-                    int groundRGB = wallMapImage.getRGB(y, x);
-                    if (groundRGB == emptyColor){
+                    int wallRGB = wallMapImage.getRGB(y, x);
+                    if (wallRGB == emptyColor){
                         wallMap[x][y] = 0;
-                    } else if (groundRGB == wall1) {
+                    } else if (wallRGB == wall1) {
                         wallMap[x][y] = 1;
-                    } else if (groundRGB == wall2) {
+                    } else if (wallRGB == wall2) {
                         wallMap[x][y] = 2;
-                    } else if (groundRGB == wall3) {
+                    } else if (wallRGB == wall3) {
                         wallMap[x][y] = 3;
                     } else {
-                        System.out.println("A color used in the wallMap is undefined.");
-                        System.out.println(groundRGB);
+                        System.out.printf("A color used in the wallMap is undefined: %d\n", wallRGB);
                     }
                 }
             }
@@ -238,7 +237,7 @@ public class Map {
                     } else if (groundRGB == SandColor) {
                         groundMap[x][y] = 3;
                     } else {
-                        System.out.println("A color used in the groundMap is undefined.");
+                        System.out.printf("A color used in the groundMap is undefined: %d\n", groundRGB);
                     }
                 }
             }
@@ -473,9 +472,9 @@ public class Map {
             BufferedReader reader = new BufferedReader(r);
             
             String[] line = reader.readLine().split(" ");
-            startPosition = new Vector(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+            startPosition = new Vector(Double.parseDouble(line[1]), Double.parseDouble(line[0]));
             line = reader.readLine().split(" ");
-            startDirection = new Vector(Double.parseDouble(line[0]), Double.parseDouble(line[1]));
+            startDirection = new Vector(Double.parseDouble(line[1]), Double.parseDouble(line[0]));
 
             reader.close();
             r.close();
