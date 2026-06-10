@@ -31,10 +31,15 @@ public class HeadsUpDisplay extends JPanel{
 		this.map = map;
 		minimap = loadImage("groundTexture.png");
 
-		tutorial1 = loadImage("\\tutorial\\" + "tutorial1");
-		tutorial2 = loadImage("\\tutorial\\" + "tutorial1");
-		tutorial3 = loadImage("\\tutorial\\" + "tutorial1");
-		tutorial4 = loadImage("\\tutorial\\" + "tutorial1");
+		if (map.getName() == "Tutorial") {
+			tutorial1 = loadImage("tutorialHudPopups\\tutorial1.png");
+			tutorial2 = loadImage("tutorialHudPopups\\tutorial2.png");
+			tutorial3 = loadImage("tutorialHudPopups\\tutorial3.png");
+			tutorial4 = loadImage("tutorialHudPopups\\tutorial4.png");
+		} else {
+			tutorial1 = tutorial2 = tutorial3 = tutorial4 = null;
+		}
+		
 
 		startSound.setFile(4);
 
@@ -65,7 +70,8 @@ public class HeadsUpDisplay extends JPanel{
 	//need a setter method here as the g2 is created after the hud constructor is created
 	public void setG2 (Graphics2D g2){
 		this.g2 = g2;
-	}	
+	}
+
 	/*
 	*@param lap  			lap number player is currently on
 	*@param posX 			x-position of player on the map
@@ -84,12 +90,34 @@ public class HeadsUpDisplay extends JPanel{
 		}
     }
 
+	public void drawTutorialHUD(int lap, int checkpoint, double posX, double posY, double currentF, double maxF, double playerSpeed) {
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.8f)); //make everything translucent
+		if (timeElapsed < 0) {
+			drawStartingTimer();
+		} else {
+			drawTimer();
+			drawBoostBar(currentF, maxF);
+			drawLap(lap);
+			drawMap(posX, posY);
+			drawSpeedometer(playerSpeed);
+			drawTutorial(checkpoint);
+		}
+    }
+
 	public void drawTutorial(int checkpoint){
 		switch(checkpoint){
-			case 0: g2.drawImage(tutorial1, 0, 0, getWidth(), getHeight(), null);
-			case 1: g2.drawImage(tutorial2, 0, 0, getWidth(), getHeight(), null);
-			case 2: g2.drawImage(tutorial3, 0, 0, getWidth(), getHeight(), null);
-			case 3: g2.drawImage(tutorial4, 0, 0, getWidth(), getHeight(), null);
+			case 0: 
+				g2.drawImage(tutorial1, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				break;
+			case 1: 
+				g2.drawImage(tutorial2, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				break;
+			case 2: 
+				g2.drawImage(tutorial3, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				break;
+			case 3: 
+				g2.drawImage(tutorial4, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				break;
 		}
 	}
 

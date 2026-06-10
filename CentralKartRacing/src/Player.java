@@ -83,6 +83,10 @@ public class Player {
 		return direction;
 	}
 
+	public int getCheckpoint() {
+		return currentCheckpoint;
+	}
+
 	public int getLap() {
 		return lap;
 	}

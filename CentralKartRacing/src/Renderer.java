@@ -460,7 +460,12 @@ public class Renderer extends JPanel implements KeyListener{
         // g2.drawImage(framePin, 0, 0, WindowWidth, WindowHeight, null);
         g2.drawImage(framePin, 0, 0, null);
         HUD.setG2(g2);
-        HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MaxFuel, player.speed);
+        if (map.getName().equals("Tutorial") && player.getLap() == 1) {
+            HUD.drawTutorialHUD(player.getLap(), player.getCheckpoint(), player.pos.x, player.pos.y, player.currentFuel, player.MaxFuel, player.speed);
+        } else {
+            HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MaxFuel, player.speed);
+        }
+        
         
 
         /*if (paused){

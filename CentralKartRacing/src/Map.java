@@ -89,6 +89,10 @@ public class Map {
         loadStartingInfo();
     }
 
+    public String getName() {
+        return name;
+    }
+
     public String getMapFolder() {
         return mapFolder;
     }
