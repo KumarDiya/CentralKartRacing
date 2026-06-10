@@ -20,11 +20,11 @@ public class MainMenuScreen extends Screen{
     MainMenuScreen(){
         super("testMainMenu.png");
         totalOptions = 2;
-        boxX = 625 * Renderer.scalingFactor;
-        boxY = 18 * Renderer.scalingFactor;
-        boxWidth = 215 * Renderer.scalingFactor;
-        boxHeight = 105 * Renderer.scalingFactor;
-        spacing = 122 * Renderer.scalingFactor;
+        boxX = 708 * Renderer.scalingFactor;
+        boxY = 20 * Renderer.scalingFactor;
+        boxWidth = 243 * Renderer.scalingFactor;
+        boxHeight = 119 * Renderer.scalingFactor;
+        spacing = 138 * Renderer.scalingFactor;
     }
 
     @Override

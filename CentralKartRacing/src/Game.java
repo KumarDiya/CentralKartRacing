@@ -6,7 +6,6 @@ public class Game{
     private Renderer r;
     private boolean isRunning = false;
     private Thread gameLoopThread;
-    private String playerName = "";
     private long finishTime = 0L; //long cause of timer
     
     /**
@@ -140,10 +139,6 @@ public class Game{
      */
     public Renderer getRenderer(){
         return r;
-    }
-
-    public void setPlayerName(String name) { //setter method
-        this.playerName = name;
     }
     
     public long getFinishTime(){

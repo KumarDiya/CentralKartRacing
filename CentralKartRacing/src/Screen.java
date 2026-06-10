@@ -57,7 +57,7 @@ public abstract class Screen extends JPanel implements KeyListener{
         BufferedImage image = null;
         try {
             
-            File file = new File("CentralKartRacing\\testScreenImages\\" + filename);
+            File file = new File("CentralKartRacing\\ScreenImages\\" + filename);
             
             image = ImageIO.read(file);
             

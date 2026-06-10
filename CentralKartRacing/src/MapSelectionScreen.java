@@ -12,15 +12,15 @@ public class MapSelectionScreen extends Screen{
     int boxX, boxY, boxWidth, boxHeight, spacingX, spacingY;
 
     //Leaderboard variables
-    int yStart = 70 * Renderer.scalingFactor;
-    int xStart = 580 * Renderer.scalingFactor;
-    int ySpacing = 30 * Renderer.scalingFactor;
+    int yStart = 80 * Renderer.scalingFactor;
+    int xStart = 657 * Renderer.scalingFactor;
+    int ySpacing = 34 * Renderer.scalingFactor;
     int rankX = xStart;
-    int nameX = rankX + 25 * Renderer.scalingFactor;
-    int timeX = nameX + 155 * Renderer.scalingFactor; 
+    int nameX = rankX + 28 * Renderer.scalingFactor;
+    int timeX = nameX + 175 * Renderer.scalingFactor; 
 
-    String[] mapNames = {"Test", "Sunset", "Windows95", "Mall"};
-    String[] mapFolders = {"testMap", "sunsetMap", "windows95Map", "mallMap"};
+    String[] mapNames = {"Tutorial", "Sunset", "Windows95", "Mall"};
+    String[] mapFolders = {"tutorialMap", "sunsetMap", "windows95Map", "mallMap"};
 
     Font font = new Font("Bahnschrift", Font.BOLD, 20);
 
@@ -33,12 +33,12 @@ public class MapSelectionScreen extends Screen{
         totalOptionsY = 2;
         selectedIndexX = 0;
         selectedIndexY = 0;
-        boxX = 57 * Renderer.scalingFactor;
-        boxY = 106 * Renderer.scalingFactor;
-        boxWidth = 200 * Renderer.scalingFactor;
-        boxHeight = 115 * Renderer.scalingFactor;
-        spacingX = 250 * Renderer.scalingFactor;
-        spacingY = 150 * Renderer.scalingFactor;
+        boxX = 65 * Renderer.scalingFactor;
+        boxY = 120 * Renderer.scalingFactor;
+        boxWidth = 226 * Renderer.scalingFactor;
+        boxHeight = 130 * Renderer.scalingFactor;
+        spacingX = 283 * Renderer.scalingFactor;
+        spacingY = 170 * Renderer.scalingFactor;
     }
 
 
@@ -51,7 +51,7 @@ public class MapSelectionScreen extends Screen{
         g2.setStroke(new BasicStroke(3));
         g2.drawRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
 
-        drawLeaderBoard(g2, "CentralKartRacing" + "\\" + mapFolders[selectedIndex] + "\\" + "leaderboard.txt");
+        drawLeaderBoard(g2, "CentralKartRacing\\Maps\\" + mapFolders[selectedIndex] + "\\leaderboard.txt");
 
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
@@ -106,7 +106,7 @@ public class MapSelectionScreen extends Screen{
         new Thread(() -> {
             mainFrame.game.stop();
             mainFrame.mainPanel.remove(mainFrame.game.getRenderer());
-            Game newGame = new Game(mapNames[selectedIndex], mapFolders[selectedIndex]);
+            Game newGame = new Game(mapNames[selectedIndex], mapFolders[selectedIndex], MainFrame.getSelectedPlayerIndex());
 
             SwingUtilities.invokeLater(() -> {
                 mainFrame.game = newGame;
@@ -129,14 +129,14 @@ public class MapSelectionScreen extends Screen{
         ArrayList<String> names = new ArrayList<>();
         ArrayList<Integer> times = new ArrayList<>();
         
-        final int MAXENTRIES = 14;
+        final int MaxEntries = 14;
         
 		
 		try {
 			in = new FileReader(data);
 			readFile = new BufferedReader(in);
 			
-			while((line = readFile.readLine())!=null && names.size() < MAXENTRIES) {
+			while((line = readFile.readLine())!=null && names.size() < MaxEntries) {
                 String[] dataParts = line.split(" ");
                 
                 names.add(dataParts[0]);
@@ -158,7 +158,7 @@ public class MapSelectionScreen extends Screen{
 
         g2.setColor(Color.white);
         for (int i = 0; i < names.size(); i++) {
-            if (i >= MAXENTRIES){
+            if (i >= MaxEntries){
                 break;
             }
 
