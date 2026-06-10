@@ -13,8 +13,8 @@ public class HeadsUpDisplay extends JPanel{
 	
 	int panH;
 	Color transparentWhite = new Color(255, 255, 255, 200); //used for the player dot 
-	Font guiFont = new Font("Bahnschrift", Font.BOLD, 30);
-	Font startingFont = new Font("Bahnschrift", Font.BOLD, 60);
+	Font guiFont = new Font("Bahnschrift", Font.BOLD, (int)(40*Renderer.scalingFactor));
+	Font startingFont = new Font("Bahnschrift", Font.BOLD, (int)(70*Renderer.scalingFactor));
 
 	double maxSpeedNormal;
 
@@ -124,15 +124,17 @@ public class HeadsUpDisplay extends JPanel{
 	private void drawLap(int l){
 		g2.setFont(guiFont);
         g2.setPaint(Color.white);
-		g2.drawString("Lap " + String.valueOf(l), 50, 50); //positioned near the top left
+		g2.drawString("Lap " + String.valueOf(l), (int)(50*Renderer.scalingFactor), (int)(60*Renderer.scalingFactor)); //positioned near the top left
 	}
     
     private void drawBoostBar(double currentF, double maxF){
 
-		int x = 340; //positioned near the top middle
-		int y = 23;
-		final int height = 57;
-		final int maxFill = 226; //width of the boost rectangle when full
+		
+		int y = 23*Renderer.scalingFactor;
+		final int height = 57*Renderer.scalingFactor;
+		final int maxFill = 226*Renderer.scalingFactor; //width of the boost rectangle when full
+		int x = (int)((Renderer.WindowWidth - maxFill)/2); //positioned at the top middle
+		
 
 		int width = (int)(maxFill * (currentF/maxF));
 
@@ -153,14 +155,10 @@ public class HeadsUpDisplay extends JPanel{
 
 		String timeShown = String.format("%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		
-        g2.drawString(timeShown, 680, 57); // positioned near the top right
+        g2.drawString(timeShown, 740*Renderer.scalingFactor, 60*Renderer.scalingFactor); // positioned near the top right
     }	
 
 	private void drawSpeedometer(double speed) { //simple speedometer 
-		// int x = 300; //positioned near the bottom right
-		// int y = panH - 100;
-		// final int MAXHEIGHT = 170;
-		// final int WIDTH = 50;
 
 		g2.setFont(guiFont);
 		g2.setPaint(Color.white);
@@ -168,7 +166,7 @@ public class HeadsUpDisplay extends JPanel{
 		// int height = (int)(MAXHEIGHT * (speed/maxSpeedNormal));
 
 		String speedShown = String.format("%d", (int)(speed*10));
-		g2.drawString("Speed: " + speedShown, 566, panH - 45); //positioned near the bottom right
+		g2.drawString("Speed: " + speedShown, 680*Renderer.scalingFactor, (panH - 45)*Renderer.scalingFactor); //positioned near the bottom right
 	}
 
 	private void drawMap(double pX, double pY){
