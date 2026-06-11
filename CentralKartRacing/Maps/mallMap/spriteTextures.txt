@@ -1,9 +1,0 @@
-burnsign.png
-escapesign.png
-itsoversign.png
-rizz.png
-wish.png
-cd.png
-smileyface.png
-leftarrow.png
-rightarrow.png

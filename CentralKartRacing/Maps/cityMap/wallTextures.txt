@@ -1,0 +1,3 @@
+grid1.png
+bush.png
+wall1.png
