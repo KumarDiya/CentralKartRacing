@@ -17,10 +17,10 @@ public class MapSelectionScreen extends Screen{
     int ySpacing = 34 * Renderer.scalingFactor;
     int rankX = xStart;
     int nameX = rankX + 28 * Renderer.scalingFactor;
-    int timeX = nameX + 175 * Renderer.scalingFactor; 
+    int timeX = nameX + 175 * Renderer.scalingFactor;
 
-    String[] mapNames = {"Tutorial", "Sunset", "Windows95", "Mall"};
-    String[] mapFolders = {"tutorialMap", "sunsetMap", "windows95Map", "mallMap"};
+    String[] mapNames = {"Tutorial", "Sunset", "Windows95", "City"};
+    String[] mapFolders = {"tutorialMap", "sunsetMap", "windows95Map", "cityMap"};
 
     Font font = new Font("Bahnschrift", Font.BOLD, 20);
 
