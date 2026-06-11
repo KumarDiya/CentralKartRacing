@@ -1,6 +1,1 @@
-<<<<<<< HEAD
-=======
-grid1.png
-bush.png
->>>>>>> main
 wall1.png

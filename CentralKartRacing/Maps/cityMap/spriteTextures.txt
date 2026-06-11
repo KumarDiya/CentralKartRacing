@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 burnsign.png
 escapesign.png
 itsoversign.png
@@ -8,19 +7,3 @@ cd.png
 smileyface.png
 leftarrow.png
 rightarrow.png
-=======
-car.png
-constructionTurn.png
-constructionTurn2.png
-dontleave.png
-light.png
-mailbox.png 
-max40.png
-max67.png
-newjeans.png
-orb.png
-palm1.png
-pylon.png
-wetCement.png
-bush.png
->>>>>>> main
