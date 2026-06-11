@@ -155,7 +155,6 @@ public class Player {
             FileReader r = new FileReader(characterStatsPath);
             BufferedReader reader = new BufferedReader(r);
             tempMaxSpeed 			= Double.parseDouble(reader.readLine());
-			System.out.println(tempMaxSpeed);
 			tempAcceleration 		= Double.parseDouble(reader.readLine());
 			tempBoostAcceleration 	= Double.parseDouble(reader.readLine());
 			tempMaxRotationSpeed 	= Double.parseDouble(reader.readLine());
