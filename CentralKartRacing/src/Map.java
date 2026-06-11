@@ -37,7 +37,7 @@ public class Map {
 
     final int groundTextureScale = 8;
     public Texture skyTexture; //The texture used for the skybox. The theoretical ideal texture size should be 3447px by resolutionWidth/2.
-    final int skyTextureWidth = 3447, skyTextureHeight = 270;
+    final int skyTextureWidth = 4179, skyTextureHeight = 270;
 
     public Texture[] wallTextures; //The textures of the walls, index determined by order of placement in wallTextures.txt.
     public Texture[] spriteTextures; //The textures of sprites, index determined by order of placement in spriteTextures.txt.
