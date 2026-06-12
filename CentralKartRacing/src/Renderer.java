@@ -19,7 +19,7 @@ public class Renderer extends JPanel implements KeyListener{
     public int Height;                  //The final height of the JPanel (screen).
     public static int ResolutionWidth = 960;   //The width of the resolution for the game to be rendered in.
     public static int ResolutionHeight = 540;  //The height of the resolution for the game to be rendered in.
-    public static final int scalingFactor = 1;
+    public static final int scalingFactor = 2;
     public static int WindowWidth = ResolutionWidth * scalingFactor;
     public static int WindowHeight = ResolutionHeight * scalingFactor;
 
@@ -454,11 +454,11 @@ public class Renderer extends JPanel implements KeyListener{
             framePin = activeFrame;
         }
         Graphics2D g2 = (Graphics2D)g;
-        // g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-        // g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        // g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        // g2.drawImage(framePin, 0, 0, WindowWidth, WindowHeight, null);
-        g2.drawImage(framePin, 0, 0, null);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g2.drawImage(framePin, 0, 0, WindowWidth, WindowHeight, null);
+        //g2.drawImage(framePin, 0, 0, null);
         HUD.setG2(g2);
         if (map.getName().equals("Tutorial") && player.getLap() == 1) {
             HUD.drawTutorialHUD(player.getLap(), player.getCheckpoint(), player.pos.x, player.pos.y, player.currentFuel, player.MaxFuel, player.speed);

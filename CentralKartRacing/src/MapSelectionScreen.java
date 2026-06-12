@@ -22,7 +22,7 @@ public class MapSelectionScreen extends Screen{
     String[] mapNames = {"Tutorial", "Sunset", "WindowsXP", "City"};
     String[] mapFolders = {"tutorialMap", "sunsetMap", "windowsXPMap", "cityMap"};
 
-    Font font = new Font("Bahnschrift", Font.BOLD, 20);
+    Font font = new Font("Bahnschrift", Font.BOLD, 20 * Renderer.scalingFactor);
 
     int totalOptionsX, totalOptionsY;
     int selectedIndexX, selectedIndexY;
@@ -37,7 +37,7 @@ public class MapSelectionScreen extends Screen{
         boxY = 109 * Renderer.scalingFactor;
         boxWidth = 183 * Renderer.scalingFactor;
         boxHeight = boxWidth;
-        spacingX = (boxWidth + 30) * Renderer.scalingFactor;
+        spacingX = 213 * Renderer.scalingFactor;
         spacingY = spacingX;
     }
 

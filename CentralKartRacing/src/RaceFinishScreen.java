@@ -15,7 +15,7 @@ public class RaceFinishScreen extends Screen{
 
     int selectedIndexX, selectedIndexY;
 
-    Font font = new Font("Bahnschrift", Font.BOLD, 60);
+    Font font = new Font("Bahnschrift", Font.BOLD, 60 * Renderer.scalingFactor);
 
     //the keyboard
     String[][] choice = {
@@ -63,7 +63,7 @@ public class RaceFinishScreen extends Screen{
         //draw the player's input
         g2.setColor(Color.WHITE);
         g2.setFont(font);
-        g2.drawString("Name: " + userName, 57, 226);
+        g2.drawString("Name: " + userName, 57 * Renderer.scalingFactor, 226 * Renderer.scalingFactor);
 
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
         Game game = mainFrame.getGame();
@@ -75,7 +75,7 @@ public class RaceFinishScreen extends Screen{
 
 		String timeShown = String.format("Time: " + "%02d:%02d:%02d", timeMin, timeSec, timeMilli);
 		
-        g2.drawString(timeShown, 57, 85);
+        g2.drawString(timeShown, 57 * Renderer.scalingFactor, 85 * Renderer.scalingFactor);
     }
 
     @Override

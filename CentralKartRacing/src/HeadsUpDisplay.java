@@ -13,8 +13,8 @@ public class HeadsUpDisplay extends JPanel{
 	
 	int panH;
 	Color transparentWhite = new Color(255, 255, 255, 200); //used for the player dot 
-	Font guiFont = new Font("Bahnschrift", Font.BOLD, (int)(40*Renderer.scalingFactor));
-	Font startingFont = new Font("Bahnschrift", Font.BOLD, (int)(70*Renderer.scalingFactor));
+	Font guiFont = new Font("Bahnschrift", Font.BOLD, (int)(40 * Renderer.scalingFactor));
+	Font startingFont = new Font("Bahnschrift", Font.BOLD, (int)(70 * Renderer.scalingFactor));
 
 	double maxSpeedNormal;
 
@@ -107,16 +107,16 @@ public class HeadsUpDisplay extends JPanel{
 	public void drawTutorial(int checkpoint){
 		switch(checkpoint){
 			case 0: 
-				g2.drawImage(tutorial1, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				g2.drawImage(tutorial1, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
 				break;
 			case 1: 
-				g2.drawImage(tutorial2, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				g2.drawImage(tutorial2, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
 				break;
 			case 2: 
-				g2.drawImage(tutorial3, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				g2.drawImage(tutorial3, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
 				break;
 			case 3: 
-				g2.drawImage(tutorial4, 0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight, null);
+				g2.drawImage(tutorial4, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
 				break;
 		}
 	}
@@ -173,7 +173,7 @@ public class HeadsUpDisplay extends JPanel{
 		
 		// circle player tracker / dot
 
-		int MAX_SIZE = 192; //constrain minimap to 170x170 square
+		int MAX_SIZE = 192 * Renderer.scalingFactor; //constrain minimap to 170x170 square
 
 		int mapImgWidth = minimap.getWidth(); 
  		int mapImgHeight = minimap.getHeight(); 
@@ -193,8 +193,8 @@ public class HeadsUpDisplay extends JPanel{
 		newMapImgWidth = (int)(mapImgWidth * scaleFactor);
 		newMapImgHeight = (int)(mapImgHeight * scaleFactor);
 		
-		int mapX = 20; //20 margin from left side
-		int mapY = panH - newMapImgHeight - 20; //20 margin from bottom
+		int mapX = 20 * Renderer.scalingFactor; //20 margin from left side
+		int mapY = (panH - newMapImgHeight - 20 * Renderer.scalingFactor); //20 margin from bottom
 		g2.drawImage(minimap, mapX, mapY, newMapImgWidth, newMapImgHeight, null);
 
 		//draw player dot
@@ -202,7 +202,7 @@ public class HeadsUpDisplay extends JPanel{
 		//coordinates are swapped here as something goofy with the position object
 		int newPosX = (int)((pY*8) * scaleFactor) + mapX; 
 		int newPosY = (int)((pX*8) * scaleFactor) + mapY; 
-		int dotDiameter = 12;
+		int dotDiameter = 12 * Renderer.scalingFactor;
 
 		g2.setColor(transparentWhite);
 		g2.fillOval(newPosX - (dotDiameter/2 + 1), newPosY - (dotDiameter/2 + 1), dotDiameter, dotDiameter);	//red dot with center at position relative to minimap
@@ -218,10 +218,10 @@ public class HeadsUpDisplay extends JPanel{
 
 		String timeShown = String.format("%d", timeSec);
 		g2.setColor(Color.BLACK);
-		g2.fillRect(0, 0, Renderer.ResolutionWidth, Renderer.ResolutionHeight);
+		g2.fillRect(0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor);
 		g2.setPaint(Color.WHITE);
 		Rectangle2D timeBounds = startingFont.getStringBounds(timeShown, g2.getFontRenderContext());
-        g2.drawString(timeShown, (Renderer.ResolutionWidth - (int)timeBounds.getWidth())/2, (Renderer.ResolutionHeight - (int)timeBounds.getHeight())/2); // positioned near the top right
+        g2.drawString(timeShown, (Renderer.ResolutionWidth * Renderer.scalingFactor - (int)timeBounds.getWidth())/2, (Renderer.ResolutionHeight * Renderer.scalingFactor - (int)timeBounds.getHeight())/2); // positioned near the top right
 	
 		
 	}
