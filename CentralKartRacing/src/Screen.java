@@ -6,6 +6,8 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -63,6 +65,7 @@ public abstract class Screen extends JPanel implements KeyListener{
             File file = new File("CentralKartRacing\\ScreenImages\\" + filename);
             
             image = ImageIO.read(file);
+            //InputStream is = Screen.getResourceAsStream("/images/logo.png");
             
             if (image != null) {
                 System.out.println("Image loaded successfully!");

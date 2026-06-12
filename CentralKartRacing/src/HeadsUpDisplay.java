@@ -166,7 +166,7 @@ public class HeadsUpDisplay extends JPanel{
 		// int height = (int)(MAXHEIGHT * (speed/maxSpeedNormal));
 
 		String speedShown = String.format("%d", (int)(speed*10));
-		g2.drawString("Speed: " + speedShown, 680*Renderer.scalingFactor, (panH - 45)*Renderer.scalingFactor); //positioned near the bottom right
+		g2.drawString("Speed: " + speedShown, 680*Renderer.scalingFactor, (panH - 70)); //positioned near the bottom right
 	}
 
 	private void drawMap(double pX, double pY){
