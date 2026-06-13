@@ -60,6 +60,8 @@ public class MainFrame extends JFrame{
     MainFrame(){
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setUndecorated(true);
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
@@ -94,6 +96,8 @@ public class MainFrame extends JFrame{
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+
+        System.out.println(getWidth() + ", " + getHeight());
 
         playMusic();
 

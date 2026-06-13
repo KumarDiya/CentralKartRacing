@@ -1,0 +1,12 @@
+burnsign.png
+escapesign.png
+itsoversign.png
+rizz.png
+wish.png
+cd.png
+smileyface.png
+leftarrow.png
+rightarrow.png
+star.png
+computer1.png
+warningsign.png

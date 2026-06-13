@@ -5,7 +5,9 @@ import java.io.FileWriter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.net.URL;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -77,7 +79,7 @@ public class Map {
      */
     public Map (String name, String mapFolder){
         this.name = name;
-        this.mapFolder = "CentralKartRacing\\Maps\\" + mapFolder + "\\";
+        this.mapFolder = "/assets/Maps/" + mapFolder + "/";
         loadWallMap();
         loadGroundMap();
         loadSpriteMap();
@@ -181,7 +183,7 @@ public class Map {
         //     r.close();
 
         //Gets the full filepath for the wallMap.
-        File wallMapPath = new File(mapFolder + wallMapFile);
+        URL wallMapPath = this.getClass().getResource(mapFolder + wallMapFile);
         BufferedImage wallMapImage; //The image representing the wallMap.
 
         //Reads and loads the wallMap from an image. We use an image because it's more visually intuitive to draw out a groundMap this way.
@@ -218,7 +220,7 @@ public class Map {
      */
     private void loadGroundMap() {
         //Gets the full filepath for the groundMap.
-        File groundMapPath = new File(mapFolder + groundMapFile);
+        URL groundMapPath = this.getClass().getResource(mapFolder + groundMapFile);
         BufferedImage groundMapImage; //The image representing the groundMap.
 
         //Reads and loads the groundMap from an image. We use an image because it's more visually intuitive to draw out a groundMap this way.
@@ -260,11 +262,11 @@ public class Map {
      */
     private void loadSpriteMap() {
         //Gets the full filepath for the spriteMap.
-        File spriteMapPath = new File(mapFolder + spriteMapFile);
+        URL spriteMapPath = this.getClass().getResource(mapFolder + spriteMapFile);
 
         //Loads the spriteMap, determining the number of sprites in the process.
         try {
-            FileReader r = new FileReader(spriteMapPath);
+            InputStreamReader r = new InputStreamReader(spriteMapPath.openStream());
             BufferedReader reader = new BufferedReader(r);
             numSprites = 0;
             String temp = reader.readLine();
@@ -277,7 +279,7 @@ public class Map {
             }
             reader.close();
             r.close();
-            r = new FileReader(spriteMapPath);
+            r = new InputStreamReader(spriteMapPath.openStream());
             reader = new BufferedReader(r);
             sprites = new Sprite[numSprites + 2]; // +2 for the player and db sprites
             spriteCollisions = new CollisionBox[numSpriteCollisions];
@@ -309,11 +311,11 @@ public class Map {
      */
     private void loadWallTextures() {
         //Gets the full filepath for the wallTextures.
-        File wallTexturePath = new File(mapFolder + wallTexturesFile);
+        URL wallTexturePath = this.getClass().getResource(mapFolder + wallTexturesFile);
 
         //Loads all the wallTextures from the files specified using wallTextures.txt.
         try {
-            FileReader r = new FileReader(wallTexturePath);
+            InputStreamReader r = new InputStreamReader(wallTexturePath.openStream());
             BufferedReader reader = new BufferedReader(r);
             int numWallTextures = 0;
             while (reader.readLine() != null){
@@ -321,11 +323,11 @@ public class Map {
             }
             reader.close();
             r.close();
-            r = new FileReader(wallTexturePath);
+            r = new InputStreamReader(wallTexturePath.openStream());
             reader = new BufferedReader(r);
             wallTextures = new Texture[numWallTextures];
             for (int i = 0; i < numWallTextures; i++) {
-                String wallTextureFile = mapFolder + wallTextureFolder + "\\" + reader.readLine();
+                String wallTextureFile = mapFolder + wallTextureFolder + "/" + reader.readLine();
                 wallTextures[i] = new Texture(wallTextureFile);
             }
             reader.close();
@@ -363,9 +365,10 @@ public class Map {
     }
 
     private void loadSpriteTextures(){
-        File spriteTexturePath = new File(mapFolder + spriteTexturesFile);
+        URL spriteTexturePath = this.getClass().getResource(mapFolder + spriteTexturesFile);
+
     	try {
-            FileReader r = new FileReader(spriteTexturePath);
+            InputStreamReader r = new InputStreamReader(spriteTexturePath.openStream());
             BufferedReader reader = new BufferedReader(r);
             int numSpriteTextures = 0;
             while (reader.readLine() != null){
@@ -373,11 +376,11 @@ public class Map {
             }
             reader.close();
             r.close();
-            r = new FileReader(spriteTexturePath);
+            r = new InputStreamReader(spriteTexturePath.openStream());
             reader = new BufferedReader(r);
             spriteTextures = new Texture[numSpriteTextures + 1]; // + 1 for the player sprite
             for (int i = 0; i < numSpriteTextures; i++){
-                String spriteTextureFile = mapFolder + spriteTextureFolder + "\\" + reader.readLine();
+                String spriteTextureFile = mapFolder + spriteTextureFolder + "/" + reader.readLine();
                 spriteTextures[i] = new Texture(spriteTextureFile);
             }
 
@@ -391,11 +394,11 @@ public class Map {
 
     private void loadCheckpoints(){
         //Gets the full filepath for the spriteMap.
-        File checkpointsPath = new File(mapFolder + checkpointsFile);
+        URL checkpointsPath = this.getClass().getResource(mapFolder + checkpointsFile);
 
         //Loads the spriteMap, determining the number of sprites in the process.
         try {
-            FileReader r = new FileReader(checkpointsPath);
+            InputStreamReader r = new InputStreamReader(checkpointsPath.openStream());
             BufferedReader reader = new BufferedReader(r);
             numCheckpoints = 0;
             while (reader.readLine() != null){
@@ -403,7 +406,7 @@ public class Map {
             }
             reader.close();
             r.close();
-            r = new FileReader(checkpointsPath);
+            r = new InputStreamReader(checkpointsPath.openStream());
             reader = new BufferedReader(r);
             checkpoints = new CollisionBox[numCheckpoints];
             for (int i = 0; i < numCheckpoints; i++) {
@@ -423,6 +426,7 @@ public class Map {
         }
     }
 
+    //FIX LATER
     public void logLeaderboard(String name, long time) {
         File leaderboardPath = new File(mapFolder + leaderboardFile);
 
@@ -470,9 +474,10 @@ public class Map {
     }
 
     public void loadStartingInfo() {
-        File startingInfoPath = new File(mapFolder + startInfoFile);
+        URL startingInfoPath = this.getClass().getResource(mapFolder + startInfoFile);
+
         try {
-            FileReader r = new FileReader(startingInfoPath);
+            InputStreamReader r = new InputStreamReader(startingInfoPath.openStream());
             BufferedReader reader = new BufferedReader(r);
             
             String[] line = reader.readLine().split(" ");

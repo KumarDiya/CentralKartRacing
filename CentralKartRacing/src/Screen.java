@@ -4,15 +4,13 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public abstract class Screen extends JPanel implements KeyListener{
-
     //each screen will have its own KeyListener
     //each screen will utilize WASD as a "joystick" and u for confirmation/switch to next screen
 
@@ -24,8 +22,6 @@ public abstract class Screen extends JPanel implements KeyListener{
     //each screen will have a selected index in the array of options, and the total number of options
     int selectedIndex, totalOptions;
     
-    
-
     /**
      * constructor
      * @param bgImgFileName   the file name of the background image
@@ -61,16 +57,12 @@ public abstract class Screen extends JPanel implements KeyListener{
     private BufferedImage loadImage(String filename) {
         BufferedImage image = null;
         try {
-            
-            File file = new File("CentralKartRacing\\ScreenImages\\" + filename);
-            
-            image = ImageIO.read(file);
-            //InputStream is = Screen.getResourceAsStream("/images/logo.png");
+            URL url = this.getClass().getResource("/assets/ScreenImages/" + filename);
+            image = ImageIO.read(url);
             
             if (image != null) {
                 System.out.println("Image loaded successfully!");
             }
-            
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Image failed to load: " + filename, "ERROR", JOptionPane.ERROR_MESSAGE);
         }

@@ -1,5 +1,4 @@
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
@@ -35,7 +34,7 @@ public class Texture {
     private void loadTexture(String imageFilePath, int width, int height) {
         try {
             texture = new int[TextureWidth][TextureHeight];
-            textureImage = ImageIO.read(new File(imageFilePath));
+            textureImage = ImageIO.read(this.getClass().getResource(imageFilePath));
             for (int i = 0; i < TextureWidth; i++) {
                 for (int j = 0; j < TextureHeight; j++) {
                     texture[i][j] = textureImage.getRGB(i, j);
@@ -49,7 +48,7 @@ public class Texture {
 
     private void loadTexture(String imageFilePath) {
         try {
-            textureImage = ImageIO.read(new File(imageFilePath));
+            textureImage = ImageIO.read(this.getClass().getResource(imageFilePath));
             texture = new int[textureImage.getWidth()][textureImage.getHeight()];
             for (int i = 0; i < textureImage.getWidth(); i++) {
                 for (int j = 0; j < textureImage.getHeight(); j++) {

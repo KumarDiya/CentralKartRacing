@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.net.URL;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -32,10 +32,10 @@ public class HeadsUpDisplay extends JPanel{
 		minimap = loadImage("groundTexture.png");
 
 		if (map.getName() == "Tutorial") {
-			tutorial1 = loadImage("tutorialHudPopups\\tutorial1.png");
-			tutorial2 = loadImage("tutorialHudPopups\\tutorial2.png");
-			tutorial3 = loadImage("tutorialHudPopups\\tutorial3.png");
-			tutorial4 = loadImage("tutorialHudPopups\\tutorial4.png");
+			tutorial1 = loadImage("tutorialHudPopups/tutorial1.png");
+			tutorial2 = loadImage("tutorialHudPopups/tutorial2.png");
+			tutorial3 = loadImage("tutorialHudPopups/tutorial3.png");
+			tutorial4 = loadImage("tutorialHudPopups/tutorial4.png");
 		} else {
 			tutorial1 = tutorial2 = tutorial3 = tutorial4 = null;
 		}
@@ -52,8 +52,7 @@ public class HeadsUpDisplay extends JPanel{
         BufferedImage image = null;
         try {
             
-            File file = new File(map.getMapFolder() + filename);
-            
+            URL file = this.getClass().getResource(map.getMapFolder() + filename);
             image = ImageIO.read(file);
             
             if (image != null) {
@@ -107,16 +106,16 @@ public class HeadsUpDisplay extends JPanel{
 	public void drawTutorial(int checkpoint){
 		switch(checkpoint){
 			case 0: 
-				g2.drawImage(tutorial1, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial1, 54 * Renderer.scalingFactor, 108 * Renderer.scalingFactor, 351 * Renderer.scalingFactor, 162 * Renderer.scalingFactor, null);
 				break;
 			case 1: 
-				g2.drawImage(tutorial2, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial2, 14 * Renderer.scalingFactor, 91 * Renderer.scalingFactor, 428 * Renderer.scalingFactor, 198 * Renderer.scalingFactor, null);
 				break;
 			case 2: 
-				g2.drawImage(tutorial3, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial3, 36 * Renderer.scalingFactor, 107 * Renderer.scalingFactor, 391 * Renderer.scalingFactor, 171 * Renderer.scalingFactor, null);
 				break;
 			case 3: 
-				g2.drawImage(tutorial4, 0, 0, Renderer.ResolutionWidth * Renderer.scalingFactor, Renderer.ResolutionHeight * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial4, 40 * Renderer.scalingFactor, 86 * Renderer.scalingFactor, 394 * Renderer.scalingFactor, 156 * Renderer.scalingFactor, null);
 				break;
 		}
 	}

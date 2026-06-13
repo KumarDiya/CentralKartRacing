@@ -1,6 +1,6 @@
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.net.URL;
+import java.io.InputStreamReader;
 import java.io.IOException;
 
 public class Player {
@@ -55,7 +55,7 @@ public class Player {
 	Texture[][] DBTextures;
 
 	final String[] characterFolderNames = {"blondeGuy", "jeff", "po"};
-	final String characterFolder = "CentralKartRacing\\Characters\\";
+	final String characterFolder = "/assets/Characters/";
 
 	public int playerFrame = 2; 
 	public int DBFrame = 0;
@@ -150,9 +150,9 @@ public class Player {
 		//Temporary variables for constant setting
 		double tempMaxSpeed = 8, tempAcceleration = 4, tempBoostAcceleration = 20, tempMaxRotationSpeed = 1.5, tempHandling = 10, tempMaxFuel = 100;
 		double[] driftChargeRatesTemp = new double[4];
-        File characterStatsPath = new File(characterFolder + characterFolderNames[character] + "\\stats.txt");
+        URL characterStatsPath = this.getClass().getResource(characterFolder + characterFolderNames[character] + "/stats.txt");
         try {
-            FileReader r = new FileReader(characterStatsPath);
+            InputStreamReader r = new InputStreamReader(characterStatsPath.openStream());
             BufferedReader reader = new BufferedReader(r);
             tempMaxSpeed 			= Double.parseDouble(reader.readLine());
 			tempAcceleration 		= Double.parseDouble(reader.readLine());
@@ -581,7 +581,7 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 		characterTextures = new Texture[characterFolderNames.length][5];
 
 		for (int i = 0; i < characterFolderNames.length; i++) {
-			String folderPath = characterFolder + characterFolderNames[i] + "\\"; 
+			String folderPath = characterFolder + characterFolderNames[i] + "/"; 
 			characterTextures[i][0] = new Texture(folderPath + "leftDrift.png");
 			characterTextures[i][1] = new Texture(folderPath + "leftTurn.png");
 			characterTextures[i][2] = new Texture(folderPath + "straight.png");
@@ -595,7 +595,7 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 		DBTextures = new Texture[characterFolderNames.length][4];
 
 		for (int i = 0; i < characterFolderNames.length; i++) {
-			String folderPath = characterFolder + characterFolderNames[i] + "\\";
+			String folderPath = characterFolder + characterFolderNames[i] + "/";
 			DBTextures[i][0] = null; //blank texture for no boost
 			DBTextures[i][1] = new Texture(folderPath + "trailLeft.png");
 			DBTextures[i][2] = new Texture(folderPath + "trailRight.png");

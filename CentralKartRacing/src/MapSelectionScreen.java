@@ -1,8 +1,8 @@
 import java.awt.*;
 import javax.swing.SwingUtilities;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.net.URL;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -51,7 +51,7 @@ public class MapSelectionScreen extends Screen{
         g2.setStroke(new BasicStroke(3));
         g2.drawRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
 
-        drawLeaderBoard(g2, "CentralKartRacing\\Maps\\" + mapFolders[selectedIndex] + "\\leaderboard.txt");
+        drawLeaderBoard(g2, "assets/Maps/" + mapFolders[selectedIndex] + "/leaderboard.txt");
 
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
@@ -121,8 +121,9 @@ public class MapSelectionScreen extends Screen{
 
     private void drawLeaderBoard(Graphics2D g2, String leaderboardTXT) {
         //load data from file
-        File data = new File(leaderboardTXT);
-		FileReader in;
+        
+        URL data = this.getClass().getResource(leaderboardTXT);
+		InputStreamReader in;
 		BufferedReader readFile;
 		String line;
 
@@ -133,7 +134,7 @@ public class MapSelectionScreen extends Screen{
         
 		
 		try {
-			in = new FileReader(data);
+			in = new InputStreamReader(data.openStream());
 			readFile = new BufferedReader(in);
 			
 			while((line = readFile.readLine())!=null && names.size() < MaxEntries) {
