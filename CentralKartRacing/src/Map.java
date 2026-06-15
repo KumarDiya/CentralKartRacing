@@ -15,8 +15,9 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 public class Map {
-    private final String mapFolder; //The folder all map files are found in.
+    private final String mapResourcePath; //The folder all map files are found in.
     private final String name;
+    private final String mapFolderName;
 
     private int mapWidth;
     private int mapHeight;
@@ -55,9 +56,7 @@ public class Map {
     private final String skyTextureFile = "skyTexture.png";
     private final String spriteTexturesFile = "spriteTextures.txt";
     private final String checkpointsFile = "checkpoints.txt";
-    private final String leaderboardFile = "leaderboard.txt";
     private final String startInfoFile = "startingInfo.txt";
-
     private final String wallTextureFolder = "wallTextures";
     private final String spriteTextureFolder = "spriteTextures";
 
@@ -79,7 +78,8 @@ public class Map {
      */
     public Map (String name, String mapFolder){
         this.name = name;
-        this.mapFolder = "/assets/Maps/" + mapFolder + "/";
+        this.mapResourcePath = "/assets/Maps/" + mapFolder + "/";
+        this.mapFolderName = mapFolder;
         loadWallMap();
         loadGroundMap();
         loadSpriteMap();
@@ -95,8 +95,8 @@ public class Map {
         return name;
     }
 
-    public String getMapFolder() {
-        return mapFolder;
+    public String getMapResourcePath() {
+        return mapResourcePath;
     }
 
     /**
@@ -183,7 +183,7 @@ public class Map {
         //     r.close();
 
         //Gets the full filepath for the wallMap.
-        URL wallMapPath = this.getClass().getResource(mapFolder + wallMapFile);
+        URL wallMapPath = this.getClass().getResource(mapResourcePath + wallMapFile);
         BufferedImage wallMapImage; //The image representing the wallMap.
 
         //Reads and loads the wallMap from an image. We use an image because it's more visually intuitive to draw out a groundMap this way.
@@ -220,7 +220,7 @@ public class Map {
      */
     private void loadGroundMap() {
         //Gets the full filepath for the groundMap.
-        URL groundMapPath = this.getClass().getResource(mapFolder + groundMapFile);
+        URL groundMapPath = this.getClass().getResource(mapResourcePath + groundMapFile);
         BufferedImage groundMapImage; //The image representing the groundMap.
 
         //Reads and loads the groundMap from an image. We use an image because it's more visually intuitive to draw out a groundMap this way.
@@ -262,7 +262,7 @@ public class Map {
      */
     private void loadSpriteMap() {
         //Gets the full filepath for the spriteMap.
-        URL spriteMapPath = this.getClass().getResource(mapFolder + spriteMapFile);
+        URL spriteMapPath = this.getClass().getResource(mapResourcePath + spriteMapFile);
 
         //Loads the spriteMap, determining the number of sprites in the process.
         try {
@@ -311,7 +311,7 @@ public class Map {
      */
     private void loadWallTextures() {
         //Gets the full filepath for the wallTextures.
-        URL wallTexturePath = this.getClass().getResource(mapFolder + wallTexturesFile);
+        URL wallTexturePath = this.getClass().getResource(mapResourcePath + wallTexturesFile);
 
         //Loads all the wallTextures from the files specified using wallTextures.txt.
         try {
@@ -327,7 +327,7 @@ public class Map {
             reader = new BufferedReader(r);
             wallTextures = new Texture[numWallTextures];
             for (int i = 0; i < numWallTextures; i++) {
-                String wallTextureFile = mapFolder + wallTextureFolder + "/" + reader.readLine();
+                String wallTextureFile = mapResourcePath + wallTextureFolder + "/" + reader.readLine();
                 wallTextures[i] = new Texture(wallTextureFile);
             }
             reader.close();
@@ -344,7 +344,7 @@ public class Map {
      */
     private void loadGroundTexture(){
         try {
-            String groundTexturePath =  mapFolder + groundTextureFile;
+            String groundTexturePath =  mapResourcePath + groundTextureFile;
             groundTexture = new Texture(groundTexturePath);
             groundTextureInUse = new Texture(groundTexturePath);
             if (groundTexture.getWidth() != mapWidth * groundTextureScale || groundTexture.getHeight() != mapHeight * groundTextureScale){
@@ -360,12 +360,12 @@ public class Map {
      * Loads the sky textures in the groundSkyTextures folder
      */
     private void loadSkyTexture(){
-        String skyTexturePath = mapFolder + skyTextureFile;
+        String skyTexturePath = mapResourcePath + skyTextureFile;
         skyTexture = new Texture(skyTexturePath, skyTextureWidth, skyTextureHeight);
     }
 
     private void loadSpriteTextures(){
-        URL spriteTexturePath = this.getClass().getResource(mapFolder + spriteTexturesFile);
+        URL spriteTexturePath = this.getClass().getResource(mapResourcePath + spriteTexturesFile);
 
     	try {
             InputStreamReader r = new InputStreamReader(spriteTexturePath.openStream());
@@ -380,7 +380,7 @@ public class Map {
             reader = new BufferedReader(r);
             spriteTextures = new Texture[numSpriteTextures + 1]; // + 1 for the player sprite
             for (int i = 0; i < numSpriteTextures; i++){
-                String spriteTextureFile = mapFolder + spriteTextureFolder + "/" + reader.readLine();
+                String spriteTextureFile = mapResourcePath + spriteTextureFolder + "/" + reader.readLine();
                 spriteTextures[i] = new Texture(spriteTextureFile);
             }
 
@@ -394,7 +394,7 @@ public class Map {
 
     private void loadCheckpoints(){
         //Gets the full filepath for the spriteMap.
-        URL checkpointsPath = this.getClass().getResource(mapFolder + checkpointsFile);
+        URL checkpointsPath = this.getClass().getResource(mapResourcePath + checkpointsFile);
 
         //Loads the spriteMap, determining the number of sprites in the process.
         try {
@@ -426,9 +426,8 @@ public class Map {
         }
     }
 
-    //FIX LATER
     public void logLeaderboard(String name, long time) {
-        File leaderboardPath = new File(mapFolder + leaderboardFile);
+        File leaderboardPath = getLeaderboardFile(mapFolderName);
 
         try {
             FileReader r = new FileReader(leaderboardPath);
@@ -473,8 +472,30 @@ public class Map {
         }
     }
 
+    public static File getLeaderboardFile(String map) {
+        try {
+            File jarFile = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            File jarDir = jarFile.getParentFile();
+       
+            File file = new File(jarDir, "centralKartRacingData/" + map + "leaderboard.txt");
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            return file;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Should literally never happen. Congrats! Stacktrace printed to stdout");
+        }
+    }
+
     public void loadStartingInfo() {
-        URL startingInfoPath = this.getClass().getResource(mapFolder + startInfoFile);
+        URL startingInfoPath = this.getClass().getResource(mapResourcePath + startInfoFile);
 
         try {
             InputStreamReader r = new InputStreamReader(startingInfoPath.openStream());

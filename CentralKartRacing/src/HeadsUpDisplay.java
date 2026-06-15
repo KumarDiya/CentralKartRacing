@@ -52,7 +52,7 @@ public class HeadsUpDisplay extends JPanel{
         BufferedImage image = null;
         try {
             
-            URL file = this.getClass().getResource(map.getMapFolder() + filename);
+            URL file = this.getClass().getResource(map.getMapResourcePath() + filename);
             image = ImageIO.read(file);
             
             if (image != null) {

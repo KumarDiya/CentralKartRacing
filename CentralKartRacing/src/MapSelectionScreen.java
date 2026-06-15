@@ -1,8 +1,8 @@
 import java.awt.*;
 import javax.swing.SwingUtilities;
 import java.io.BufferedReader;
-import java.net.URL;
-import java.io.InputStreamReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -51,7 +51,7 @@ public class MapSelectionScreen extends Screen{
         g2.setStroke(new BasicStroke(3));
         g2.drawRect(currentBoxX, currentBoxY, boxWidth, boxHeight);
 
-        drawLeaderBoard(g2, "assets/Maps/" + mapFolders[selectedIndex] + "/leaderboard.txt");
+        drawLeaderBoard(g2, mapFolders[selectedIndex]);
 
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
@@ -119,12 +119,12 @@ public class MapSelectionScreen extends Screen{
         
     }
 
-    private void drawLeaderBoard(Graphics2D g2, String leaderboardTXT) {
+    private void drawLeaderBoard(Graphics2D g2, String mapID) {
         //load data from file
         
-        URL data = this.getClass().getResource(leaderboardTXT);
-		InputStreamReader in;
-		BufferedReader readFile;
+        File leaderboardPath = Map.getLeaderboardFile(mapID);
+		FileReader r;
+		BufferedReader reader;
 		String line;
 
         ArrayList<String> names = new ArrayList<>();
@@ -134,10 +134,10 @@ public class MapSelectionScreen extends Screen{
         
 		
 		try {
-			in = new InputStreamReader(data.openStream());
-			readFile = new BufferedReader(in);
+			r = new FileReader(leaderboardPath);
+			reader = new BufferedReader(r);
 			
-			while((line = readFile.readLine())!=null && names.size() < MaxEntries) {
+			while((line = reader.readLine())!=null && names.size() < MaxEntries) {
                 String[] dataParts = line.split(" ");
                 
                 names.add(dataParts[0]);
@@ -145,8 +145,8 @@ public class MapSelectionScreen extends Screen{
 				
 			}
 
-		readFile.close();	
-		in.close();	
+		reader.close();	
+		r.close();	
 		}catch(IOException e) {
 			System.out.println("Problem with reading file " + e.getMessage());
 		}

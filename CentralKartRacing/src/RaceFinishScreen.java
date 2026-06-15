@@ -32,21 +32,26 @@ public class RaceFinishScreen extends Screen{
         super("finishScreen.png");
         totalOptionsX = 7;
         totalOptionsY = 4;
-        boxX = 155 * Renderer.scalingFactor; //the box location
-        boxY = 230 * Renderer.scalingFactor;
         boxWidth = 75 * Renderer.scalingFactor;
         boxHeight = 75 * Renderer.scalingFactor;
         spacingY = 75 * Renderer.scalingFactor;
         spacingX = 97 * Renderer.scalingFactor;
+        resetSelection();
+    }
+
+    private void resetSelection() {
+        boxX = 155 * Renderer.scalingFactor; //the box location
+        boxY = 230 * Renderer.scalingFactor;
         selectedIndexX = selectedIndexY = 0;
         userName = "";
-    }
+    } 
 
     @Override
     public void keyPressed(KeyEvent e) {
         System.out.println("PausedScreen got key: " + e.getKeyCode());  // DEBUG
         super.keyPressed(e);  // Call parent
     }
+
     @Override
     void drawContent(Graphics2D g2) { //draws selection box
         //draw selection box outline
@@ -125,9 +130,7 @@ public class RaceFinishScreen extends Screen{
             game.logFinish(userName);
             game.getRenderer().paused = false;
             switchScreen("main menu"); //go back to main menu
-            userName = "";
-            boxX = 182 * Renderer.scalingFactor; 
-            boxY = 272 * Renderer.scalingFactor;
+            resetSelection();
             
         } else if (choice[selectedIndexY][selectedIndexX].equals("BACKSPACE")){
             if (userName.length() > 0){
