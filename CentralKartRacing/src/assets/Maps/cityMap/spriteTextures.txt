@@ -3,7 +3,7 @@ constructionTurn.png
 constructionTurn2.png
 dontleave.png
 light.png
-mailbox.png 
+mailbox.png
 max40.png
 max67.png
 newjeans.png
