@@ -17,7 +17,7 @@ public class MainMenuScreen extends Screen{
     //selection box variables
     int boxX, boxY, boxWidth, boxHeight, spacing;
 
-    String[] choice = {"Play", "Mute", "Quit"};
+    String[] choice = {"Play", "Quit", "Mute"};
 
     Boolean muted = false;
     
@@ -49,7 +49,15 @@ public class MainMenuScreen extends Screen{
         //fill with translucent yellow
         g2.setColor(new Color(255, 255, 0, 50));
         g2.fillRect(boxX, currentBoxY, boxWidth, boxHeight);
+
+        if (muted){
+            g2.setColor(new Color(255,0,0, 190));
+            g2.setStroke(new BasicStroke(8));
+            g2.drawLine(880*Renderer.scalingFactor, 460*Renderer.scalingFactor, 930*Renderer.scalingFactor, 525*Renderer.scalingFactor);
+            
+        }
     }
+
 
     @Override
     void navigate(int keyCode) {
