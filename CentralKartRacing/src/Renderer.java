@@ -18,7 +18,7 @@ public class Renderer extends JPanel implements KeyListener{
     public int Height;                  //The final height of the JPanel (screen).
     public static int ResolutionWidth = 960;   //The width of the resolution for the game to be rendered in.
     public static int ResolutionHeight = 540;  //The height of the resolution for the game to be rendered in.
-    public static final int scalingFactor = 2;
+    public static final int scalingFactor = 1;
     public static int WindowWidth = ResolutionWidth * scalingFactor;
     public static int WindowHeight = ResolutionHeight * scalingFactor;
 

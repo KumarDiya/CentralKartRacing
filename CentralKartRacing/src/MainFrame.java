@@ -68,7 +68,7 @@ public class MainFrame extends JFrame{
         this.add(mainPanel);
 
         //create instance of and add main menu screen
-        mainMenuScreen = new MainMenuScreen();
+        mainMenuScreen = new MainMenuScreen(sound);
         mainPanel.add(mainMenuScreen, "main menu");
         currentScreen = "main menu";
 
@@ -216,7 +216,7 @@ public class MainFrame extends JFrame{
         }
     }
 
-    private void playMusic() {
+    public void playMusic() {
         sound.setFile(0);
         sound.play();
         sound.loop();

@@ -12,14 +12,19 @@ public class MainMenuScreen extends Screen{
     //BufferedImage for intro background
     BufferedImage mainMenuImg;
 
+    Sound sound = new Sound();
+
     //selection box variables
     int boxX, boxY, boxWidth, boxHeight, spacing;
 
-    String[] choice = {"Play", "Quit"};
+    String[] choice = {"Play", "Mute", "Quit"};
+
+    Boolean muted = false;
     
-    MainMenuScreen(){
+    MainMenuScreen(Sound sound){
         super("testMainMenu.png");
-        totalOptions = 2;
+        this.sound = sound;
+        totalOptions = 3;
         boxX = 708 * Renderer.scalingFactor;
         boxY = 20 * Renderer.scalingFactor;
         boxWidth = 243 * Renderer.scalingFactor;
@@ -63,6 +68,7 @@ public class MainMenuScreen extends Screen{
                 }
                 this.repaint();
             }
+            
         }
     }
 
@@ -72,7 +78,16 @@ public class MainMenuScreen extends Screen{
         MainFrame mainFrame = (MainFrame) SwingUtilities.getWindowAncestor(this);
         if (choice[selectedIndex].equals( "Play")){
             switchScreen("player selection");
-            
+        }else if (choice[selectedIndex].equals("Mute")){
+            //mute/unmute music
+                System.out.println("toggle");
+                if (!muted){
+                    sound.stop();
+                    muted = true;
+                }else if (muted){
+                    sound.play();
+                    muted = false;
+                }   
         }else{
             //exit game
             mainFrame.dispose();
