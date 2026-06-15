@@ -4,7 +4,6 @@
  * The class that handles all rendering in the main game. 
  */
 
-
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -465,17 +464,6 @@ public class Renderer extends JPanel implements KeyListener{
         } else {
             HUD.drawHUD(player.getLap(), player.pos.x, player.pos.y, player.currentFuel, player.MaxFuel, player.speed);
         }
-        
-        
-
-        /*if (paused){
-            
-            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2.setColor(new Color(0, 0, 0, 180));
-            g2.fillRect(0, 0, getWidth(), getHeight());
-            
-            
-        }*/
     }
 
     public boolean wDown () {

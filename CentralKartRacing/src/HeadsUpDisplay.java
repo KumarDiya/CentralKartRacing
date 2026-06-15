@@ -16,30 +16,66 @@ public class HeadsUpDisplay extends JPanel{
 	Font guiFont = new Font("Bahnschrift", Font.BOLD, (int)(40 * Renderer.scalingFactor));
 	Font startingFont = new Font("Bahnschrift", Font.BOLD, (int)(70 * Renderer.scalingFactor));
 
+	final int[][] TutorialScreenImgLocations;
+
 	double maxSpeedNormal;
 
-	BufferedImage minimap, tutorial1, tutorial2, tutorial3, tutorial4;
+	BufferedImage tutorial1, tutorial2, tutorial3, tutorial4;
 
 	Graphics2D g2;
 
 	Map map;
+
+	//Boost Bar Graphics
+	final int y = 23 * Renderer.scalingFactor;
+	final int height = 57 * Renderer.scalingFactor;
+	final int maxFill = 226 * Renderer.scalingFactor; //width of the boost rectangle when full
+
+	//Minimap Graphics
+	BufferedImage  minimap;
+	int MAX_SIZE = 192 * Renderer.scalingFactor; //constrain minimap to 170x170 square
+	final int mapX, mapY;
+	final double scaleFactor;
 
 	Sound startSound = new Sound();
 	
 
 	HeadsUpDisplay(int panW, int panH, Map map) {
 		this.map = map;
-		minimap = loadImage("groundTexture.png");
+
+		if (map.getName() == "WindowsXP") minimap = loadImage("fakeGroundTexture.png");
+		else minimap = loadImage("groundTexture.png");
+		
+		int mapImgWidth = minimap.getWidth();
+		int mapImgHeight = minimap.getHeight();
+		int newMapImgWidth;
+		int newMapImgHeight;
+
+		//one side is always max size
+		if (mapImgWidth >= mapImgHeight) {
+			scaleFactor = (double)MAX_SIZE / mapImgWidth;
+		} else {
+			scaleFactor = (double)MAX_SIZE / mapImgHeight;
+		} 
+		newMapImgWidth = (int)(mapImgWidth * scaleFactor);
+		newMapImgHeight = (int)(mapImgHeight * scaleFactor);
+		
+		mapX = 20 * Renderer.scalingFactor; //20 margin from left side
+		mapY = (panH - newMapImgHeight - 20 * Renderer.scalingFactor); //20 margin from bottom
+
+		minimap = scaleImage(minimap, newMapImgWidth, newMapImgHeight);
 
 		if (map.getName() == "Tutorial") {
-			tutorial1 = loadImage("tutorialHudPopups/tutorial1.png");
-			tutorial2 = loadImage("tutorialHudPopups/tutorial2.png");
-			tutorial3 = loadImage("tutorialHudPopups/tutorial3.png");
-			tutorial4 = loadImage("tutorialHudPopups/tutorial4.png");
+			tutorial1 = scaleImage(loadImage("tutorialHudPopups/tutorial1.png"), 351 * Renderer.scalingFactor, 162 * Renderer.scalingFactor);
+			tutorial2 = scaleImage(loadImage("tutorialHudPopups/tutorial2.png"), 428 * Renderer.scalingFactor, 198 * Renderer.scalingFactor);
+			tutorial3 = scaleImage(loadImage("tutorialHudPopups/tutorial3.png"), 391 * Renderer.scalingFactor, 171 * Renderer.scalingFactor);
+			tutorial4 = scaleImage(loadImage("tutorialHudPopups/tutorial4.png"), 394 * Renderer.scalingFactor, 156 * Renderer.scalingFactor);
 		} else {
 			tutorial1 = tutorial2 = tutorial3 = tutorial4 = null;
 		}
-		
+
+		int[][] tempTutorialScreenImgLocations = {{54 * Renderer.scalingFactor, 14 * Renderer.scalingFactor, 36 * Renderer.scalingFactor, 40 * Renderer.scalingFactor}, {108 * Renderer.scalingFactor, 91 * Renderer.scalingFactor, 107 * Renderer.scalingFactor, 86 * Renderer.scalingFactor}};
+		TutorialScreenImgLocations = tempTutorialScreenImgLocations;
 
 		startSound.setFile(4);
 
@@ -51,14 +87,13 @@ public class HeadsUpDisplay extends JPanel{
 	private BufferedImage loadImage(String filename) {
         BufferedImage image = null;
         try {
-            
             URL file = this.getClass().getResource(map.getMapResourcePath() + filename);
             image = ImageIO.read(file);
             
             if (image != null) {
                 System.out.println("Image loaded successfully!");
             }
-            
+
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Image failed to load: " + filename, "ERROR", JOptionPane.ERROR_MESSAGE);
         }
@@ -106,16 +141,16 @@ public class HeadsUpDisplay extends JPanel{
 	public void drawTutorial(int checkpoint){
 		switch(checkpoint){
 			case 0: 
-				g2.drawImage(tutorial1, 54 * Renderer.scalingFactor, 108 * Renderer.scalingFactor, 351 * Renderer.scalingFactor, 162 * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial1, TutorialScreenImgLocations[0][0], TutorialScreenImgLocations[1][0], null);
 				break;
 			case 1: 
-				g2.drawImage(tutorial2, 14 * Renderer.scalingFactor, 91 * Renderer.scalingFactor, 428 * Renderer.scalingFactor, 198 * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial2, TutorialScreenImgLocations[0][1], TutorialScreenImgLocations[1][1], null);
 				break;
 			case 2: 
-				g2.drawImage(tutorial3, 36 * Renderer.scalingFactor, 107 * Renderer.scalingFactor, 391 * Renderer.scalingFactor, 171 * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial3, TutorialScreenImgLocations[0][2], TutorialScreenImgLocations[1][2], null);
 				break;
 			case 3: 
-				g2.drawImage(tutorial4, 40 * Renderer.scalingFactor, 86 * Renderer.scalingFactor, 394 * Renderer.scalingFactor, 156 * Renderer.scalingFactor, null);
+				g2.drawImage(tutorial4, TutorialScreenImgLocations[0][3], TutorialScreenImgLocations[1][3], null);
 				break;
 		}
 	}
@@ -123,17 +158,11 @@ public class HeadsUpDisplay extends JPanel{
 	private void drawLap(int l){
 		g2.setFont(guiFont);
         g2.setPaint(Color.white);
-		g2.drawString("Lap " + String.valueOf(l), (int)(50*Renderer.scalingFactor), (int)(60*Renderer.scalingFactor)); //positioned near the top left
+		g2.drawString("Lap " + String.valueOf(l), (int)(50 * Renderer.scalingFactor), (int)(60 * Renderer.scalingFactor)); //positioned near the top left
 	}
     
     private void drawBoostBar(double currentF, double maxF){
-
-		
-		int y = 23*Renderer.scalingFactor;
-		final int height = 57*Renderer.scalingFactor;
-		final int maxFill = 226*Renderer.scalingFactor; //width of the boost rectangle when full
 		int x = (int)((Renderer.WindowWidth - maxFill)/2); //positioned at the top middle
-		
 
 		int width = (int)(maxFill * (currentF/maxF));
 
@@ -171,36 +200,13 @@ public class HeadsUpDisplay extends JPanel{
 	private void drawMap(double pX, double pY){
 		
 		// circle player tracker / dot
-
-		int MAX_SIZE = 192 * Renderer.scalingFactor; //constrain minimap to 170x170 square
-
-		int mapImgWidth = minimap.getWidth(); 
- 		int mapImgHeight = minimap.getHeight(); 
-		
-		int newMapImgWidth;
-		int newMapImgHeight;
-
-		double scaleFactor;
-
-		//one side is always max size
-		if (mapImgWidth >= mapImgHeight) {
-    		scaleFactor = (double)MAX_SIZE / mapImgWidth;
-		} else {
-    		scaleFactor = (double)MAX_SIZE / mapImgHeight;
-		}
-
-		newMapImgWidth = (int)(mapImgWidth * scaleFactor);
-		newMapImgHeight = (int)(mapImgHeight * scaleFactor);
-		
-		int mapX = 20 * Renderer.scalingFactor; //20 margin from left side
-		int mapY = (panH - newMapImgHeight - 20 * Renderer.scalingFactor); //20 margin from bottom
-		g2.drawImage(minimap, mapX, mapY, newMapImgWidth, newMapImgHeight, null);
+		g2.drawImage(minimap, mapX, mapY, null);
 
 		//draw player dot
 		//ground map is 8x the player pos. so ex: 1,1 in player position is 8,8 position in pixels
 		//coordinates are swapped here as something goofy with the position object
-		int newPosX = (int)((pY*8) * scaleFactor) + mapX; 
-		int newPosY = (int)((pX*8) * scaleFactor) + mapY; 
+		int newPosX = (int)((pY * 8) * scaleFactor) + mapX; 
+		int newPosY = (int)((pX * 8) * scaleFactor) + mapY; 
 		int dotDiameter = 12 * Renderer.scalingFactor;
 
 		g2.setColor(transparentWhite);
@@ -224,5 +230,21 @@ public class HeadsUpDisplay extends JPanel{
 	
 		
 	}
+
+	public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, originalImage.getType());
+        
+        Graphics2D g2d = resizedImage.createGraphics();
+        
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        
+        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        
+        g2d.dispose();
+        
+        return resizedImage;
+    }
 
 }
