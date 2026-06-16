@@ -94,6 +94,7 @@ public class MainMenuScreen extends Screen{
                     muted = true;
                 }else if (muted){
                     sound.play();
+                    sound.loop();
                     muted = false;
                 }   
         }else{
