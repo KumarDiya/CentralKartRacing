@@ -18,7 +18,7 @@ public class PausedScreen extends Screen{
      * constructor
      */
     PausedScreen(){
-        super("testPaused.png");
+        super("paused.png");
         totalOptions = 2;
         boxX = 375 * Renderer.scalingFactor;
         boxY = 195 * Renderer.scalingFactor;

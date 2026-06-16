@@ -16,7 +16,7 @@ public class HeadsUpDisplay extends JPanel{
 	Font guiFont = new Font("Bahnschrift", Font.BOLD, (int)(40 * Renderer.scalingFactor));
 	Font startingFont = new Font("Bahnschrift", Font.BOLD, (int)(70 * Renderer.scalingFactor));
 
-	final int[][] TutorialScreenImgLocations;
+	final int[][] TutorialScreenImgLocations = {{54 * Renderer.scalingFactor, 14 * Renderer.scalingFactor, 36 * Renderer.scalingFactor, 40 * Renderer.scalingFactor}, {108 * Renderer.scalingFactor, 91 * Renderer.scalingFactor, 107 * Renderer.scalingFactor, 86 * Renderer.scalingFactor}};
 
 	double maxSpeedNormal;
 
@@ -63,19 +63,16 @@ public class HeadsUpDisplay extends JPanel{
 		mapX = 20 * Renderer.scalingFactor; //20 margin from left side
 		mapY = (panH - newMapImgHeight - 20 * Renderer.scalingFactor); //20 margin from bottom
 
-		minimap = scaleImage(minimap, newMapImgWidth, newMapImgHeight);
+		minimap = Renderer.scaleImage(minimap, newMapImgWidth, newMapImgHeight);
 
 		if (map.getName() == "Tutorial") {
-			tutorial1 = scaleImage(loadImage("tutorialHudPopups/tutorial1.png"), 351 * Renderer.scalingFactor, 162 * Renderer.scalingFactor);
-			tutorial2 = scaleImage(loadImage("tutorialHudPopups/tutorial2.png"), 428 * Renderer.scalingFactor, 198 * Renderer.scalingFactor);
-			tutorial3 = scaleImage(loadImage("tutorialHudPopups/tutorial3.png"), 391 * Renderer.scalingFactor, 171 * Renderer.scalingFactor);
-			tutorial4 = scaleImage(loadImage("tutorialHudPopups/tutorial4.png"), 394 * Renderer.scalingFactor, 156 * Renderer.scalingFactor);
+			tutorial1 = Renderer.scaleImage(loadImage("tutorialHudPopups/tutorial1.png"), 351 * Renderer.scalingFactor, 162 * Renderer.scalingFactor);
+			tutorial2 = Renderer.scaleImage(loadImage("tutorialHudPopups/tutorial2.png"), 428 * Renderer.scalingFactor, 198 * Renderer.scalingFactor);
+			tutorial3 = Renderer.scaleImage(loadImage("tutorialHudPopups/tutorial3.png"), 391 * Renderer.scalingFactor, 171 * Renderer.scalingFactor);
+			tutorial4 = Renderer.scaleImage(loadImage("tutorialHudPopups/tutorial4.png"), 394 * Renderer.scalingFactor, 156 * Renderer.scalingFactor);
 		} else {
 			tutorial1 = tutorial2 = tutorial3 = tutorial4 = null;
 		}
-
-		int[][] tempTutorialScreenImgLocations = {{54 * Renderer.scalingFactor, 14 * Renderer.scalingFactor, 36 * Renderer.scalingFactor, 40 * Renderer.scalingFactor}, {108 * Renderer.scalingFactor, 91 * Renderer.scalingFactor, 107 * Renderer.scalingFactor, 86 * Renderer.scalingFactor}};
-		TutorialScreenImgLocations = tempTutorialScreenImgLocations;
 
 		startSound.setFile(4);
 
@@ -83,23 +80,6 @@ public class HeadsUpDisplay extends JPanel{
 		this.panH = panH;
 		this.setOpaque(false);//enable transparency
 	}
-
-	private BufferedImage loadImage(String filename) {
-        BufferedImage image = null;
-        try {
-            URL file = this.getClass().getResource(map.getMapResourcePath() + filename);
-            image = ImageIO.read(file);
-            
-            if (image != null) {
-                System.out.println("Image loaded successfully!");
-            }
-
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Image failed to load: " + filename, "ERROR", JOptionPane.ERROR_MESSAGE);
-        }
-        return image;
-    }
-	
 
 	//need a setter method here as the g2 is created after the hud constructor is created
 	public void setG2 (Graphics2D g2){
@@ -231,20 +211,20 @@ public class HeadsUpDisplay extends JPanel{
 		
 	}
 
-	public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
-        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, originalImage.getType());
-        
-        Graphics2D g2d = resizedImage.createGraphics();
-        
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        
-        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
-        
-        g2d.dispose();
-        
-        return resizedImage;
+	private BufferedImage loadImage(String filename) {
+        BufferedImage image = null;
+        try {
+            URL file = this.getClass().getResource(map.getMapResourcePath() + filename);
+            image = ImageIO.read(file);
+            
+            if (image != null) {
+                System.out.println("Image loaded successfully!");
+            }
+
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Image failed to load: " + filename, "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+        return image;
     }
 
 }

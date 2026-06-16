@@ -28,7 +28,7 @@ public class MapSelectionScreen extends Screen{
     int selectedIndexX, selectedIndexY;
     
     MapSelectionScreen(){
-        super("testMapSelect.png");
+        super("mapSelect.png");
         totalOptionsX = 2;
         totalOptionsY = 2;
         selectedIndexX = 0;

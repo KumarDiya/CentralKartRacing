@@ -14,7 +14,7 @@ public class PlayerSelectionScreen extends Screen{
     int panW, panH;
     
     PlayerSelectionScreen(){
-        super("testPlayerSelect.png");
+        super("playerSelect.png");
         totalOptions = 3;
         boxX = 60 * Renderer.scalingFactor;
         boxY = 158 * Renderer.scalingFactor;

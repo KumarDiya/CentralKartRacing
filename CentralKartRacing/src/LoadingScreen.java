@@ -4,7 +4,7 @@ public class LoadingScreen extends Screen{
   
 
     LoadingScreen(){
-        super("LoadingScreenImage.png");
+        super("loading.png");
     }
 
     @Override
