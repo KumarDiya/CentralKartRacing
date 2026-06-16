@@ -78,6 +78,7 @@ public class Renderer extends JPanel implements KeyListener{
         wPressed = sPressed = aPressed = dPressed = uPressed = iPressed = false;
 
         //set up panel
+        hideCursor(this);
         this.setPreferredSize(new Dimension(WindowWidth, WindowHeight));
         this.setFocusable(true);
         this.addKeyListener(this);
@@ -587,6 +588,14 @@ public class Renderer extends JPanel implements KeyListener{
         g2d.dispose();
         
         return resizedImage;
+    }
+
+    /**
+     * Hides the cursor in the given JPanel
+     * @param panel	JPanel to hide the cursor in
+     */
+    public static void hideCursor(JPanel panel) {
+        panel.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0,0), "null"));
     }
     
 }
