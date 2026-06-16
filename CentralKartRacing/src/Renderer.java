@@ -14,13 +14,11 @@ import javax.swing.SwingUtilities;
 
 public class Renderer extends JPanel implements KeyListener{
     //General screen variables
-    public int Width;                   //The final width of the JPanel (screen).
-    public int Height;                  //The final height of the JPanel (screen).
-    public static int ResolutionWidth = 960;   //The width of the resolution for the game to be rendered in.
-    public static int ResolutionHeight = 540;  //The height of the resolution for the game to be rendered in.
-    public static final int scalingFactor = 1;
-    public static int WindowWidth = ResolutionWidth * scalingFactor;
-    public static int WindowHeight = ResolutionHeight * scalingFactor;
+    public static final int ResolutionWidth = 960;   //The width of the resolution for the game to be rendered in.
+    public static final int ResolutionHeight = 540;  //The height of the resolution for the game to be rendered in.
+    public static final int scalingFactor = 2;
+    public static final int WindowWidth = ResolutionWidth * scalingFactor;
+    public static final int WindowHeight = ResolutionHeight * scalingFactor;
 
     final static double StandardFOV = 82.7;
     static double FOV = StandardFOV;
@@ -575,5 +573,20 @@ public class Renderer extends JPanel implements KeyListener{
         System.out.println("Player texture set to index: " + textureIndex);
     }
 
+    public static BufferedImage scaleImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, originalImage.getType());
+        
+        Graphics2D g2d = resizedImage.createGraphics();
+        
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        
+        g2d.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        
+        g2d.dispose();
+        
+        return resizedImage;
+    }
     
 }
