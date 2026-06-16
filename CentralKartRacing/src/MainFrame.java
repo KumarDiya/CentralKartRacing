@@ -1,5 +1,8 @@
 
 import java.awt.CardLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -100,7 +103,6 @@ public class MainFrame extends JFrame{
         System.out.println(getWidth() + ", " + getHeight());
 
         playMusic();
-
     }
 
     /**
@@ -172,20 +174,25 @@ public class MainFrame extends JFrame{
 
         switch(screenName){
             case "main menu" -> {
+                hideCursor(mainMenuScreen);
                 mainMenuScreen.requestFocusInWindow();
                 game.getRenderer().setFocusable(false);
             }
             case "player selection" -> {
+                hideCursor(playerSelectionScreen);
                 playerSelectionScreen.requestFocusInWindow();
                 game.getRenderer().setFocusable(false);
             }
             case "map selection" -> {
+                hideCursor(mapSelectionScreen);
                 mapSelectionScreen.requestFocusInWindow();
                 game.getRenderer().setFocusable(false);
             }
             case "game" -> {
+                
                 game.setPlayerCharacter(selectedPlayer); //call method to set player, which determines the displayed player image
                 //I don't know the different between these focus methods so I'll add all three to TRIPLE make sure it is in focus
+                hideCursor(game.getRenderer());
                 game.getRenderer().requestFocusInWindow();
                 game.getRenderer().setFocusable(true);
                 game.getRenderer().requestFocus();
@@ -193,6 +200,7 @@ public class MainFrame extends JFrame{
                 game.start();
             }
             case "pause" -> {
+                hideCursor(pausedScreen);
                 System.out.println("Switching to paused screen");
                 pausedScreen.setFocusable(true);
                 pausedScreen.requestFocus();
@@ -200,6 +208,7 @@ public class MainFrame extends JFrame{
                 game.getRenderer().setFocusable(false);
             }
             case "finish" -> {
+                 hideCursor(raceFinishScreen);
                 System.out.println("Switching to finish screen");
                 raceFinishScreen.setFocusable(true);
                 raceFinishScreen.requestFocusInWindow();
@@ -207,6 +216,7 @@ public class MainFrame extends JFrame{
                 game.getRenderer().setFocusable(false);
             }
             case "loading" -> {
+                hideCursor(loadingScreen);
                 System.out.println("Switching to loading screen");
                 loadingScreen.setFocusable(true);
                 loadingScreen.requestFocusInWindow();
@@ -220,6 +230,14 @@ public class MainFrame extends JFrame{
         sound.setFile(0);
         sound.play();
         sound.loop();
+    }
+
+    /**
+     * Hides the cursor in the given JPanel
+     * @param panel	JPanel to hide the cursor in
+     */
+    public static void hideCursor(JPanel panel) {
+        panel.setCursor(Toolkit.getDefaultToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0,0), "null"));
     }
 
     
