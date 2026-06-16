@@ -348,7 +348,7 @@ public synchronized boolean checkBonking(Vector originalPos, Vector moveX, Vecto
 	}
 
 	public synchronized void angularlyAcceleratePlayer(boolean aDown, boolean dDown, boolean iDown, double frameTime) {
-		if (Math.abs(speed) < MaxSpeed * 0.6) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / (MaxSpeed * 0.6));
+		if (Math.abs(speed) < MaxSpeed * 0.4) currentMaxRotationSpeed = MAX_ROTATION_SPEED * (Math.abs(speed) / (MaxSpeed * 0.4));
 		else currentMaxRotationSpeed = MAX_ROTATION_SPEED;
 
 		double driftingRotationLock = 0;
