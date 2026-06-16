@@ -10,3 +10,4 @@ rightarrow.png
 star.png
 computer1.png
 warningsign.png
+youareanidiot.png
